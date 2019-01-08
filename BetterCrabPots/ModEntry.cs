@@ -92,7 +92,7 @@ namespace BetterCrabPots
                 }
                 else
                 {
-                    foreach (var item in Config.WhatCanBeFoundAsTrashInOcean)
+                    foreach (var item in Config.WhatCanBeFoundInOcean_AsTrash)
                     {
                         for (int i = 0; i < item.Value; i++)
                         {
@@ -102,9 +102,10 @@ namespace BetterCrabPots
                 }
 
             }
-            else
+
+            else if (location is Farm)
             {
-                if (Config.WhatCanBeFoundInFreshWater.Count() == 0)
+                if (Config.WhatCanBeFoundInFarmLand.Count() == 0)
                 {
                     possibleItems.Add(716);
                     possibleItems.Add(721);
@@ -112,7 +113,7 @@ namespace BetterCrabPots
                 }
                 else
                 {
-                    foreach (var item in Config.WhatCanBeFoundInFreshWater)
+                    foreach (var item in Config.WhatCanBeFoundInFarmLand)
                     {
                         for (int i = 0; i < item.Value; i++)
                         {
@@ -121,7 +122,7 @@ namespace BetterCrabPots
                     }
                 }
 
-                if (Config.WhatCanBeFoundAsTrashInFreshWater.Count() == 0)
+                if (Config.WhatCanBeFoundInFarmLand_AsTrash.Count() == 0)
                 {
                     possibleTrash.Add(168);
                     possibleTrash.Add(169);
@@ -131,7 +132,7 @@ namespace BetterCrabPots
                 }
                 else
                 {
-                    foreach (var item in Config.WhatCanBeFoundAsTrashInFreshWater)
+                    foreach (var item in Config.WhatCanBeFoundInFarmLand_AsTrash)
                     {
                         for (int i = 0; i < item.Value; i++)
                         {
@@ -141,6 +142,435 @@ namespace BetterCrabPots
                 }
             }
 
+            else if (location is Forest)
+            {
+                if (Config.WhatCanBeFoundInCindersapForest.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInCindersapForest)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInCindersapForest_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInCindersapForest_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is Mountain)
+            {
+                if (Config.WhatCanBeFoundInMountainsLake.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMountainsLake)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInMountainsLake_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMountainsLake_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is Town)
+            {
+                if (Config.WhatCanBeFoundInTown.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInTown)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInTown_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInTown_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is MineShaft mine20 && mine20.mineLevel == 20)
+            {
+                if (Config.WhatCanBeFoundInMines_Layer20.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer20)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInMines_Layer20_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer20_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is MineShaft mine60 && mine60.mineLevel == 60)
+            {
+                if (Config.WhatCanBeFoundInMines_Layer60.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer60)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInMines_Layer60_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer60_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is MineShaft mine100 && mine100.mineLevel == 100)
+            {
+                if (Config.WhatCanBeFoundInMines_Layer100.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer100)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInMines_Layer100_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMines_Layer100_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location.Name == "BugLand")
+            {
+                if (Config.WhatCanBeFoundInMutantBugLair.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMutantBugLair)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInMutantBugLair_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInMutantBugLair_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location.Name == "WitchSwamp")
+            {
+                if (Config.WhatCanBeFoundInWitchsSwamp.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInWitchsSwamp)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInWitchsSwamp_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInWitchsSwamp_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is Woods)
+            {
+                if (Config.WhatCanBeFoundInSecretWoods.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInSecretWoods)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInSecretWoods_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInSecretWoods_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is Desert)
+            {
+                if (Config.WhatCanBeFoundInDesert.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInDesert)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInDesert_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInDesert_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+
+            else if (location is Sewer)
+            {
+                if (Config.WhatCanBeFoundInSewers.Count() == 0)
+                {
+                    possibleItems.Add(716);
+                    possibleItems.Add(721);
+                    possibleItems.Add(722);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInSewers)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleItems.Add(item.Key);
+                        }
+                    }
+                }
+
+                if (Config.WhatCanBeFoundInSewers_AsTrash.Count() == 0)
+                {
+                    possibleTrash.Add(168);
+                    possibleTrash.Add(169);
+                    possibleTrash.Add(170);
+                    possibleTrash.Add(171);
+                    possibleTrash.Add(172);
+                }
+                else
+                {
+                    foreach (var item in Config.WhatCanBeFoundInSewers_AsTrash)
+                    {
+                        for (int i = 0; i < item.Value; i++)
+                        {
+                            possibleTrash.Add(item.Key);
+                        }
+                    }
+                }
+            }
+            
             // Check if trash is findable
             if (Config.EnableTrash)
             {
