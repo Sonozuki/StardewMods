@@ -387,7 +387,7 @@ namespace BetterMixedSeeds
             {
                 if (config.UseBlue_Dream_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Blue Dream"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseBlue_Dream_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Blue Dream"], "FALL")); fallSeedEnabled = true; }
-                "Blue Dream Starter", "Cannabis Starter", "Girl Scout Cookies Starter", "Green Crack Starter", "Hemp Starter", "Hybrid Starter", "Indica Starter", "Northern Lights Starter", "OG Kush Starter", "Sativa Starter", "Sour Diesel Starter", "Strawberry Cough Starter", "Tobacco Seeds", "White Widow Starter"
+                //"Blue Dream Starter", "Cannabis Starter", "Girl Scout Cookies Starter", "Green Crack Starter", "Hemp Starter", "Hybrid Starter", "Indica Starter", "Northern Lights Starter", "OG Kush Starter", "Sativa Starter", "Sour Diesel Starter", "Strawberry Cough Starter", "Tobacco Seeds", "White Widow Starter"
             }
 
             // Check that atleast one seed from each season has enabled

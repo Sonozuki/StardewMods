@@ -25,7 +25,7 @@ namespace BetterCrabPots
         public Dictionary<int, int> WhatCanBeFoundInMines_Layer60 { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInMines_Layer60_AsTrash { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInMinesLayer100 { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
-        public Dictionary<int, int> WhatCanBeFoundInMines_Layer100_AsTrash { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } }
+        public Dictionary<int, int> WhatCanBeFoundInMines_Layer100_AsTrash { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInMutantBugLair { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInMutantBugLair_AsTrash { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInWitchsSwamp { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
@@ -45,7 +45,5 @@ namespace BetterCrabPots
         public Dictionary<int, int> WhatCanBeFoundAsTrashInFreshWater { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundAsTrashInOcean { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         */
-
-        FarmLand, CindersapForest, Mountain, Town, Mines(Layer20), Mines(Layer60), Mines(Layer100), Mutant Bug Lair, Witch's swamp, Secret woods, Desert, Sewers, Beech
     }
 }
