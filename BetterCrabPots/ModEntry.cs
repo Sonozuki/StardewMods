@@ -49,6 +49,46 @@ namespace BetterCrabPots
             // Check if the current crabpot has bait and requires it and doesn't already have an item to be collected
             if ((__instance.bait.Value == null && Config.RequiresBait) || __instance.heldObject.Value != null)
             {
+                if (Config.EnablePassiveTrash)
+                {
+                    List<int> possiblePassiveTrash = new List<int>();
+
+                    if (Config.WhatCanBeFoundAsPassiveTrash.Count() == 0)
+                    {
+                        possiblePassiveTrash.Add(168);
+                        possiblePassiveTrash.Add(169);
+                        possiblePassiveTrash.Add(170);
+                        possiblePassiveTrash.Add(171);
+                        possiblePassiveTrash.Add(172);
+                    }
+                    else
+                    {
+                        foreach (var item in Config.WhatCanBeFoundAsPassiveTrash)
+                        {
+                            for (int i = 0; i < item.Value; i++)
+                            {
+                                possiblePassiveTrash.Add(item.Key);
+                            }
+                        }
+                    }
+
+                    int percentChanceForPassiveTrash = Config.PercentChanceForPassiveTrash;
+
+                    // Ensure the percent value is between 0 and 100
+                    percentChanceForPassiveTrash = Math.Max(0, percentChanceForPassiveTrash);
+                    percentChanceForPassiveTrash = Math.Min(100, percentChanceForPassiveTrash);
+
+                    // Generate a random number to see if trash should be given (+1 to start with 1 instead of 0)
+                    int randomValue = new Random().Next(100) + 1;
+
+                    // If the percentage chance for trash is higher than the generated number, give them trash
+                    if (percentChanceForPassiveTrash >= randomValue && percentChanceForPassiveTrash != 0)
+                    {
+                        int id = new Random().Next(possiblePassiveTrash.Count());
+                        __instance.heldObject.Value = new StardewValley.Object(possiblePassiveTrash[id], 1, false, -1, 0);
+                    }
+                }
+
                 return false;
             }
 

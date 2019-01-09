@@ -12,6 +12,9 @@ namespace BetterCrabPots
         public bool RequiresBait { get; set; } = true;
         public int PercentChanceForTrash { get; set; } = 20;
         public bool EnableBetterQuality { get; set; } = false;
+        public bool EnablePassiveTrash { get; set; } = false;
+        public int PercentChanceForPassiveTrash { get; set; } = 20;
+        public Dictionary<int, int> WhatCanBeFoundAsPassiveTrash { get; set; } = new Dictionary<int, int> { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInFarmLand { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInFarmLand_AsTrash { get; set; } = new Dictionary<int, int>() { { 168, 1 }, { 169, 1 }, { 170, 1 }, { 171, 1 }, { 172, 1 } };
         public Dictionary<int, int> WhatCanBeFoundInCindersapForest { get; set; } = new Dictionary<int, int>() { { 716, 1 }, { 721, 1 }, { 722, 1 } };
