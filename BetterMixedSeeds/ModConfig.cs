@@ -195,5 +195,13 @@ namespace BetterMixedSeeds
         public bool UseTobacco_SUMMER { get; set; } = true;
         public bool UseWhite_Widow_SUMMER { get; set; } = true;
         public bool UseWhite_Widow_FALL { get; set; } = true;
+
+        // Six Plantable Crops for Winter
+        public bool UseBlue_Rose { get; set; } = true;
+        public bool UseDaikon { get; set; } = true;
+        public bool UseGentian { get; set; } = true;
+        public bool UseNapa_Cabbage { get; set; } = true;
+        public bool UseSnowdrop { get; set; } = true;
+        public bool UseWinter_Broccoli { get; set; } = true;
     }
 }
