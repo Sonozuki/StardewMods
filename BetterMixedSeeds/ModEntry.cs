@@ -14,6 +14,7 @@ namespace BetterMixedSeeds
     public class ModEntry : Mod
     {
         public static ILookup<int, string> Seeds;
+        public static IMonitor ModMonitor;
 
         public override void Entry(IModHelper helper)
         {
@@ -34,6 +35,8 @@ namespace BetterMixedSeeds
 
             // Add an event handler when all mods are loaded, so the JA api can be connected to
             this.Helper.Events.GameLoop.SaveLoaded += Events_SaveLoaded;
+
+            ModMonitor = this.Monitor;
         }
 
         private void Events_SaveLoaded(object sender, SaveLoadedEventArgs e)
@@ -162,6 +165,7 @@ namespace BetterMixedSeeds
                         foreach (string fantasyName in listOfFantasyCropNames)
                         {
                             integratedCrops.Add(fantasyName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(fantasyName));
+                            this.Monitor.Log($"Added {fantasyName} crop to list", LogLevel.Trace);
                         }
                     }
 
@@ -175,6 +179,7 @@ namespace BetterMixedSeeds
                         foreach (var freshMeatName in listOfFreshMeatCropNames)
                         {
                             integratedCrops.Add(freshMeatName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(freshMeatName));
+                            this.Monitor.Log($"Added {freshMeatName} crop to list", LogLevel.Trace);
                         }
                     }
 
@@ -188,6 +193,7 @@ namespace BetterMixedSeeds
                         foreach (var fruitAndVeggieName in listOfFruitAndVeggieCropNames)
                         {
                             integratedCrops.Add(fruitAndVeggieName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(fruitAndVeggieName));
+                            this.Monitor.Log($"Added {fruitAndVeggieName} crop to list", LogLevel.Trace);
                         }
                     }
 
@@ -201,6 +207,7 @@ namespace BetterMixedSeeds
                         foreach (var mizusFlowerName in listOfMizusFlowerCropNames)
                         {
                             integratedCrops.Add(mizusFlowerName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(mizusFlowerName));
+                            this.Monitor.Log($"Added {mizusFlowerName} crop to list", LogLevel.Trace);
                         }
                     }
 
@@ -214,6 +221,7 @@ namespace BetterMixedSeeds
                         foreach (var cannabisKitName in listOfCannabisKitCropNames)
                         {
                             integratedCrops.Add(cannabisKitName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(cannabisKitName));
+                            this.Monitor.Log($"Added {cannabisKitName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -222,9 +230,13 @@ namespace BetterMixedSeeds
                     this.Monitor.Log("Failed to retrieve Json Assets API", LogLevel.Error);
                 }
             }
+            else
+            {
+                this.Monitor.Log("No integrated mods detected", LogLevel.Trace);
+            }
 
             IList<KeyValuePair<int, string>> seeds = new List<KeyValuePair<int, string>>();
-            //IDictionary<int, string> seeds = new Dictionary<int, string>();
+            
             bool springSeedEnabled = false;
             bool summerSeedEnabled = false;
             bool fallSeedEnabled = false;
@@ -433,6 +445,12 @@ namespace BetterMixedSeeds
                 seeds.Add(new KeyValuePair<int, string>(489, "FALL"));
                 seeds.Add(new KeyValuePair<int, string>(488, "FALL"));
                 seeds.Add(new KeyValuePair<int, string>(490, "FALL"));
+            }
+
+            // Print all available seeds to console
+            foreach (var seed in seeds)
+            {
+                this.Monitor.Log($"List of available seeds include: {seed.Key}", LogLevel.Trace);
             }
 
             ILookup<int, string> lookup = seeds.ToLookup(kvp => kvp.Key, kvp => kvp.Value);
