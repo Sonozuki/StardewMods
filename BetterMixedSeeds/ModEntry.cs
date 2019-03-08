@@ -422,7 +422,7 @@ namespace BetterMixedSeeds
                 if (config.UseTobacco_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Tobacco Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseTobacco_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Tobacco Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseWhite_Widow_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["White Widow Starter"], "SUMMER")); summerSeedEnabled = true; }
-                if (config.useWhite_Widow_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["White Widow Starter"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseWhite_Widow_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["White Widow Starter"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season has enabled
