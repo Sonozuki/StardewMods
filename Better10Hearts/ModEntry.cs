@@ -129,11 +129,22 @@ namespace Better10Hearts
                 // Check if there the player has spoken to NPC
                 if (previousHasSpokenToday != newHasSpokenToday)
                 {
-                    // Check if NPC is player's spouse or not
-                    if (npc.getSpouse().Name == Game1.player.Name)
+                    var npcSpouse = npc.getSpouse();
+
+                    // This is to prevent a NullException error if the NPC doesn't have a spouse
+                    if (npcSpouse != null)
                     {
-                        // Increase the player's stamina by the config value for the spouse. Make sure not to go above the max and it is increased and not decreased
-                        Game1.player.Stamina = Math.Min(Game1.player.MaxStamina, Game1.player.Stamina + Math.Max(0, Config.SpouseStaminaIncrease));
+                        // Check if NPC is player's spouse or not
+                        if (npcSpouse.Name == Game1.player.Name)
+                        {
+                            // Increase the player's stamina by the config value for the spouse. Make sure not to go above the max and it is increased and not decreased
+                            Game1.player.Stamina = Math.Min(Game1.player.MaxStamina, Game1.player.Stamina + Math.Max(0, Config.SpouseStaminaIncrease));
+                        }
+                        else
+                        {
+                            // Increase the player's stamina by the config value for the NPC. Make sure not to go above the max and it is increased and not decreased
+                            Game1.player.Stamina = Math.Min(Game1.player.MaxStamina, Game1.player.Stamina + Math.Max(0, Config.NPCStaminaIncrease));
+                        }
                     }
                     else
                     {
