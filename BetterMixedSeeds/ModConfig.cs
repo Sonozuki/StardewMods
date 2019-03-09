@@ -203,5 +203,23 @@ namespace BetterMixedSeeds
         public bool UseNapa_Cabbage { get; set; } = true;
         public bool UseSnowdrop { get; set; } = true;
         public bool UseWinter_Broccoli { get; set; } = true;
+
+        // Bonster Crops
+        public bool UseBlackcurrant { get; set; } = true;
+        public bool UseBlue_Corn_SUMMER { get; set; } = true;
+        public bool UseBlue_Corn_FALL { get; set; } = true;
+        public bool UseCardamom { get; set; } = true;
+        public bool UseCranberry_Beans { get; set; } = true;
+        public bool UseMaypop { get; set; } = true;
+        public bool UsePeppercorn_SUMMER { get; set; } = true;
+        public bool UsePeppercorn_FALL { get; set; } = true;
+        public bool UseRedCurrant { get; set; } = true;
+        public bool UseRose_Hips_SPRING { get; set; } = true;
+        public bool UseRose_Hips_SUMMER { get; set; } = true;
+        public bool UseRoselle_Hibiscus { get; set; } = true;
+        public bool UseSummer_Squash { get; set; } = true;
+        public bool UseTaro_SUMMER { get; set; } = true;
+        public bool UseTaro_FALL { get; set; } = true;
+        public bool UseWhite_Currant { get; set; } = true;
     }
 }

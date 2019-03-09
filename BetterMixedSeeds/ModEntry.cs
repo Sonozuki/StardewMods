@@ -149,10 +149,11 @@ namespace BetterMixedSeeds
             bool hasPPJAMizusFlowers = this.Helper.ModRegistry.IsLoaded("mizu.flowers");
             bool hasCannabisKit = this.Helper.ModRegistry.IsLoaded("PPJA.cannabiskit");
             bool hasSixPlantableCrops = this.Helper.ModRegistry.IsLoaded("Popobug.SPCFW");
+            bool hasBonsterCrops = this.Helper.ModRegistry.IsLoaded("BFV.FruitVeggie");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops)
             {
                 if (api != null)
                 {
@@ -237,6 +238,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(sixPlantableSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(sixPlantableSeedName));
                             this.Monitor.Log($"Added {sixPlantableSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasBonsterCrops)
+                    {
+                        this.Monitor.Log("BonsterCrops loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> bonsterCropSeedNames = new List<string> { "Blackcurrant Seeds", "Blue Corn Seeds", "Cardamom Seeds", "Cranberry Bean Seeds", "Maypop Seeds", "Peppercorn Seeds", "Red Currant Seeds", "Rose Hip Seeds", "Roselle Hibiscus Seeds", "Summer Squash Seeds", "Taro Root", "White Currant Seeds" };
+
+                        foreach (var bonsterCropSeedName in bonsterCropSeedNames)
+                        {
+                            integratedCrops.Add(bonsterCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(bonsterCropSeedName));
+                            this.Monitor.Log($"Added {bonsterCropSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -448,6 +463,26 @@ namespace BetterMixedSeeds
                 if (config.UseNapa_Cabbage) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Napa Cabbage Seeds"], "WINTER")); }
                 if (config.UseSnowdrop) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Snowdrop Seeds"], "WINTER")); }
                 if (config.UseWinter_Broccoli) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Winter Broccoli Seeds"], "WINTER")); }
+            }
+
+            if (hasBonsterCrops && api != null)
+            {
+                if (config.UseBlackcurrant) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Blackcurrant Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseBlue_Corn_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Blue Corn Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseBlue_Corn_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Blue Corn Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseCardamom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cardamom Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCranberry_Beans) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cranberry Bean Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseMaypop) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Maypop Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UsePeppercorn_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Peppercorn Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UsePeppercorn_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Peppercorn Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseRedCurrant) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Red Currant Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseRose_Hips_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rose Hip Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseRose_Hips_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rose Hip Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseRoselle_Hibiscus) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Roselle Hibiscis Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseSummer_Squash) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Summer Squash Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseTaro_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Taro Root"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseTaro_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Taro Root"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseWhite_Currant) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["White Currant Seeds"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
