@@ -63,7 +63,7 @@ namespace BetterMixedSeeds
         public bool UseCactusFruit { get; set; } = true;
 
         /// <summary>
-        /// Below is the configuration for all crops in the Project Populate mod, organized by sub-mod (Fantasy Crops, Fresh Meat, Fruit and Veggies, Mizus Flowers)
+        /// Below is the configuration for all crops from integrated mods
         /// </summary>
 
         // Fantasy Crops
@@ -221,5 +221,12 @@ namespace BetterMixedSeeds
         public bool UseTaro_SUMMER { get; set; } = true;
         public bool UseTaro_FALL { get; set; } = true;
         public bool UseWhite_Currant { get; set; } = true;
+
+        // Revenant Crops
+        public bool UseEnoki_Mushroom_SPRING { get; set; } = true;
+        public bool UseEnoki_Mushroom_SUMMER { get; set; } = true;
+        public bool UseGai_Lan { get; set; } = true;
+        public bool UseMaitake_Mushroom { get; set; } = true;
+        public bool UseOyster_Mushroom { get; set; } = true;
     }
 }

@@ -150,10 +150,11 @@ namespace BetterMixedSeeds
             bool hasCannabisKit = this.Helper.ModRegistry.IsLoaded("PPJA.cannabiskit");
             bool hasSixPlantableCrops = this.Helper.ModRegistry.IsLoaded("Popobug.SPCFW");
             bool hasBonsterCrops = this.Helper.ModRegistry.IsLoaded("BFV.FruitVeggie");
+            bool hasRevenantCrops = this.Helper.ModRegistry.IsLoaded("RevenantCrops");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops)
             {
                 if (api != null)
                 {
@@ -252,6 +253,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(bonsterCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(bonsterCropSeedName));
                             this.Monitor.Log($"Added {bonsterCropSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasRevenantCrops)
+                    {
+                        this.Monitor.Log("RevenantCrops loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> revenantCropSeedNames = new List<string> { "Enoki Mushroom Kit", "Gai Lan Seeds", "Maitake Mushroom Kit", "Oyster Mushroom Kit" };
+
+                        foreach (var revenantCropSeedName in revenantCropSeedNames)
+                        {
+                            integratedCrops.Add(revenantCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(revenantCropSeedName));
+                            this.Monitor.Log($"Added {revenantCropSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -483,6 +498,15 @@ namespace BetterMixedSeeds
                 if (config.UseTaro_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Taro Root"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseTaro_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Taro Root"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseWhite_Currant) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["White Currant Seeds"], "FALL")); fallSeedEnabled = true; }
+            }
+
+            if (hasRevenantCrops && api != null)
+            {
+                if (config.UseEnoki_Mushroom_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Enoki Mushroom Kit"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseEnoki_Mushroom_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Enoki Mushroom Kit"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseGai_Lan) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Gai Lan Seeds"], "WINTER")); }
+                if (config.UseMaitake_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Maitake Mushroom Kit"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseOyster_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Oyster Mushroom Kit"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
