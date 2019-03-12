@@ -151,10 +151,11 @@ namespace BetterMixedSeeds
             bool hasSixPlantableCrops = this.Helper.ModRegistry.IsLoaded("Popobug.SPCFW");
             bool hasBonsterCrops = this.Helper.ModRegistry.IsLoaded("BFV.FruitVeggie");
             bool hasRevenantCrops = this.Helper.ModRegistry.IsLoaded("RevenantCrops");
+            bool hasFarmerToFlorist = this.Helper.ModRegistry.IsLoaded("kildarien.farmertoflorist");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist)
             {
                 if (api != null)
                 {
@@ -267,6 +268,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(revenantCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(revenantCropSeedName));
                             this.Monitor.Log($"Added {revenantCropSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasFarmerToFlorist)
+                    {
+                        this.Monitor.Log("FarmerToFlorist loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> farmerToFloristSeedNames = new List<string> { "Allium Seeds", "Camellia Seeds", "Carnation Seeds", "Chrysanthemum Seeds", "Clematis Starter", "Dahlia Seeds", "Delphinium Seeds", "English Rose Seeds", "Freesia Bulb", "Geranium Seeds", "Herbal Peony Seeds", "Hyacinth Seeds", "Hydrangea Seeds", "Iris Bulb", "Lavender Seeds", "Lilac Seeds", "Lily Bulb", "Lotus Starter", "Petunia Seeds", "Violet Seeds", "Wisteria Seeds" };
+
+                        foreach (var farmerToFloristSeedName in farmerToFloristSeedNames)
+                        {
+                            integratedCrops.Add(farmerToFloristSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(farmerToFloristSeedName));
+                            this.Monitor.Log($"Added {farmerToFloristSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -507,6 +522,33 @@ namespace BetterMixedSeeds
                 if (config.UseGai_Lan) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Gai Lan Seeds"], "WINTER")); }
                 if (config.UseMaitake_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Maitake Mushroom Kit"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseOyster_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Oyster Mushroom Kit"], "FALL")); fallSeedEnabled = true; }
+            }
+
+            if (hasFarmerToFlorist && api != null)
+            {
+                if (config.UseAllium) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Allium Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCamellia_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Camellia Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseCamellia_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Camellia Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseCarnation_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Carnation Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseCarnation_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Carnation Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseChrysanthemum) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Chrysanthemum Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseClematis) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Clematis Starter"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseDahlia) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Dahlia Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseDelphinium) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Delphinium Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseEnglish_Rose) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["English Rose Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseFreesia) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Freesia Bulb"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseGeranium) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Geranium Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseHerbalPeony) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Herbal Peony Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseHyacinth) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hyacinth Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseHydrangea) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hydrangea Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseIris) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Iris Bulb"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseLavender) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Lavender Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseLilac) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Lilac Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseLily) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Lily Bulb"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseLotus) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Lotus Starter"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UsePetunia) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Petunia Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseViolet) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Violet Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseWisteria) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wisteria Seeds"], "SPRING")); springSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled

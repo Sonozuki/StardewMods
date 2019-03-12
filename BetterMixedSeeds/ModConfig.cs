@@ -228,5 +228,30 @@ namespace BetterMixedSeeds
         public bool UseGai_Lan { get; set; } = true;
         public bool UseMaitake_Mushroom { get; set; } = true;
         public bool UseOyster_Mushroom { get; set; } = true;
+
+        // Farmer to Florist
+        public bool UseAllium { get; set; } = true;
+        public bool UseCamellia_SPRING { get; set; } = true;
+        public bool UseCamellia_FALL { get; set; } = true;
+        public bool UseCarnation_SPRING { get; set; } = true;
+        public bool UseCarnation_SUMMER { get; set; } = true;
+        public bool UseChrysanthemum { get; set; } = true;
+        public bool UseClematis { get; set; } = true;
+        public bool UseDahlia { get; set; } = true;
+        public bool UseDelphinium { get; set; } = true;
+        public bool UseEnglish_Rose { get; set; } = true;
+        public bool UseFreesia { get; set; } = true;
+        public bool UseGeranium { get; set; } = true;
+        public bool UseHerbalPeony { get; set; } = true;
+        public bool UseHyacinth { get; set; } = true;
+        public bool UseHydrangea { get; set; } = true;
+        public bool UseIris { get; set; } = true;
+        public bool UseLavender { get; set; } = true;
+        public bool UseLilac { get; set; } = true;
+        public bool UseLily { get; set; } = true;
+        public bool UseLotus { get; set; } = true;
+        public bool UsePetunia { get; set; } = true;
+        public bool UseViolet { get; set; } = true;
+        public bool UseWisteria { get; set; } = true;
     }
 }
