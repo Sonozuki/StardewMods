@@ -273,5 +273,19 @@ namespace BetterMixedSeeds
         public bool UseSpinach { get; set; } = true;
         public bool UseTurnip { get; set; } = true;
         public bool UseWatermelon { get; set; } = true;
+
+        // Eemies Crops
+        public bool UseAcorn_Squash { get; set; } = true;
+        public bool UseBlack_Forest_Squash { get; set; } = true;
+        public bool UseCantaloupe_Melon { get; set; } = true;
+        public bool UseCharentais_Melon { get; set; } = true;
+        public bool UseCrookneck_Squash { get; set; } = true;
+        public bool UseGolden_Hubbard_Squash { get; set; } = true;
+        public bool UseJack_O_Lantern_Pumpkin { get; set; } = true;
+        public bool UseKorean_Melon { get; set; } = true;
+        public bool UseLarge_Watermelon { get; set; } = true;
+        public bool UseRich_Canary_Melon { get; set; } = true;
+        public bool UseRich_Sweetness_Melon { get; set; } = true;
+        public bool UseSweet_Lightning_Pumpkin { get; set; } = true;
     }
 }

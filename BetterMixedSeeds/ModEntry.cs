@@ -155,10 +155,11 @@ namespace BetterMixedSeeds
             bool hasLuckyClover = this.Helper.ModRegistry.IsLoaded("Fish.LuckyClover");
             bool hasFishFlowers = this.Helper.ModRegistry.IsLoaded("Fish.FishsFlowers");
             bool hasStephansLotsOfCrops = this.Helper.ModRegistry.IsLoaded("StephansLotsOfCrops");
+            bool hasEemiesCrops = this.Helper.ModRegistry.IsLoaded("minervamaga.JA.EemieCrops");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers || hasStephansLotsOfCrops)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers || hasStephansLotsOfCrops || hasEemiesCrops)
             {
                 if (api != null)
                 {
@@ -327,6 +328,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(stephanLotsOfCropsSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(stephanLotsOfCropsSeedName));
                             this.Monitor.Log($"Added {stephanLotsOfCropsSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasEemiesCrops)
+                    {
+                        this.Monitor.Log("EemiesCrops loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> eemiesCropsSeedNames = new List<string> { "Acorn Squash Seeds", "Black Forest Squash Seeds", "Cantaloupe Melon Seeds", "Charentais Melon Seeds", "Crookneck Squash Seeds", "Golden Hubbard Squash Seeds", "Jack O Lantern Pumpkin Seeds", "Korean Melon Seeds", "Large Watermelon Seeds", "Rich Canary Melon Seeds", "Rich Sweetness Melon Seeds", "Sweet Lightning Pumpkin Seeds" };
+
+                        foreach (var eemiesCropsSeedName in eemiesCropsSeedNames)
+                        {
+                            integratedCrops.Add(eemiesCropsSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(eemiesCropsSeedName));
+                            this.Monitor.Log($"Added {eemiesCropsSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -620,6 +635,22 @@ namespace BetterMixedSeeds
                 if (config.UseSpinach) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Spinach Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseTurnip) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Turnip Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseWatermelon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Watermelon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+            }
+
+            if (hasEemiesCrops && api != null)
+            {
+                if (config.UseAcorn_Squash) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Acorn Squash Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseBlack_Forest_Squash) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Black Forest Squash Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseCantaloupe_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cantaloupe Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCharentais_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Charentais Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCrookneck_Squash) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Crookneck Squash Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseGolden_Hubbard_Squash) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Golden Hubbard Squash Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseJack_O_Lantern_Pumpkin) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Jack O Lantern Pumpkin Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseKorean_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Korean Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseLarge_Watermelon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Large Watermelon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseRich_Canary_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rich Canary Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseRich_Sweetness_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rich Sweetness Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseSweet_Lightning_Pumpkin) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Sweet Lightning Pumpkin Seeds"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
