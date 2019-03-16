@@ -8,6 +8,8 @@ namespace BetterMixedSeeds
 {
     public class ModConfig
     {
+        public int PercentDropChanceForMixedSeedsWhenNotFiber { get; set; } = 5;
+
         /// <summary>
         /// Below is the configuration for all base game crops, organized by season
         /// </summary>

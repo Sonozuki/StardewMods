@@ -1,4 +1,6 @@
 ﻿using Harmony;
+using Microsoft.Xna.Framework;
+using Netcode;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -15,37 +17,161 @@ namespace BetterMixedSeeds
     {
         public static ILookup<int, string> Seeds;
         public static IMonitor ModMonitor;
+        public static IModHelper ModHelper;
+        public static ModConfig ModConfig;
 
         public override void Entry(IModHelper helper)
         {
+            ModMonitor = this.Monitor;
+            ModHelper = this.Helper;
+            ModConfig = this.Helper.ReadConfig<ModConfig>();
+
             // Create a new Harmony instance for patching source code
             HarmonyInstance harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
 
-            // Get the method we want to patch
+            // Get the methods we want to patch
             MethodInfo targetMethod = AccessTools.Method(typeof(Crop), nameof(Crop.getRandomLowGradeCropForThisSeason));
+            MethodInfo cutWeedTargetMethod = AccessTools.Method(typeof(StardewValley.Object), "cutWeed");
 
-            // Get the patch that was created
+            // Get the patchs that were created
             MethodInfo prefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.Prefix));
+            MethodInfo cutWeedPrefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.cutWeedPrefix));
 
             // Apply the patch
             harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefix));
+            harmony.Patch(cutWeedTargetMethod, prefix: new HarmonyMethod(cutWeedPrefix));
 
             // Apply the assembly patch
             harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             // Add an event handler when all mods are loaded, so the JA api can be connected to
             this.Helper.Events.GameLoop.SaveLoaded += Events_SaveLoaded;
-
-            ModMonitor = this.Monitor;
         }
 
         private void Events_SaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            // Read config file for adding seeds to list
-            ModConfig config = Helper.ReadConfig<ModConfig>();
-
             // Populate the seeds dictionary
-            Seeds = PopulateSeeds(config);
+            Seeds = PopulateSeeds(ModConfig);
+        }
+
+        private static bool cutWeedPrefix(Farmer who, StardewValley.Object __instance)
+        {
+            // Make sure mixed seed drop rate is within bounds
+            double mixedSeedDropChance = Math.Round(Math.Max(0, Math.Min(1, ModEntry.ModConfig.PercentDropChanceForMixedSeedsWhenNotFiber / 100f)), 3);
+
+            Color color = Color.Green;
+            string audioName = "cut";
+            int rowInAnimationTexture = 50;
+            __instance.Fragility = 2;
+            int parentSheetIndex = -1;
+
+            if (Game1.random.NextDouble() > 0.5)
+            {
+                parentSheetIndex = 771;
+            }
+            else if (Game1.random.NextDouble() < mixedSeedDropChance)
+            {
+                parentSheetIndex = 770;
+            }
+
+            switch (__instance.ParentSheetIndex)
+            {
+                case 313:
+                case 314:
+                case 315:
+                    color = new Color(84, 101, 27);
+                    break;
+                case 316:
+                case 317:
+                case 318:
+                    color = new Color(109, 49, 196);
+                    break;
+                case 319:
+                    color = new Color(30, 216, (int)byte.MaxValue);
+                    audioName = "breakingGlass";
+                    rowInAnimationTexture = 47;
+                    who.currentLocation.playSound("drumkit2");
+                    parentSheetIndex = -1;
+                    break;
+                case 320:
+                    color = new Color(175, 143, (int)byte.MaxValue);
+                    audioName = "breakingGlass";
+                    rowInAnimationTexture = 47;
+                    who.currentLocation.playSound("drumkit2");
+                    parentSheetIndex = -1;
+                    break;
+                case 321:
+                    color = new Color(73, (int)byte.MaxValue, 158);
+                    audioName = "breakingGlass";
+                    rowInAnimationTexture = 47;
+                    who.currentLocation.playSound("drumkit2");
+                    parentSheetIndex = -1;
+                    break;
+                case 678:
+                    color = new Color(228, 109, 159);
+                    break;
+                case 679:
+                    color = new Color(253, 191, 46);
+                    break;
+                case 792:
+                case 793:
+                case 794:
+                    parentSheetIndex = 770;
+                    break;
+            }
+
+            if (audioName.Equals("breakingGlass") && Game1.random.NextDouble() < 1.0 / 400.0)
+            {
+                parentSheetIndex = 338;
+            }
+
+            who.currentLocation.playSound(audioName);
+
+            StardewValley.Multiplayer multiplayer = ModEntry.ModHelper.Reflection.GetField<StardewValley.Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+
+            multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(rowInAnimationTexture, __instance.tileLocation.Value * 64f, color, 8, false, 100f, 0, -1, -1f, -1, 0));
+            multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(rowInAnimationTexture, __instance.tileLocation.Value * 64f + new Vector2((float)Game1.random.Next(-16, 16), (float)Game1.random.Next(-48, 48)), color * 0.75f, 8, false, 100f, 0, -1, -1f, -1, 0)
+            {
+                scale = 0.75f,
+                flipped = true
+            });
+            multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(rowInAnimationTexture, __instance.tileLocation.Value * 64f + new Vector2((float)Game1.random.Next(-16, 16), (float)Game1.random.Next(-48, 48)), color * 0.75f, 8, false, 100f, 0, -1, -1f, -1, 0)
+            {
+                scale = 0.75f,
+                delayBeforeAnimationStart = 50
+            });
+            multiplayer.broadcastSprites(who.currentLocation, new TemporaryAnimatedSprite(rowInAnimationTexture, __instance.tileLocation.Value * 64f + new Vector2((float)Game1.random.Next(-16, 16), (float)Game1.random.Next(-48, 48)), color * 0.75f, 8, false, 100f, 0, -1, -1f, -1, 0)
+            {
+                scale = 0.75f,
+                flipped = true,
+                delayBeforeAnimationStart = 100
+            });
+
+            if (parentSheetIndex != -1)
+            {
+                who.currentLocation.debris.Add(new Debris((Item)new StardewValley.Object(parentSheetIndex, 1, false, -1, 0), __instance.TileLocation * 64f + new Vector2(32f, 32f)));
+            }
+
+            if (Game1.random.NextDouble() < 0.02)
+            {
+                who.currentLocation.addJumperFrog(__instance.TileLocation);
+            }
+
+            if (!who.hasMagnifyingGlass || Game1.random.NextDouble() >= 0.009)
+            {
+                return false;
+            }
+
+            StardewValley.Object unseenSecretNote = who.currentLocation.tryToCreateUnseenSecretNote(who);
+
+            if (unseenSecretNote == null)
+            {
+                return false;
+            }
+
+            Game1.createItemDebris((Item)unseenSecretNote, new Vector2(__instance.TileLocation.X + 0.5f, __instance.TileLocation.Y + 0.75f) * 64f, (int)Game1.player.facingDirection, (GameLocation)null, -1);
+
+            return false;
         }
 
         private static bool Prefix(string season, ref int __result)
@@ -709,11 +835,6 @@ namespace BetterMixedSeeds
             ILookup<int, string> lookup = seeds.ToLookup(kvp => kvp.Key, kvp => kvp.Value);
 
             return lookup;
-        }
-
-        public ModConfig GetConfig()
-        {
-            return Helper.ReadConfig<ModConfig>();
         }
     }
 }
