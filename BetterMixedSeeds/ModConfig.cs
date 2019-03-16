@@ -253,5 +253,8 @@ namespace BetterMixedSeeds
         public bool UsePetunia { get; set; } = true;
         public bool UseViolet { get; set; } = true;
         public bool UseWisteria { get; set; } = true;
+
+        // Lucky Clover
+        public bool UseLuckyClover { get; set; } = true;
     }
 }

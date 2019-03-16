@@ -152,10 +152,11 @@ namespace BetterMixedSeeds
             bool hasBonsterCrops = this.Helper.ModRegistry.IsLoaded("BFV.FruitVeggie");
             bool hasRevenantCrops = this.Helper.ModRegistry.IsLoaded("RevenantCrops");
             bool hasFarmerToFlorist = this.Helper.ModRegistry.IsLoaded("kildarien.farmertoflorist");
+            bool hasLuckyClover = this.Helper.ModRegistry.IsLoaded("Fish.LuckyClover");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover)
             {
                 if (api != null)
                 {
@@ -282,6 +283,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(farmerToFloristSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(farmerToFloristSeedName));
                             this.Monitor.Log($"Added {farmerToFloristSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasLuckyClover)
+                    {
+                        this.Monitor.Log("LuckyClover loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> luckyCloverSeedNames = new List<string> { "Clover Seeds" };
+
+                        foreach (var luckyCloverSeedName in luckyCloverSeedNames)
+                        {
+                            integratedCrops.Add(luckyCloverSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(luckyCloverSeedName));
+                            this.Monitor.Log($"Added {luckyCloverSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -549,6 +564,11 @@ namespace BetterMixedSeeds
                 if (config.UsePetunia) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Petunia Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseViolet) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Violet Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseWisteria) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wisteria Seeds"], "SPRING")); springSeedEnabled = true; }
+            }
+
+            if (hasLuckyClover && api != null)
+            {
+                if (config.UseLuckyClover) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Clover Seeds"], "SPRING")); springSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
