@@ -287,5 +287,13 @@ namespace BetterMixedSeeds
         public bool UseRich_Canary_Melon { get; set; } = true;
         public bool UseRich_Sweetness_Melon { get; set; } = true;
         public bool UseSweet_Lightning_Pumpkin { get; set; } = true;
+
+        // Tea Time
+        public bool UseMint_Tea_Plant_SPRING { get; set; } = true;
+        public bool UseMint_Tea_Plant_SUMMER { get; set; } = true;
+        public bool UseMint_Tea_Plant_FALL { get; set; } = true;
+        public bool UseTea_Leaf_Plant_SPRING { get; set; } = true;
+        public bool UseTea_Leaf_Plant_SUMMER { get; set; } = true;
+        public bool UseTea_Leaf_Plant_FALL { get; set; } = true;
     }
 }

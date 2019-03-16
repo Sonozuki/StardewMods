@@ -156,10 +156,11 @@ namespace BetterMixedSeeds
             bool hasFishFlowers = this.Helper.ModRegistry.IsLoaded("Fish.FishsFlowers");
             bool hasStephansLotsOfCrops = this.Helper.ModRegistry.IsLoaded("StephansLotsOfCrops");
             bool hasEemiesCrops = this.Helper.ModRegistry.IsLoaded("minervamaga.JA.EemieCrops");
+            bool hasTeaTime = this.Helper.ModRegistry.IsLoaded("jfujii.TeaTime");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers || hasStephansLotsOfCrops || hasEemiesCrops)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers || hasStephansLotsOfCrops || hasEemiesCrops || hasTeaTime)
             {
                 if (api != null)
                 {
@@ -342,6 +343,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(eemiesCropsSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(eemiesCropsSeedName));
                             this.Monitor.Log($"Added {eemiesCropsSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasTeaTime)
+                    {
+                        this.Monitor.Log("TeaTime loaded", LogLevel.Trace);
+
+                        // Create a list of crops to pass to JA API
+                        List<string> teaTimeCropSeedNames = new List<string> { "Fresh Mint Seeds", "Tea Leaf Seeds" };
+
+                        foreach (var teaTimeCropSeedName in teaTimeCropSeedNames)
+                        {
+                            integratedCrops.Add(teaTimeCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(teaTimeCropSeedName));
+                            this.Monitor.Log($"Added {teaTimeCropSeedName} crop to list");
                         }
                     }
                 }
@@ -651,6 +666,16 @@ namespace BetterMixedSeeds
                 if (config.UseRich_Canary_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rich Canary Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseRich_Sweetness_Melon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rich Sweetness Melon Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseSweet_Lightning_Pumpkin) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Sweet Lightning Pumpkin Seeds"], "FALL")); fallSeedEnabled = true; }
+            }
+
+            if (hasTeaTime && api != null)
+            {
+                if (config.UseMint_Tea_Plant_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Fresh Mint Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseMint_Tea_Plant_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Fresh Mint Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseMint_Tea_Plant_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Fresh Mint Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseTea_Leaf_Plant_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Tea Leaf Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseTea_Leaf_Plant_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Tea Leaf Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseTea_Leaf_Plant_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Tea Leaf Seeds"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
