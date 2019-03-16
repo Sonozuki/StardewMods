@@ -153,10 +153,11 @@ namespace BetterMixedSeeds
             bool hasRevenantCrops = this.Helper.ModRegistry.IsLoaded("RevenantCrops");
             bool hasFarmerToFlorist = this.Helper.ModRegistry.IsLoaded("kildarien.farmertoflorist");
             bool hasLuckyClover = this.Helper.ModRegistry.IsLoaded("Fish.LuckyClover");
+            bool hasFishFlowers = this.Helper.ModRegistry.IsLoaded("Fish.FishsFlowers");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers)
             {
                 if (api != null)
                 {
@@ -297,6 +298,20 @@ namespace BetterMixedSeeds
                         {
                             integratedCrops.Add(luckyCloverSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(luckyCloverSeedName));
                             this.Monitor.Log($"Added {luckyCloverSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
+
+                    if (hasFishFlowers)
+                    {
+                        this.Monitor.Log("FishFlowers loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> fishFlowerSeedNames = new List<string> { "Hyacinth Bulb", "Pansy Seeds" };
+
+                        foreach (var fishFlowerSeedName in fishFlowerSeedNames)
+                        {
+                            integratedCrops.Add(fishFlowerSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(fishFlowerSeedName));
+                            this.Monitor.Log($"Added {fishFlowerSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -554,7 +569,7 @@ namespace BetterMixedSeeds
                 if (config.UseFreesia) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Freesia Bulb"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseGeranium) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Geranium Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseHerbalPeony) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Herbal Peony Seeds"], "SPRING")); springSeedEnabled = true; }
-                if (config.UseHyacinth) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hyacinth Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseHyacinth_FarmerToFlorist) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hyacinth Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseHydrangea) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hydrangea Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseIris) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Iris Bulb"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseLavender) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Lavender Seeds"], "SUMMER")); summerSeedEnabled = true; }
@@ -569,6 +584,14 @@ namespace BetterMixedSeeds
             if (hasLuckyClover && api != null)
             {
                 if (config.UseLuckyClover) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Clover Seeds"], "SPRING")); springSeedEnabled = true; }
+            }
+
+            if (hasFishFlowers && api != null)
+            {
+                if (config.UseHyacinth_FishsFlowers) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hyacinth Bulb"], "SPRING")); springSeedEnabled = true; }
+                if (config.UsePansy_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UsePansy_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UsePansy_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "FALL")); fallSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled

@@ -243,7 +243,7 @@ namespace BetterMixedSeeds
         public bool UseFreesia { get; set; } = true;
         public bool UseGeranium { get; set; } = true;
         public bool UseHerbalPeony { get; set; } = true;
-        public bool UseHyacinth { get; set; } = true;
+        public bool UseHyacinth_FarmerToFlorist { get; set; } = true;
         public bool UseHydrangea { get; set; } = true;
         public bool UseIris { get; set; } = true;
         public bool UseLavender { get; set; } = true;
@@ -256,5 +256,11 @@ namespace BetterMixedSeeds
 
         // Lucky Clover
         public bool UseLuckyClover { get; set; } = true;
+
+        // Fish's Flowers
+        public bool UseHyacinth_FishsFlowers { get; set; } = true;
+        public bool UsePansy_SPRING { get; set; } = true;
+        public bool UsePansy_SUMMER { get; set; } = true;
+        public bool UsePansy_FALL { get; set; } = true;
     }
 }
