@@ -101,13 +101,13 @@ namespace BetterMixedSeeds
         public bool UseBroccoli { get; set; } = true;
         public bool UseCabbage_SPRING { get; set; } = true;
         public bool UseCabbage_FALL { get; set; } = true;
-        public bool UseCarrot { get; set; } = true;
+        public bool UseCarrot_FruitAndVeggies { get; set; } = true;
         public bool UseCassava { get; set; } = true;
         public bool UseCelery { get; set; } = true;
         public bool UseChives { get; set; } = true;
         public bool UseCotton_SUMMER { get; set; } = true;
         public bool UseCotton_FALL { get; set; } = true;
-        public bool UseCucumber { get; set; } = true;
+        public bool UseCucumber_FruitAndVeggies { get; set; } = true;
         public bool UseElderberry { get; set; } = true;
         public bool UseFennel { get; set; } = true;
         public bool UseGinger { get; set; } = true;
@@ -120,12 +120,12 @@ namespace BetterMixedSeeds
         public bool UseMint { get; set; } = true;
         public bool UseMuskmelon { get; set; } = true;
         public bool UseNavy_Bean { get; set; } = true;
-        public bool UseOnion { get; set; } = true;
+        public bool UseOnion_FruitAndVeggies { get; set; } = true;
         public bool UseOregano { get; set; } = true;
         public bool UseParsley { get; set; } = true;
         public bool UsePassion_Fruit { get; set; } = true;
-        public bool UsePeanut { get; set; } = true;
-        public bool UsePineapple { get; set; } = true;
+        public bool UsePeanut_FruitAndVeggies { get; set; } = true;
+        public bool UsePineapple_FruitAndVeggies { get; set; } = true;
         public bool UseRaspberry { get; set; } = true;
         public bool UseRice_SPRING { get; set; } = true;
         public bool UseRice_SUMMER { get; set; } = true;
@@ -262,5 +262,16 @@ namespace BetterMixedSeeds
         public bool UsePansy_SPRING { get; set; } = true;
         public bool UsePansy_SUMMER { get; set; } = true;
         public bool UsePansy_FALL { get; set; } = true;
+
+        // Stephan's LotofCrops
+        public bool UseCarrot_StephanLotsOfCrops { get; set; } = true;
+        public bool UseCucumber_StephanLotsOfCrops { get; set; } = true;
+        public bool UseOnion_StephanLotsOfCrops { get; set; } = true;
+        public bool UsePea_Pod { get; set; } = true;
+        public bool UsePeanut_StephanLotsOfCrops { get; set; } = true;
+        public bool UsePineapple_StephanLotsOfCrops { get; set; } = true;
+        public bool UseSpinach { get; set; } = true;
+        public bool UseTurnip { get; set; } = true;
+        public bool UseWatermelon { get; set; } = true;
     }
 }

@@ -154,10 +154,11 @@ namespace BetterMixedSeeds
             bool hasFarmerToFlorist = this.Helper.ModRegistry.IsLoaded("kildarien.farmertoflorist");
             bool hasLuckyClover = this.Helper.ModRegistry.IsLoaded("Fish.LuckyClover");
             bool hasFishFlowers = this.Helper.ModRegistry.IsLoaded("Fish.FishsFlowers");
+            bool hasStephansLotsOfCrops = this.Helper.ModRegistry.IsLoaded("StephansLotsOfCrops");
 
             object api = this.Helper.ModRegistry.GetApi("spacechase0.JsonAssets");
 
-            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers)
+            if (hasPPJAFantasyCrops || hasPPJAFreshMeat || hasPPJAFruitsAndVeggies || hasPPJAMizusFlowers || hasCannabisKit || hasSixPlantableCrops || hasBonsterCrops || hasRevenantCrops || hasFarmerToFlorist || hasLuckyClover || hasFishFlowers || hasStephansLotsOfCrops)
             {
                 if (api != null)
                 {
@@ -314,6 +315,20 @@ namespace BetterMixedSeeds
                             this.Monitor.Log($"Added {fishFlowerSeedName} crop to list", LogLevel.Trace);
                         }
                     }
+
+                    if (hasStephansLotsOfCrops)
+                    {
+                        this.Monitor.Log("StephansLotsOfCrops loaded", LogLevel.Trace);
+
+                        // Create a list of crop seeds to pass to JA API
+                        List<string> stephansLotsOfCropsSeedNames = new List<string> { "Carrot Seeds", "Cucumber Seeds", "Onion Seeds", "Pea Starter", "Peanut Sprouts", "Pineapple Seeds", "Spinach Seeds", "Turnip Seeds", "Watermelon Seeds" };
+
+                        foreach (var stephanLotsOfCropsSeedName in stephansLotsOfCropsSeedNames)
+                        {
+                            integratedCrops.Add(stephanLotsOfCropsSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(stephanLotsOfCropsSeedName));
+                            this.Monitor.Log($"Added {stephanLotsOfCropsSeedName} crop to list", LogLevel.Trace);
+                        }
+                    }
                 }
                 else
                 {
@@ -415,13 +430,13 @@ namespace BetterMixedSeeds
                 if (config.UseBroccoli) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Broccoli Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseCabbage_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cabbage Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseCabbage_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cabbage Seeds"], "FALL")); fallSeedEnabled = true; }
-                if (config.UseCarrot) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Carrot Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseCarrot_FruitAndVeggies) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Carrot Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseCassava) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cassava Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCelery) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Celery Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseChives) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Chive Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCotton_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cotton Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCotton_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cotton Seeds"], "FALL")); fallSeedEnabled = true; }
-                if (config.UseCucumber) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cucumber Starter"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCucumber_FruitAndVeggies) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cucumber Starter"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseElderberry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Elderberry Seeds"], "WINTER")); }
                 if (config.UseFennel) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Fennel Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseGinger) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Ginger Seeds"], "FALL")); fallSeedEnabled = true; }
@@ -434,12 +449,12 @@ namespace BetterMixedSeeds
                 if (config.UseMint) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Mint Seeds"], "WINTER")); }
                 if (config.UseMuskmelon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Muskmelon Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseNavy_Bean) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Navy Bean Seeds"], "SUMMER")); summerSeedEnabled = true; }
-                if (config.UseOnion) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Onion Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseOnion_FruitAndVeggies) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Onion Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseOregano) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Oregano Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseParsley) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Parsley Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UsePassion_Fruit) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Passion Fruit Seeds"], "SPRING")); springSeedEnabled = true; }
-                if (config.UsePeanut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Peanut Seeds"], "FALL")); fallSeedEnabled = true; }
-                if (config.UsePineapple) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pineapple Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UsePeanut_FruitAndVeggies) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Peanut Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UsePineapple_FruitAndVeggies) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pineapple Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseRaspberry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Raspberry Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseRice_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rice Seeds"], "SPING")); springSeedEnabled = true; }
                 if (config.UseRice_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Rice Seeds"], "SUMMER")); summerSeedEnabled = true; }
@@ -592,6 +607,19 @@ namespace BetterMixedSeeds
                 if (config.UsePansy_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UsePansy_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UsePansy_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pansy Seeds"], "FALL")); fallSeedEnabled = true; }
+            }
+
+            if (hasStephansLotsOfCrops && api != null)
+            {
+                if (config.UseCarrot_StephanLotsOfCrops) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Carrot Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseCucumber_StephanLotsOfCrops) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cucumber Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseOnion_StephanLotsOfCrops) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Onion Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UsePea_Pod) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pea Starter"], "SPRING")); springSeedEnabled = true; }
+                if (config.UsePeanut_StephanLotsOfCrops) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Peanut Sprouts"], "FALL")); fallSeedEnabled = true; }
+                if (config.UsePineapple_StephanLotsOfCrops) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Pineapple Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseSpinach) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Spinach Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseTurnip) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Turnip Seeds"], "SPRING")); springSeedEnabled = true; }
+                if (config.UseWatermelon) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Watermelon Seeds"], "SUMMER")); summerSeedEnabled = true; }
             }
 
             // Check that atleast one seed from each season is enabled
