@@ -18,7 +18,6 @@ namespace BetterCrabPotsConfigUpdater
                 if (args.Length < 2)
                 {
                     Console.WriteLine("Invalid args supplied");
-                    Console.WriteLine("Usage: oldConfigFilePath");
                     Console.ReadLine();
                     return;
                 }
