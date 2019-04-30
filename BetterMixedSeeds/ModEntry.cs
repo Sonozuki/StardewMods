@@ -827,30 +827,30 @@ namespace BetterMixedSeeds
                 if (config.UseCave_Carrot_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cave Carrot Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseCave_Carrot_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cave Carrot Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCave_Carrot_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cave Carrot Seeds"], "FALL")); fallSeedEnabled = true; }
-                if (config.UseChanterelle_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Chanterelle Mushroom Spores"], "FALL")); fallSeedEnabled = true }
+                if (config.UseChanterelle_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Chanterelle Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseCoconut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Coconut Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCommon_Mushroom_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Common Mushroom Spores"], "SPRING")); springSeedEnabled = true; }
-                if (config.UseCommon_Mushroom_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Common Mushroom Spores"], "FALL")); fallSeedEnabled = true }
+                if (config.UseCommon_Mushroom_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Common Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseCrocus) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Crocus Seeds"], "WINTER")); }
                 if (config.UseCrystal_Fruit) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Crystal Fruit Seeds"], "WINTER")); }
                 if (config.UseDaffodil) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Daffodil Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseDandelion) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Dandelion Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseFiddlehead_Fern) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Fiddlehead Fern Spores"], "SUMMER")); summerSeedEnabled = true; }
-                if (config.UseHazelnut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hazelnut Seed"], "FALL")); fallSeedEnabled = true }
+                if (config.UseHazelnut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Hazelnut Seed"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseHolly) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Holly Seeds"], "WINTER")); }
                 if (config.UseWild_Horseradish) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wild Horseradish Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseLeek) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Leek Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseMorel_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Morel Mushroom Spores"], "SPRING")); springSeedEnabled = true; }
-                if (config.UsePurple_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Purple Mushroom Spores"], "FALL")); fallSeedEnabled = true }
+                if (config.UsePurple_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Purple Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseRed_Mushroom_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Red Mushroom Spores"], "SUMMER")); summerSeedEnabled = true; }
-                if (config.UseRed_Mushroom_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Red Mushroom Spores"], "FALL")); fallSeedEnabled = true }
+                if (config.UseRed_Mushroom_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Red Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseSalmonberry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Salmonberry Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseSnow_Yam) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Snow Yam Seeds"], "WINTER")); }
                 if (config.UseSpice_Berry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Sprice Berry Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseSpring_Onion) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Spring Onion Seeds"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseSweet_Pea) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Sweet Pea Seeds"], "SUMMER")); summerSeedEnabled = true; }
-                if (config.UseWild_Blackberry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wild Blackberry Seeds"], "FALL")); fallSeedEnabled = true }
-                if (config.UseWild_Plum) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wild Plum Seed"], "FALL")); fallSeedEnabled = true }
+                if (config.UseWild_Blackberry) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wild Blackberry Seeds"], "FALL")); fallSeedEnabled = true; }
+                if (config.UseWild_Plum) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Wild Plum Seed"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseWinter_Root) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Winter Root Seeds"], "WINTER")); }
             }
 
