@@ -486,7 +486,7 @@ namespace BetterMixedSeeds
                         foreach (var teaTimeCropSeedName in teaTimeCropSeedNames)
                         {
                             integratedCrops.Add(teaTimeCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(teaTimeCropSeedName));
-                            this.Monitor.Log($"Added {teaTimeCropSeedName} crop to list");
+                            this.Monitor.Log($"Added {teaTimeCropSeedName} crop to list", LogLevel.Trace);
                         }
                     }
 
@@ -500,7 +500,7 @@ namespace BetterMixedSeeds
                         foreach (var forageToFarmCropSeedName in forageToFarmCropSeedNames)
                         {
                             integratedCrops.Add(forageToFarmCropSeedName, this.Helper.Reflection.GetMethod(api, "GetObjectId").Invoke<int>(forageToFarmCropSeedName));
-                            this.Monitor.Log($"Added {forageToFarmCropSeedName} crop to list");
+                            this.Monitor.Log($"Added {forageToFarmCropSeedName} crop to list", LogLevel.Trace);
                         }
                     }
                 }
@@ -828,7 +828,7 @@ namespace BetterMixedSeeds
                 if (config.UseCave_Carrot_SUMMER) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cave Carrot Seeds"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCave_Carrot_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Cave Carrot Seeds"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseChanterelle_Mushroom) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Chanterelle Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
-                if (config.UseCoconut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Coconut Seeds"], "SUMMER")); summerSeedEnabled = true; }
+                if (config.UseCoconut) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Coconut Seed"], "SUMMER")); summerSeedEnabled = true; }
                 if (config.UseCommon_Mushroom_SPRING) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Common Mushroom Spores"], "SPRING")); springSeedEnabled = true; }
                 if (config.UseCommon_Mushroom_FALL) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Common Mushroom Spores"], "FALL")); fallSeedEnabled = true; }
                 if (config.UseCrocus) { seeds.Add(new KeyValuePair<int, string>(integratedCrops["Crocus Seeds"], "WINTER")); }
