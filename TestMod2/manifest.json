@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Test Mod 2",
+  "Author": "EpicBellyFlop45",
+  "Version": "1.0.0",
+  "Description": "",
+  "UniqueID": "EpicBellyFlop45.TestMod",
+  "EntryDll": "TestMod2.dll",
+  "MinimumApiVersion": "2.9",
+  "UpdateKeys": [ "" ]
+}

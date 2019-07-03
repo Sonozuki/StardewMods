@@ -40,6 +40,8 @@ namespace ConsoleChat
         {
             string playerName = "";
 
+            GameLocation currentLocation = 
+
             // Find the player's nanme from the id
             if (sourceFarmer == Game1.player.UniqueMultiplayerID)
             {

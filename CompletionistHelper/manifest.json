@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Completionist Helper",
+  "Author": "EpicBellyFlop45",
+  "Version": "1.0.0",
+  "Description": "Adds a UI menu to assist in getting all achievments",
+  "UniqueID": "EpicBellyFlop45.CompletionistHelper",
+  "EntryDll": "CompletionistHelper.dll",
+  "MinimumApiVersion": "2.10",
+  "UpdateKeys": [ "Nexus:" ]
+}

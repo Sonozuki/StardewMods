@@ -1,0 +1,10 @@
+﻿{
+  "Name": "Grab Everything",
+  "Author": "EpicBellyFlop45",
+  "Version": "1.0.0",
+  "Description": "Allows you to grab everything around you automatically",
+  "UniqueID": "EpicBellyFlop45.GrabEverything",
+  "EntryDll": "GrabEverything.dll",
+  "MinimumApiVersion": "2.9",
+  "UpdateKeys": [ "Nexus:" ]
+}
