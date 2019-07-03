@@ -11,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Item = BetterCrabPots.Config.Item;
 
 namespace BetterCrabPots
 {
@@ -35,16 +34,16 @@ namespace BetterCrabPots
             MethodInfo checkForActionTargetMethod = AccessTools.Method(typeof(CrabPot), nameof(CrabPot.checkForAction));
 
             // Get the patches that was created
-            //MethodInfo dayUpdatePrefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.dayUpdatePrefix));
-            //MethodInfo checkForActionPrefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.checkForActionPrefix));
+            MethodInfo dayUpdatePrefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.dayUpdatePrefix));
+            MethodInfo checkForActionPrefix = AccessTools.Method(typeof(ModEntry), nameof(ModEntry.checkForActionPrefix));
 
             // Apply the patches
-            //harmony.Patch(dayUpdateTargetMethod, prefix: new HarmonyMethod(dayUpdatePrefix));
-            //harmony.Patch(checkForActionTargetMethod, prefix: new HarmonyMethod(checkForActionPrefix));
+            harmony.Patch(dayUpdateTargetMethod, prefix: new HarmonyMethod(dayUpdatePrefix));
+            harmony.Patch(checkForActionTargetMethod, prefix: new HarmonyMethod(checkForActionPrefix));
 
             random = new Random();
         }
-        
+
         private static bool dayUpdatePrefix(GameLocation location, ref CrabPot __instance)
         {
             // Check if the current crabpot has bait and requires it and doesn't already have an item to be collected
@@ -95,55 +94,61 @@ namespace BetterCrabPots
                         ModMonitor.Log($"Crabpot contains item id: [null]", LogLevel.Trace);
                     }
                 }
-
+                
                 return false;
             }
 
             __instance.tileIndexToShow = 714;
             __instance.readyForHarvest.Value = true;
 
-            List<Item> possibleItems = new List<Item>();
-            List<Item> possibleTrash = new List<Item>();
-
+            Dictionary<int, int> possibleItems = new Dictionary<int, int>();
+            Dictionary<int, int> possibleTrash = new Dictionary<int, int>();
+            
             // Get a list of possible stuff to find in the crabpot
             if (location is Beach)
             {
                 if (Config.Beach.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(715, 1, 1, 0));
-                    possibleItems.Add(new Item(327, 1, 1, 0));
-                    possibleItems.Add(new Item(717, 1, 1, 0));
-                    possibleItems.Add(new Item(718, 1, 1, 0));
-                    possibleItems.Add(new Item(719, 1, 1, 0));
-                    possibleItems.Add(new Item(720, 1, 1, 0));
-                    possibleItems.Add(new Item(723, 1, 1, 0));
+                    possibleItems.Add(715, 1);
+                    possibleItems.Add(327, 1);
+                    possibleItems.Add(717, 1);
+                    possibleItems.Add(718, 1);
+                    possibleItems.Add(719, 1);
+                    possibleItems.Add(720, 1);
+                    possibleItems.Add(723, 1);
                 }
                 else
                 {
-                    foreach (Item item in Config.Beach.WhatCanBeFound)
+                    foreach (var item in Config.Beach.WhatCanBeFound)
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity, item.Quality));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
-                    foreach (Item item in Config.AllWater.WhatCanBeFound)
+                    foreach (var item in Config.AllWater.WhatCanBeFound)
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity, item.Quality));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Beach.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -151,7 +156,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -159,7 +167,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -169,9 +180,9 @@ namespace BetterCrabPots
             {
                 if (Config.FarmLand.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -179,7 +190,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -187,18 +201,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.FarmLand.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -206,7 +223,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -214,7 +234,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -224,9 +247,9 @@ namespace BetterCrabPots
             {
                 if (Config.CindersapForest.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -234,7 +257,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -242,18 +268,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.CindersapForest.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -261,7 +290,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -269,7 +301,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -279,9 +314,9 @@ namespace BetterCrabPots
             {
                 if (Config.MountainsLake.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -289,7 +324,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -297,18 +335,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.MountainsLake.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -316,7 +357,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -324,7 +368,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -334,9 +381,9 @@ namespace BetterCrabPots
             {
                 if (Config.Town.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -344,7 +391,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -352,18 +402,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Town.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -371,7 +424,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -379,7 +435,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -389,9 +448,9 @@ namespace BetterCrabPots
             {
                 if (Config.Mines_Layer20.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -399,7 +458,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -407,18 +469,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Mines_Layer20.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -426,7 +491,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -434,7 +502,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -444,9 +515,9 @@ namespace BetterCrabPots
             {
                 if (Config.Mines_Layer60.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -454,7 +525,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -462,18 +536,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Mines_Layer60.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -481,7 +558,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -489,7 +569,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -499,9 +582,9 @@ namespace BetterCrabPots
             {
                 if (Config.Mines_Layer100.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -509,7 +592,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -517,18 +603,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Mines_Layer100.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -536,7 +625,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -544,7 +636,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -554,9 +649,9 @@ namespace BetterCrabPots
             {
                 if (Config.MutantBugLair.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -564,7 +659,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -572,18 +670,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.MutantBugLair.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -591,7 +692,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -599,7 +703,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -609,9 +716,9 @@ namespace BetterCrabPots
             {
                 if (Config.WitchsSwamp.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -619,7 +726,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -627,18 +737,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.WitchsSwamp.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -646,7 +759,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -654,7 +770,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -664,9 +783,9 @@ namespace BetterCrabPots
             {
                 if (Config.SecretWoods.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -674,7 +793,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -682,18 +804,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.SecretWoods.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -701,7 +826,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -709,7 +837,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -719,9 +850,9 @@ namespace BetterCrabPots
             {
                 if (Config.Desert.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -729,7 +860,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -737,18 +871,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Desert.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -756,7 +893,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -764,7 +904,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
@@ -774,9 +917,9 @@ namespace BetterCrabPots
             {
                 if (Config.Sewers.WhatCanBeFound.Count() == 0 && Config.AllWater.WhatCanBeFound.Count() == 0)
                 {
-                    possibleItems.Add(new Item(716, 1, 1, 0));
-                    possibleItems.Add(new Item(721, 1, 1, 0));
-                    possibleItems.Add(new Item(722, 1, 1, 0));
+                    possibleItems.Add(716, 1);
+                    possibleItems.Add(721, 1);
+                    possibleItems.Add(722, 1);
                 }
                 else
                 {
@@ -784,7 +927,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 0, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -792,18 +938,21 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleItems.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleItems.ContainsKey(item.Id))
+                            {
+                                possibleItems.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
 
                 if (Config.Sewers.WhatTrashCanBeFound.Count() == 0 && Config.AllWater.WhatTrashCanBeFound.Count() == 0)
                 {
-                    possibleTrash.Add(new Item(168, 1, 1, 0));
-                    possibleTrash.Add(new Item(169, 1, 1, 0));
-                    possibleTrash.Add(new Item(170, 1, 1, 0));
-                    possibleTrash.Add(new Item(171, 1, 1, 0));
-                    possibleTrash.Add(new Item(172, 1, 1, 0));
+                    possibleTrash.Add(168, 1);
+                    possibleTrash.Add(169, 1);
+                    possibleTrash.Add(170, 1);
+                    possibleTrash.Add(171, 1);
+                    possibleTrash.Add(172, 1);
                 }
                 else
                 {
@@ -811,7 +960,10 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
 
@@ -819,12 +971,15 @@ namespace BetterCrabPots
                     {
                         for (int i = 0; i < item.Chance; i++)
                         {
-                            possibleTrash.Add(new Item(item.Id, 1, item.Quantity));
+                            if (!possibleTrash.ContainsKey(item.Id))
+                            {
+                                possibleTrash.Add(item.Id, item.Quantity);
+                            }
                         }
                     }
                 }
             }
-
+            
             // Check if trash is findable
             if (Config.EnableTrash)
             {
@@ -841,13 +996,8 @@ namespace BetterCrabPots
                 if (percentChanceForTrash >= randomValue && percentChanceForTrash != 0)
                 {
                     int id = ModEntry.random.Next(possibleTrash.Count());
-                    Item trashObject = possibleTrash[id];
-                    if (trashObject.Quality == 5)
-                    {
-                        trashObject.Quality = 0;
-                    }
-
-                    __instance.heldObject.Value = new StardewValley.Object(trashObject.Id, trashObject.Quantity, false, -1, trashObject.Quality);
+                    
+                    __instance.heldObject.Value = new StardewValley.Object(possibleTrash.Keys.ElementAt(id), possibleTrash.Values.ElementAt(id), false, -1, 0);
 
                     ModMonitor.Log($"Crabpot contains item id: {__instance.heldObject.Value.ParentSheetIndex}", LogLevel.Trace);
                 }
@@ -858,7 +1008,6 @@ namespace BetterCrabPots
             {
                 bool isRing = false;
                 int id = ModEntry.random.Next(possibleItems.Count());
-                Item itemObject = possibleItems[id];
 
                 // Check if the item is a ring as a ring needs to be spawned differently to be wearable
                 if (id >= 516 && id <= 534)
@@ -866,7 +1015,7 @@ namespace BetterCrabPots
                     isRing = true;
                 }
 
-                if (Config.EnableBetterQuality && itemObject.Quality == 5)
+                if (Config.EnableBetterQuality)
                 {
                     int skillLevel = Game1.player.getEffectiveSkillLevel(1);
                     int quality = 0;
@@ -894,17 +1043,11 @@ namespace BetterCrabPots
                         }
                     }
 
-                    __instance.heldObject.Value = new StardewValley.Object(itemObject.Id, itemObject.Quantity, false, -1, quality);
+                    __instance.heldObject.Value = new StardewValley.Object(possibleItems.Keys.ElementAt(id), possibleItems.Values.ElementAt(id), false, -1, quality);
                 }
                 else
                 {
-                    // Make sure to change the quality back to default
-                    if (itemObject.Quality == 5)
-                    {
-                        itemObject.Quality = 0;
-                    }
-
-                    __instance.heldObject.Value = new StardewValley.Object(itemObject.Id, itemObject.Quantity, false, -1, itemObject.Quality);
+                    __instance.heldObject.Value = new StardewValley.Object(possibleItems.Keys.ElementAt(id), possibleItems.Values.ElementAt(id), false, -1, 0);
                 }
             }
 
@@ -926,7 +1069,7 @@ namespace BetterCrabPots
                 StardewValley.Object @object = __instance.heldObject.Value;
                 __instance.heldObject.Value = (StardewValley.Object)null;
 
-                if (who.IsLocalPlayer && !who.addItemToInventoryBool((StardewValley.Item)@object, false))
+                if (who.IsLocalPlayer && !who.addItemToInventoryBool((Item)@object, false))
                 {
                     __instance.heldObject.Value = @object;
                     Game1.addHUDMessage(new HUDMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Crop.cs.588"), Color.Red, 3500f));
@@ -934,13 +1077,13 @@ namespace BetterCrabPots
                     __result = false;
                     return false;
                 }
-
+                
                 // Check if the item is in Fish.xnb and that they are a fish to add to the collection screen
                 Dictionary<int, string> dictionary = Game1.content.Load<Dictionary<int, string>>("Data\\Fish");
                 if (dictionary.ContainsKey((int)((NetFieldBase<int, NetInt>)@object.parentSheetIndex)))
                 {
                     string[] strArray = dictionary[(int)((NetFieldBase<int, NetInt>)@object.parentSheetIndex)].Split('/');
-
+                    
                     if (strArray[1] != "trap")
                     {
                         int minValue = strArray.Length > 5 ? Convert.ToInt32(strArray[3]) : 1;

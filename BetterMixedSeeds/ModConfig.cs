@@ -104,11 +104,11 @@ namespace BetterMixedSeeds
         public bool UseCabbage_SPRING { get; set; } = true;
         public bool UseCabbage_FALL { get; set; } = true;
         public bool UseCarrot_FruitAndVeggies { get; set; } = true;
-        public bool UseCassava_FruitAndVeggies { get; set; } = true;
+        public bool UseCassava { get; set; } = true;
         public bool UseCelery { get; set; } = true;
         public bool UseChives { get; set; } = true;
-        public bool UseCotton_SUMMER_FruitAndVeggies { get; set; } = true;
-        public bool UseCotton_FALL_FruitAndVeggies { get; set; } = true;
+        public bool UseCotton_SUMMER { get; set; } = true;
+        public bool UseCotton_FALL { get; set; } = true;
         public bool UseCucumber_FruitAndVeggies { get; set; } = true;
         public bool UseElderberry { get; set; } = true;
         public bool UseFennel { get; set; } = true;
@@ -118,7 +118,7 @@ namespace BetterMixedSeeds
         public bool UseJuniper { get; set; } = true;
         public bool UseKiwi_SUMMER { get; set; } = true;
         public bool UseKiwi_FALL { get; set; } = true;
-        public bool UseLettuce_FruitAndVeggies { get; set; } = true;
+        public bool UseLettuce { get; set; } = true;
         public bool UseMint { get; set; } = true;
         public bool UseMuskmelon { get; set; } = true;
         public bool UseNavy_Bean { get; set; } = true;
@@ -129,16 +129,16 @@ namespace BetterMixedSeeds
         public bool UsePeanut_FruitAndVeggies { get; set; } = true;
         public bool UsePineapple_FruitAndVeggies { get; set; } = true;
         public bool UseRaspberry { get; set; } = true;
-        public bool UseRice_SPRING_FruitAndVeggies { get; set; } = true;
-        public bool UseRice_SUMMER_FruitAndVeggies { get; set; } = true;
-        public bool UseRice_FALL_FruitAndVeggies { get; set; } = true;
+        public bool UseRice_SPRING { get; set; } = true;
+        public bool UseRice_SUMMER { get; set; } = true;
+        public bool UseRice_FALL { get; set; } = true;
         public bool UseRosemary { get; set; } = true;
         public bool UseSage { get; set; } = true;
         public bool UseSoybean { get; set; } = true;
         public bool UseSpinach_SPRING { get; set; } = true;
         public bool UseSpinach_FALL { get; set; } = true;
         public bool UseSugar_Beet { get; set; } = true;
-        public bool UseSugar_Cane_FruitAndVeggies { get; set; } = true;
+        public bool UseSugar_Cane { get; set; } = true;
         public bool UseSweet_Canary_Melon { get; set; } = true;
         public bool UseSweet_Potato { get; set; } = true;
         public bool UseTea_SPRING { get; set; } = true;
@@ -150,7 +150,7 @@ namespace BetterMixedSeeds
 
         // Mizus Flowers
         public bool UseBee_Balm { get; set; } = true;
-        public bool UseBlue_Mist_MizusFlowers { get; set; } = true;
+        public bool UseBlue_Mist { get; set; } = true;
         public bool UseChamomile { get; set; } = true;
         public bool UseClary_Sage { get; set; } = true;
         public bool UseFairy_Duster { get; set; } = true;
@@ -160,7 +160,7 @@ namespace BetterMixedSeeds
         public bool UseHoneysuckle_SPRING { get; set; } = true;
         public bool UseHoneysuckle_SUMMER { get; set; } = true;
         public bool UsePassion_Flower { get; set; } = true;
-        public bool UsePink_Cat_MizusFlowers { get; set; } = true;
+        public bool UsePink_Cat { get; set; } = true;
         public bool UsePurple_Coneflower { get; set; } = true;
         public bool UseRose_SPRING { get; set; } = true;
         public bool UseRose_SUMMER { get; set; } = true;
@@ -253,7 +253,7 @@ namespace BetterMixedSeeds
         public bool UseLily { get; set; } = true;
         public bool UseLotus { get; set; } = true;
         public bool UsePetunia { get; set; } = true;
-        public bool UseViolet_FarmerToFlorist { get; set; } = true;
+        public bool UseViolet { get; set; } = true;
         public bool UseWisteria { get; set; } = true;
 
         // Lucky Clover
@@ -274,7 +274,7 @@ namespace BetterMixedSeeds
         public bool UsePineapple_StephanLotsOfCrops { get; set; } = true;
         public bool UseSpinach { get; set; } = true;
         public bool UseTurnip { get; set; } = true;
-        public bool UseWatermelon_StephanLotsOfCrops { get; set; } = true;
+        public bool UseWatermelon { get; set; } = true;
 
         // Eemies Crops
         public bool UseAcorn_Squash { get; set; } = true;
@@ -327,27 +327,5 @@ namespace BetterMixedSeeds
         public bool UseWild_Blackberry { get; set; } = true;
         public bool UseWild_Plum { get; set; } = true;
         public bool UseWinter_Root { get; set; } = true;
-
-        // Longevity
-        public bool UseBlue_Mist_Longevity { get; set; } = true;
-        public bool UseCanary_Melon { get; set; } = true;
-        public bool UseCarrot_Longevity { get; set; } = true;
-        public bool UseCassava_Longevity { get; set; } = true;
-        public bool UseCoffee { get; set; } = true;
-        public bool UseCotton_SUMMER_Longevity { get; set; } = true;
-        public bool UseCotton_FALL_Longevity { get; set; } = true;
-        public bool UseCucumber_Longevity { get; set; } = true;
-        public bool UseLettuce_Longevity { get; set; } = true;
-        public bool UseOnion_Longevity { get; set; } = true;
-        public bool UsePeanut_Longevity { get; set; } = true;
-        public bool UsePineapple_Longevity { get; set; } = true;
-        public bool UsePink_Cat_Longevity { get; set; } = true;
-        public bool UsePurple_Sweet_Potato { get; set; } = true;
-        public bool UseRed_Pepper { get; set; } = true;
-        public bool UseRice_SPRING_Longevity { get; set; } = true;
-        public bool UseRice_SUMMER_Longevity { get; set; } = true;
-        public bool UseSugar_Cane_Longevity { get; set; } = true;
-        public bool UseViolet_Longevity { get; set; } = true;
-        public bool UseWatermelon_Longevity { get; set; } = true;
     }
 }

@@ -47,7 +47,7 @@
   <ItemGroup>
     <Compile Include="Config\ConfigItem.cs" />
     <Compile Include="Config\ModConfig.cs" />
-    <Compile Include="Config\Item.cs" />
+    <Compile Include="Config\ResultItem.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
