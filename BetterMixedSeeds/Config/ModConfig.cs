@@ -563,5 +563,25 @@ namespace BetterMixedSeeds
                     new Crop("Soap Root", true, 1)
                 })
         );
+
+        public CropMod MouseEarCress { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Mouse-Ear Cress", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Mouse-Ear Cress", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Mouse-Ear Cress", true, 1)
+                }),
+            winter: null
+        );
     }
 }

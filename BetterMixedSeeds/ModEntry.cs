@@ -162,6 +162,8 @@ namespace BetterMixedSeeds
                 integratedModsInstalled.Add("ForageToFarm");
             if (this.Helper.ModRegistry.IsLoaded("rearda88.GemandMineralCrops"))
                 integratedModsInstalled.Add("GemAndMineralCrops");
+            if (this.Helper.ModRegistry.IsLoaded("6480.crops.arabidopsis"))
+                integratedModsInstalled.Add("MouseEarCress");
 
             return integratedModsInstalled;
         }
