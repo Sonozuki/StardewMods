@@ -54,7 +54,7 @@ namespace BetterMixedSeeds.Data
             { "Gold Leaf", "Gold Seeds" },
             { "Iridium Fern", "Iridium Seeds" },
             { "Iron Leaf", "Iron Seeds" },
-            { "Money Plant", "Doubloom Seeds" }
+            { "Money Plant", "Doubloon Seeds" }
         };
 
         public Dictionary<string, string> FreshMeat { get; } = new Dictionary<string, string>
