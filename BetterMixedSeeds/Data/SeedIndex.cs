@@ -36,6 +36,7 @@ namespace BetterMixedSeeds.Data
             { "Radish", "484" },
             { "Red Cabbage", "485" },
             { "Rhubarb", "478" },
+            { "Rice", "273" },
             { "Starfruit", "486" },
             { "Strawberry", "745" },
             { "Summer Spangle", "455" },

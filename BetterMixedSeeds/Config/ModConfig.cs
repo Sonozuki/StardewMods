@@ -21,6 +21,7 @@ namespace BetterMixedSeeds
                     new Crop("Parsnip", true, 1),
                     new Crop("Potato", true, 1),
                     new Crop("Rhubarb", true, 1),
+                    new Crop("Rice", true, 1),
                     new Crop("Strawberry", true, 1),
                     new Crop("Tulip", true, 1)
                 }),
@@ -195,7 +196,7 @@ namespace BetterMixedSeeds
                     new Crop("Kidney Bean", true, 1),
                     new Crop("Kiwi", true, 1),
                     new Crop("Oat", true, 1),
-                    new Crop("Orkra", true, 1),
+                    new Crop("Okra", true, 1),
                     new Crop("Paddy Taro", true, 1),
                     new Crop("Peanut", true, 1),
                     new Crop("Rosemary", true, 1),
