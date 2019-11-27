@@ -226,6 +226,8 @@ namespace BetterMixedSeeds
                     new Crop("Chamomile", true, 1),
                     new Crop("Honeysuckle", true, 1),
                     new Crop("Pink Cat", true, 1),
+                    new Crop("Pitcher Plant", true, 1),
+                    new Crop("Rafflesia", true, 1),
                     new Crop("Rose", true, 1),
                     new Crop("Shaded Violet", true, 1),
                     new Crop("Spring Rose", true, 1)
@@ -239,6 +241,7 @@ namespace BetterMixedSeeds
                     new Crop("Herbal Lavender", true, 1),
                     new Crop("Honeysuckle", true, 1),
                     new Crop("Passion Flower", true, 1),
+                    new Crop("Rafflesia", true, 1),
                     new Crop("Rose", true, 1),
                     new Crop("Summer Rose", true, 1)
                 }),
@@ -249,6 +252,7 @@ namespace BetterMixedSeeds
                     new Crop("Fairy Duster", true, 1),
                     new Crop("Fall Rose", true, 1),
                     new Crop("Purple Coneflower", true, 1),
+                    new Crop("Rafflesia", true, 1),
                     new Crop("Rose", true, 1),
                     new Crop("Sweet Jasmine", true, 1)
                 }),
