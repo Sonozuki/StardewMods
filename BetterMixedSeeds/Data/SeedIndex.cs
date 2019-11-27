@@ -168,17 +168,32 @@ namespace BetterMixedSeeds.Data
 
         public Dictionary<string, string> BonsterCrops { get; } = new Dictionary<string, string>
         {
+            { "Benne Sesame", "Benne Sesame Seed" },
+            { "Black Beans", "Black Bean Seeds" },
             { "Blackcurrant", "Blackcurrant Seeds" },
             { "Blue Corn", "Blue Corn Seeds" },
+            { "Candy Roaster Squash", "Candy Roaster Squash Seeds" },
             { "Cardamom", "Cardamom Seeds" },
-            { "Cranberry Bean", "Cranberry Bean Seeds" },
+            { "Chayote", "Chayote Seeds" },
+            { "Cloudberry", "Cloudberry Seeds" },
+            { "Cowpeas", "Cowpea Seeds" },
+            { "Cranberry Beans", "Cranberry Bean Seeds" },
+            { "Green Chile", "Green Chile Seeds" },
+            { "Lingonberry", "Lingonberry Seeds" },
             { "Maypop", "Maypop Seeds" },
+            { "Nasturtium", "Nasturtium Seeds" },
+            { "Oats", "Oats Seeds" },
             { "Peppercorn", "Peppercorn Seeds" },
+            { "Prickly Pear", "Prickly Pear Seeds" },
             { "Red Currant", "Red Currant Seeds" },
-            { "Rose Hip", "Rose Hip Seeds" },
+            { "Rose Hips", "Rose Hip Seeds" },
             { "Roselle Hibiscus", "Roselle Hibiscus Seeds" },
+            { "Salsify", "Salsify Seeds" },
+            { "Scotch Bonnet Pepper", "Scotch Bonnet Pepper Seeds" },
             { "Summer Squash", "Summer Squash Seeds" },
+            { "Sunchoke", "Sunchoke Seeds" },
             { "Taro", "Taro Root" },
+            { "White Alpine Strawberry", "White Alpine Strawberry Seeds" },
             { "White Currant", "White Currant Seeds" }
         };
 

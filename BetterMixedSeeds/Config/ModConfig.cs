@@ -295,28 +295,46 @@ namespace BetterMixedSeeds
             spring: new Season(
                 new List<Crop>
                 {
-                    new Crop("Cranberry Bean", true, 1),
+                    new Crop("Chayote", true, 1),
+                    new Crop("Cloudberry", true, 1),
+                    new Crop("Cranberry Beans", true, 1),
+                    new Crop("Lingonberry", true, 1),
                     new Crop("Red Currant", true, 1),
-                    new Crop("Rose Hip", true, 1)
+                    new Crop("Rose Hips", true, 1),
+                    new Crop("White Alpine Strawberry", true, 1)
                 }),
             summer: new Season(
                 new List<Crop>
                 {
+                    new Crop("Benne Sesame", true, 1),
                     new Crop("Blackcurrant", true, 1),
                     new Crop("Blue Corn", true, 1),
                     new Crop("Cardamom", true, 1),
+                    new Crop("Chayote", true, 1),
+                    new Crop("Cowpeas", true, 1),
                     new Crop("Maypop", true, 1),
+                    new Crop("Nasturtium", true, 1),
                     new Crop("Peppercorn", true, 1),
-                    new Crop("Rose Hip", true, 1),
+                    new Crop("Prickly Pear", true, 1),
+                    new Crop("Rose Hips", true, 1),
                     new Crop("Roselle Hibiscus", true, 1),
+                    new Crop("Scotch Bonnet Pepper", true, 1),
                     new Crop("Summer Squash", true, 1),
+                    new Crop("Sunchoke", true, 1),
                     new Crop("Taro", true, 1)
                 }),
             fall: new Season(
                 new List<Crop>
                 {
+                    new Crop("Black Beans", true, 1),
                     new Crop("Blue Corn", true, 1),
+                    new Crop("Candy Roaster Squash", true, 1),
+                    new Crop("Cowpeas", true, 1),
+                    new Crop("Green Chile", true, 1),
+                    new Crop("Oats", true, 1),
                     new Crop("Peppercorn", true, 1),
+                    new Crop("Salsify", true, 1),
+                    new Crop("Sunchoke", true, 1),
                     new Crop("Taro", true, 1),
                     new Crop("White Currant", true, 1)
                 }),
