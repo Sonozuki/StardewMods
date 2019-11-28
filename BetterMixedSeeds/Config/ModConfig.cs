@@ -664,5 +664,35 @@ namespace BetterMixedSeeds
                 }),
             winter: null
         );
+
+        public CropMod PokeCrops { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Cheri Berry", true, 1),
+                    new Crop("Lum Berry", true, 1),
+                    new Crop("Rawst Berry", true, 1),
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Lum Berry", true, 1),
+                    new Crop("Nanab Berry", true, 1),
+                    new Crop("Oran Berry", true, 1),
+                    new Crop("Pecha Berry", true, 1),
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Aspear Berry", true, 1),
+                    new Crop("Chesto Berry", true, 1),
+                    new Crop("Leppa Berry", true, 1),
+                    new Crop("Oran Berry", true, 1),
+                    new Crop("Persim Berry", true, 1),
+                    new Crop("Sitrus Berry", true, 1),
+                }),
+            winter: null
+        );
     }
 }

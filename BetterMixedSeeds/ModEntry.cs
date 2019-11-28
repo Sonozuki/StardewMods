@@ -169,6 +169,8 @@ namespace BetterMixedSeeds
                 integratedModsInstalled.Add("MouseEarCress");
             if (this.Helper.ModRegistry.IsLoaded("ppja.ancientcrops"))
                 integratedModsInstalled.Add("AncientCrops");
+            if (this.Helper.ModRegistry.IsLoaded("PokeCropsJson"))
+                integratedModsInstalled.Add("PokeCrops");
 
             return integratedModsInstalled;
         }

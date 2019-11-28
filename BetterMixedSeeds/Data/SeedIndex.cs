@@ -355,5 +355,20 @@ namespace BetterMixedSeeds.Data
             { "Ancient Olive Plant", "Ancient Olive Seeds" },
             { "Ancient Tuber", "Ancient Tuber Seeds" }
         };
+
+        public Dictionary<string, string> PokeCrops { get; } = new Dictionary<string, string>
+        {
+            { "Aspear Berry", "Aspear Berry Seeds" },
+            { "Cheri Berry", "Cheri Berry Seeds" },
+            { "Chesto Berry", "Chesto Berry Seeds" },
+            { "Leppa Berry", "Leppa Berry Seeds" },
+            { "Lum Berry", "Lum Berry Seeds" },
+            { "Nanab Berry", "Nanab Berry Seeds" },
+            { "Oran Berry", "Oran Berry Seeds" },
+            { "Pecha Berry", "Pecha Berry Seeds" },
+            { "Persim Berry", "Persim Berry Seeds" },
+            { "Rawst Berry", "Rawst Berry Seeds" },
+            { "Sitrus Berry", "Sitrus Berry Seeds" }
+        };
     }
 }
