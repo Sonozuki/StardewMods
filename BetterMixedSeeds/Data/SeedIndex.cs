@@ -370,5 +370,28 @@ namespace BetterMixedSeeds.Data
             { "Rawst Berry", "Rawst Berry Seeds" },
             { "Sitrus Berry", "Sitrus Berry Seeds" }
         };
+
+        public Dictionary<string, string> StarboundValley { get; } = new Dictionary<string, string>
+        {
+            { "Automato", "Automato Seeds" },
+            { "Avesmingo", "Avesmingo Seeds" },
+            { "Beakseed", "Beakseed Seeds" },
+            { "Boltbulb", "Boltbulb Seeds" },
+            { "Boneboo", "Boneboo Seeds" },
+            { "Coralcreep", "Coralcreep Tank" },
+            { "Crystal Plant", "Crystal Plant Seeds" },
+            { "Currentcorn", "Currentcorn Seeds" },
+            { "Diodia", "Diodia Seeds" },
+            { "Dirturchin", "Dirturchin Seeds" },
+            { "Eggshoot", "Eggshoot Seeds" },
+            { "Feathercrown", "Feathercrown Seeds" },
+            { "Neonmelon", "Neonmelon Seeds" },
+            { "Oculemon", "Oculemon Seeds" },
+            { "Pearlpea", "Pearlpea Seeds" },
+            { "Pussplum", "Pussplum Seeds" },
+            { "Reefpod", "Reefpod Tank" },
+            { "Toxictop", "Toxictop Seeds" },
+            { "Wartweed", "Wartweed Seeds" }
+        };
     }
 }

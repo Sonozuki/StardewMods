@@ -171,6 +171,8 @@ namespace BetterMixedSeeds
                 integratedModsInstalled.Add("AncientCrops");
             if (this.Helper.ModRegistry.IsLoaded("PokeCropsJson"))
                 integratedModsInstalled.Add("PokeCrops");
+            if (this.Helper.ModRegistry.IsLoaded("jawsawn.StarboundValley"))
+                integratedModsInstalled.Add("StarboundValley");
 
             return integratedModsInstalled;
         }
