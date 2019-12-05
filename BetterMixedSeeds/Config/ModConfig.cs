@@ -527,19 +527,16 @@ namespace BetterMixedSeeds
                 new List<Crop>
                 {
                     new Crop("Mint Tea Plant", true, 1),
-                    new Crop("Tea Leaf Plant", true, 1)
                 }),
             summer: new Season(
                 new List<Crop>
                 {
                     new Crop("Mint Tea Plant", true, 1),
-                    new Crop("Tea Leaf Plant", true, 1)
                 }),
             fall: new Season(
                 new List<Crop>
                 {
                     new Crop("Mint Tea Plant", true, 1),
-                    new Crop("Tea Leaf Plant", true, 1)
                 }),
             winter: null
         );

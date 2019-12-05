@@ -296,8 +296,7 @@ namespace BetterMixedSeeds.Data
 
         public Dictionary<string, string> TeaTime { get; } = new Dictionary<string, string>
         {
-            { "Mint Tea Plant", "Fresh Mint Seeds" },
-            { "Tea Leaf Plant", "Tea Leaf Seeds" }
+            { "Mint Tea Plant", "Fresh Mint Seeds" }
         };
 
         public Dictionary<string, string> ForageToFarm { get; } = new Dictionary<string, string>
