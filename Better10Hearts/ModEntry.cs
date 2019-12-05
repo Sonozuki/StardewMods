@@ -123,6 +123,11 @@ namespace Better10Hearts
             {
                 NPC npc = Game1.getCharacterFromName(key);
 
+                if (npc == null)
+                {
+                    continue;
+                }
+
                 bool previousHasSpokenToday = npcEnergyGeneration[npc.Name];
                 bool newHasSpokenToday = Game1.player.hasTalkedToFriendToday(npc.Name);
 
@@ -247,7 +252,7 @@ namespace Better10Hearts
                             if (npc.isBirthday(Game1.currentSeason, Game1.dayOfMonth))
                             {
                                 // Set max luck 
-                                Game1.dailyLuck = 0.12;
+                                Game1.player.team.sharedDailyLuck.Value = 0.12;
                             }
                         }
                     }
@@ -263,7 +268,7 @@ namespace Better10Hearts
                             if (npc.isBirthday(Game1.currentSeason, Game1.dayOfMonth))
                             {
                                 // Set max luck 
-                                Game1.dailyLuck = 0.12;
+                                Game1.player.team.sharedDailyLuck.Value = 0.12;
                             }
                         }
                     }
