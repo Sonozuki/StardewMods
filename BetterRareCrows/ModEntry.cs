@@ -25,7 +25,7 @@ namespace BetterRarecrows
         public static ModConfig Config;
 
         /// <summary>The mod entry point.</summary>
-        /// <param name="helper">Provides methods for interacting with the mod directory.</param>
+        /// <param name="helper">Provides methods for interacting with the mod directory as well as the modding api.</param>
         public override void Entry(IModHelper helper)
         {
             ApplyHarmonyPatches(this.ModManifest.UniqueID);
