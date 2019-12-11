@@ -11,4 +11,4 @@
 Logging to the console will happen automatically. To speak from the console you need to use the 'say' command in the console. The usage is: 'say \<message>'. (An example is in the picture above)
 
 ## Compatibility
-Console Chat is compatible with Stardew Valley 1.3+ on Windows/Mac/Linus, both single player and multiplayer. To view reported bug visit both the issues on this repo and bug reports on [Nexus](https://www.nexusmods.com/stardewvalley/mods/3232?tab=bugs).
+Console Chat is compatible with Stardew Valley 1.3+ on Windows/Mac/Linus, both single player and multiplayer. To view reported bug visit both the issues on this repo and bug reports on [Nexus](https://www.nexusmods.com/stardewvalley/mods/3768?tab=bugs).
