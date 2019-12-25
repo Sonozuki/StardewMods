@@ -84,12 +84,12 @@ namespace BetterRarecrows
             {
                 ModEntry.ModMonitor.Log($"Only {CurrentRarecrows.Count()} out of {Config.NumberOfRequiredRareCrows} rarecrows found on the farm", LogLevel.Trace);
                 
-                if (Config.EnablePassiveMode)
+                if (Config.EnableProgressiveMode)
                 {
                     ModEntry.ModMonitor.Log($"Passive mod enabled", LogLevel.Trace);
 
                     // Calculate the a random chance to determine if the crows should be able to spawn
-                    int chanceUpperBound = Math.Min(100, Config.PassivePercentPerRarecrow * ModEntry.CurrentRarecrows.Count());
+                    int chanceUpperBound = Math.Min(100, Config.ProgressivePercentPerRarecrow * ModEntry.CurrentRarecrows.Count());
                     int chance = Math.Max(0, chanceUpperBound);
 
                     double randomChance = Game1.random.NextDouble();
