@@ -25,6 +25,7 @@ namespace BetterMixedSeeds
                     new Crop("Potato", true, 1),
                     new Crop("Rhubarb", true, 1),
                     new Crop("Rice", true, 1),
+                    new Crop("Spring Seeds", true, 1),
                     new Crop("Strawberry", true, 1),
                     new Crop("Tulip", true, 1)
                 }),
@@ -40,6 +41,7 @@ namespace BetterMixedSeeds
                     new Crop("Radish", true, 1),
                     new Crop("Red Cabbage", true, 1),
                     new Crop("Starfruit", true, 1),
+                    new Crop("Summer Seeds", true, 1),
                     new Crop("Summer Spangle", true, 1),
                     new Crop("Sunflower", true, 1),
                     new Crop("Tomato", true, 1),
@@ -55,6 +57,7 @@ namespace BetterMixedSeeds
                     new Crop("Corn", true, 1),
                     new Crop("Cranberries", true, 1),
                     new Crop("Eggplant", true, 1),
+                    new Crop("Fall Seeds", true, 1),
                     new Crop("Fairy Rose", true, 1),
                     new Crop("Grape", true, 1),
                     new Crop("Pumpkin", true, 1),
@@ -63,7 +66,10 @@ namespace BetterMixedSeeds
                     new Crop("Wheat", true, 1),
                     new Crop("Yam", true, 1)
                 }),
-            winter: null
+            winter: new Season(
+                new List<Crop> { 
+                    new Crop("Winter Seeds", true, 1)                        
+                })
         );
 
         /// <summary>All the crops that are in the Fantasy Crops mod, by season, so the user can disable and choose the chance for each crop</summary>

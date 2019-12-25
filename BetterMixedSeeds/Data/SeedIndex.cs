@@ -21,6 +21,7 @@ namespace BetterMixedSeeds.Data
             { "Cranberries", "493" },
             { "Eggplant", "488" },
             { "Fairy Rose", "425" },
+            { "Fall Seeds", "497" },
             { "Garlic", "476" },
             { "Grape", "301" },
             { "Green Bean", "473" },
@@ -36,14 +37,17 @@ namespace BetterMixedSeeds.Data
             { "Red Cabbage", "485" },
             { "Rhubarb", "478" },
             { "Rice", "273" },
+            { "Spring Seeds", "495" },
             { "Starfruit", "486" },
             { "Strawberry", "745" },
+            { "Summer Seeds", "496" },
             { "Summer Spangle", "455" },
             { "Sunflower", "431" },
             { "Sweet Gem Berry", "347" },
             { "Tomato", "480" },
             { "Tulip", "427" },
             { "Wheat", "483" },
+            { "Winter Seeds", "498" },
             { "Yam", "492" }
         };
 
