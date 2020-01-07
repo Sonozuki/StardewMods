@@ -415,5 +415,11 @@ namespace BetterMixedSeeds.Data
             { "Toxictop", "Toxictop Seeds" },
             { "Wartweed", "Wartweed Seeds" }
         };
+
+        /// <summary>The dictionary used for converting iKeychain's Winter Lychee Plant crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> IKeychainsWinterLycheePlant { get; } = new Dictionary<string, string>
+        {
+            { "Winter Lychee", "Winter Lychee Seeds" }
+        };
     }
 }

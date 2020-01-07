@@ -765,5 +765,18 @@ namespace BetterMixedSeeds
                     new Crop("Diodia", true, 1),
                 })
         );
+
+        /// <summary>All the crops that are in the iKeychain's Winter Lychee Plant mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod IKeychainsWinterLycheePlant { get; set; } = new CropMod
+        (
+            spring: null,
+            summer: null,
+            fall: null,
+            winter: new Season(
+                new List<Crop>
+                {
+                    new Crop("Winter Lychee", true, 1)
+                })
+        );
     }
 }
