@@ -795,5 +795,22 @@ namespace BetterMixedSeeds
                 }),
             winter: null
         );
+
+        /// <summary>All the crops that are in the Soda Vine mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod SodaVine { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Soda Vine", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Soda Vine", true, 1)
+                }),
+            fall: null,
+            winter: null
+        );
     }
 }

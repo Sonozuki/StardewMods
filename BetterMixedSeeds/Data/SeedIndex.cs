@@ -427,5 +427,11 @@ namespace BetterMixedSeeds.Data
         {
             { "Green Pear", "Green Pear Seeds" }
         };
+
+        /// <summary>The dictionary used for converting Soda Vine crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> SodaVine { get; } = new Dictionary<string, string>
+        {
+            { "Soda Vine", "Soda Vine Starter" }
+        };
     }
 }

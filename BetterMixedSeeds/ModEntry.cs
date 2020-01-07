@@ -174,7 +174,8 @@ namespace BetterMixedSeeds
                 { "PokeCropsJson", "PokeCrops" },
                 { "jawsawn.StarboundValley", "StarboundValley" },
                 { "key.cropspack", "IKeychainsWinterLycheePlant" },
-                { "hung2563hn.GreenPear", "GreenPear" }
+                { "hung2563hn.GreenPear", "GreenPear" },
+                { "BlatantDecoy.SodaVine", "SodaVine" }
             };
 
             foreach (var integratedMod in integratedMods)
