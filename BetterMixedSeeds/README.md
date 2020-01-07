@@ -2,7 +2,7 @@
 
 ![](pics/greenhouse.png)
 
-Better Mixed Seeds currently supports 20 other crop mods. These can be found below.
+Better Mixed Seeds currently supports 24 other crop mods. These can be found below.
 
 ## Integrated Mods
 * [Fantasy Crops](https://www.nexusmods.com/stardewvalley/mods/1610)
@@ -25,6 +25,10 @@ Better Mixed Seeds currently supports 20 other crop mods. These can be found bel
 * [Ancient Crops](https://www.nexusmods.com/stardewvalley/mods/4472)
 * [Poke Crops](https://www.nexusmods.com/stardewvalley/mods/2065)
 * [Starbound Valley](https://www.nexusmods.com/stardewvalley/mods/2046)
+* [IKeychain's Winter Lychee Plant](https://www.nexusmods.com/stardewvalley/mods/4980)
+* [Green Pear](https://www.nexusmods.com/stardewvalley/mods/5023)
+* [Soda Vine](https://www.nexusmods.com/stardewvalley/mods/4482)
+* [Spoopy Valley](https://www.nexusmods.com/stardewvalley/mods/4513)
 
 ## Request Mod Integration
 If you have a mod you want to be integrated into this mod: Simply create an issue, in this issue it is important to include a link to the original mod, this could be a: Nexus Mod link, Chuckle fish link etc. It is important the mod is: not abandoned, and maintained (up-to-date) officially and not through unofficial patches OR you can go into the [Stardew Valley Discord](https://www.discordapp.com/invite/stardewvalley) and post in the #modding channel making sure to @EpicBellyFlop45 and we can have a chat about the details etc.
