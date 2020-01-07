@@ -16,6 +16,7 @@ Better Mixed Seeds currently supports 24 other crop mods. These can be found bel
 * [Farmer to Florist](https://www.nexusmods.com/stardewvalley/mods/2075)
 * [Lucky Clover](https://www.nexusmods.com/stardewvalley/mods/3568)
 * [Fish's Flowers](https://www.nexusmods.com/stardewvalley/mods/3553)
+* [Fish's Flowers Compatibility Version](https://www.nexusmods.com/stardewvalley/mods/5020)
 * [Stephan's Lots of Crops](https://www.nexusmods.com/stardewvalley/mods/3171)
 * [Eemies Crops](https://www.nexusmods.com/stardewvalley/mods/3523)
 * [Tea Time](https://www.nexusmods.com/stardewvalley/mods/2607)
