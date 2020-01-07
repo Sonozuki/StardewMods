@@ -433,5 +433,23 @@ namespace BetterMixedSeeds.Data
         {
             { "Soda Vine", "Soda Vine Starter" }
         };
+
+        /// <summary>The dictionary used for converting Spoopy Valley crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> SpoopyValley { get; } = new Dictionary<string, string>
+        {
+            { "Amethyst Basil", "Amethyst Basil Seeds" },
+            { "Black Carrot", "Black Carrot Seeds" },
+            { "Black Goji Berry", "Black Goji Berry Seeds" },
+            { "Black Huckleberry", "Black Huckleberry Seeds" },
+            { "Black Magic Viola", "Black Magic Viola Seeds" },
+            { "Black Mulberry", "Black Mulberry Seeds" },
+            { "Black Velvet Petunia", "Black Velvet Petunia Seeds" },
+            { "Futsu Pumpkin", "Futsu Pumpkin Seeds" },
+            { "Hungarian Chile", "Hungarian Chile Seeds" },
+            { "Indigo Rose Tomato", "Indigo Rose Tomato Seeds" },
+            { "Kulli Corn", "Kulli Corn Seeds" },
+            { "Purple Beauty Bell Pepper", "Purple Beauty Bell Pepper Seeds" },
+            { "Queen of the Night Tulip", "Queen of the Night Tulip Seeds" }
+        };
     }
 }

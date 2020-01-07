@@ -812,5 +812,40 @@ namespace BetterMixedSeeds
             fall: null,
             winter: null
         );
+
+        /// <summary>All the crops that are in the Spoopy Valley mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod SpoopyValley { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Amethyst Basil", true, 1),
+                    new Crop("Black Huckleberry", true, 1),
+                    new Crop("Black Mulberry", true, 1),
+                    new Crop("Black Velvet Petunia", true, 1),
+                    new Crop("Hungarian Chile", true, 1),
+                    new Crop("Kulli Corn", true, 1),
+                    new Crop("Queen of the Night Tulip", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Black Carrot", true, 1),
+                    new Crop("Black Goji Berry", true, 1),
+                    new Crop("Black Huckleberry", true, 1),
+                    new Crop("Black Magic Viola", true, 1),
+                    new Crop("Black Mulberry", true, 1),
+                    new Crop("Kulli Corn", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Black Huckleberry", true, 1),
+                    new Crop("Futsu Pumpkin", true, 1),
+                    new Crop("Indigo Rose Tomato", true, 1),
+                    new Crop("Purple Beauty Bell Pepper", true, 1)
+                }),
+            winter: null
+        );
     }
 }

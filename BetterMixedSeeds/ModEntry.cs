@@ -175,7 +175,8 @@ namespace BetterMixedSeeds
                 { "jawsawn.StarboundValley", "StarboundValley" },
                 { "key.cropspack", "IKeychainsWinterLycheePlant" },
                 { "hung2563hn.GreenPear", "GreenPear" },
-                { "BlatantDecoy.SodaVine", "SodaVine" }
+                { "BlatantDecoy.SodaVine", "SodaVine" },
+                { "amburr.spoopyvalley", "SpoopyValley" }
             };
 
             foreach (var integratedMod in integratedMods)
