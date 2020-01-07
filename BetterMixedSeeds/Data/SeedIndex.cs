@@ -279,6 +279,13 @@ namespace BetterMixedSeeds.Data
             { "Pansy", "Pansy Seeds" }
         };
 
+        /// <summary>The dictionary used for converting Fishs Flowers Compatiblity Version crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> FishsFlowersCompatibilityVersion { get; } = new Dictionary<string, string>
+        {
+            { "Grape Hyacinth", "Grape Hyacinth Bulb" },
+            { "Pansy", "Pansy Seeds" }
+        };
+
         /// <summary>The dictionary used for converting Stephans Lots of Crops crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
         public Dictionary<string, string> StephansLotsOfCrops { get; } = new Dictionary<string, string>
         {

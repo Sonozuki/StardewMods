@@ -164,6 +164,8 @@ namespace BetterMixedSeeds
                 { "RevenantCrops", "RevenantCrops" },
                 { "kildarien.farmertoflorist", "FarmerToFlorist" },
                 { "Fish.LuckyClover", "LuckyClover" },
+                { "Fish.FishsFlowers", "FishsFlowers" },
+                { "Fish.FishsFlowersCompatibilityVersion", "FishsFlowersCompatibilityVersion" },
                 { "StephansLotsOfCrops", "StephansLotsOfCrops" },
                 { "minervamaga.JA.EemieCrops", "EemiesCrops" },
                 { "jfujii.TeaTime", "TeaTime" },

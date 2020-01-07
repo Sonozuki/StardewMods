@@ -489,6 +489,28 @@ namespace BetterMixedSeeds
             winter: null
         );
 
+        /// <summary>All the crops that are in the Fishs Flowers Compatibility Version mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod FishsFlowersCompatibilityVersion { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Grape Hyacinth", true, 1),
+                    new Crop("Pansy", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Pansy", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Pansy", true, 1)
+                }),
+            winter: null
+        );
+
         /// <summary>All the crops that are in the Stephans Lots of Crops mod, by season, so the user can disable and choose the chance for each crop</summary>
         public CropMod StephansLotsOfCrops { get; set; } = new CropMod
         (
