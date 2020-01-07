@@ -173,7 +173,8 @@ namespace BetterMixedSeeds
                 { "ppja.ancientcrops", "AncientCrops" },
                 { "PokeCropsJson", "PokeCrops" },
                 { "jawsawn.StarboundValley", "StarboundValley" },
-                { "key.cropspack", "IKeychainsWinterLycheePlant" }
+                { "key.cropspack", "IKeychainsWinterLycheePlant" },
+                { "hung2563hn.GreenPear", "GreenPear" }
             };
 
             foreach (var integratedMod in integratedMods)

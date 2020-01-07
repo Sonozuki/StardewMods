@@ -67,8 +67,8 @@ namespace BetterMixedSeeds
                     new Crop("Yam", true, 1)
                 }),
             winter: new Season(
-                new List<Crop> { 
-                    new Crop("Winter Seeds", true, 1)                        
+                new List<Crop> {
+                    new Crop("Winter Seeds", true, 1)
                 })
         );
 
@@ -777,6 +777,23 @@ namespace BetterMixedSeeds
                 {
                     new Crop("Winter Lychee", true, 1)
                 })
+        );
+
+        /// <summary>All the crops that are in the Green Pear mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod GreenPear { get; set; } = new CropMod
+        (
+            spring: null,
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Green Pear", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Green Pear", true, 1)
+                }),
+            winter: null
         );
     }
 }

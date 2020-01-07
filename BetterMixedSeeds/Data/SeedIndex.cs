@@ -421,5 +421,11 @@ namespace BetterMixedSeeds.Data
         {
             { "Winter Lychee", "Winter Lychee Seeds" }
         };
+
+        /// <summary>The dictionary used for converting Green Pear crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> GreenPear { get; } = new Dictionary<string, string>
+        {
+            { "Green Pear", "Green Pear Seeds" }
+        };
     }
 }
