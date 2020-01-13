@@ -165,7 +165,7 @@ namespace ExpandableBillboard.Ui
                 font: Game1.dialogueFont,
                 position: new Vector2((float)(AcceptQuestButton.bounds.X + 12), (float)(AcceptQuestButton.bounds.Y + 16)),
                 color: Game1.textColor,
-                shadowColor: AcceptQuestButton.scale > 1 ? new Color(171,93, 104) : new Color(151, 151, 151)
+                shadowColor: AcceptQuestButton.scale > 1 ? new Color(171,93, 104) : new Color(151, 151, 151) // text shadow colour is a dark pink when hovering over accept quest button
             );
 
             // close button
