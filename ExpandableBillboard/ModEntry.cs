@@ -214,7 +214,7 @@ namespace ExpandableBillboard
 
         /// <summary>Adds the requester sign off and rewards to the quest description</summary>
         /// <param name="quest">The quest object that contains the rewards, description, and requester</param>
-        /// <returns></returns>
+        /// <returns>A constructed description string</returns>
         public static string ConstructDescriptionString(BillBoardQuest quest)
         {
             string questDescription = $"{quest.Description}\n\n";
