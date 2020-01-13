@@ -46,7 +46,7 @@ namespace ExpandableBillboard.Patches
                 return false;
             }
 
-            __instance.questTitle = quest.Title;
+            // don't set the quest title here otherwise it will be used in the questlog. we want to default title, 'Delivery', not the user submitted one in the quest log
             __instance.questDescription = quest.Description;
             __instance.currentObjective = quest.Objective;
             __instance.dailyQuest.Value = true;

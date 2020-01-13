@@ -133,7 +133,7 @@ namespace ExpandableBillboard
 
             // use rng to decide if user should get another quest
             double chance = Game1.random.NextDouble();
-            if (chance > .4)
+            if (chance < .4)
             {
                 // decide which type of quest to get
                 string[] questTypes = Enum.GetNames(typeof(QuestType));
@@ -186,7 +186,9 @@ namespace ExpandableBillboard
             {
                 if (Game1.activeClickableMenu == null)
                 {
-                    Game1.activeClickableMenu = new NoteMenu(AddedQuests[0]);
+                    Quest quest = new ItemDeliveryQuest();
+                    CurrentBillBoardQuests.Add(quest);
+                    Game1.activeClickableMenu = new NoteMenu(AddedQuests[0], 0);
                 }
                 else if (Game1.activeClickableMenu is NoteMenu)
                 {

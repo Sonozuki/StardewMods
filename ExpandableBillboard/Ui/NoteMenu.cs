@@ -12,13 +12,16 @@ namespace ExpandableBillboard.Ui
         private ClickableComponent AcceptQuestButton;
         private Texture2D AcceptQuestButtonTexture;
         private Texture2D NoteBackgroundTexture;
+        
         private BillBoardQuest Quest;
+        private int QuestPosition;
 
         private Vector2 QuestTitleTextDimensions;
 
-        public NoteMenu(BillBoardQuest quest)
+        public NoteMenu(BillBoardQuest quest, int questPosition)
         {
             Quest = quest;
+            QuestPosition = questPosition;
 
             // load assets
             AcceptQuestButtonTexture = ModEntry.ModHelper.Content.Load<Texture2D>("Assets/AcceptButton.png", ContentSource.ModFolder);
@@ -49,6 +52,31 @@ namespace ExpandableBillboard.Ui
             );
 
             QuestTitleTextDimensions = Game1.dialogueFont.MeasureString(Quest.Title);
+        }
+
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            base.receiveLeftClick(x, y, playSound);
+
+            if (!AcceptQuestButton.containsPoint(x, y))
+            {
+                return;
+            }
+
+            if (playSound)
+            {
+                Game1.playSound("newArtifact");
+            }
+
+            // set required properties and add to questlog
+            ModEntry.CurrentBillBoardQuests[QuestPosition].dailyQuest.Value = true;
+            ModEntry.CurrentBillBoardQuests[QuestPosition].accepted.Value = true;
+            ModEntry.CurrentBillBoardQuests[QuestPosition].canBeCancelled.Value = true;
+            ModEntry.CurrentBillBoardQuests[QuestPosition].showNew.Value = true;
+            Game1.player.questLog.Add(ModEntry.CurrentBillBoardQuests[QuestPosition]);
+
+            ModEntry.CurrentBillBoardQuests.RemoveAt(QuestPosition);
+            this.exitThisMenu(true);
         }
 
         public override void performHoverAction(int x, int y)
