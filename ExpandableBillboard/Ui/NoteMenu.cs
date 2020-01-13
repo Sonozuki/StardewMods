@@ -72,7 +72,6 @@ namespace ExpandableBillboard.Ui
             ModEntry.CurrentBillBoardQuests[QuestPosition].dailyQuest.Value = true;
             ModEntry.CurrentBillBoardQuests[QuestPosition].accepted.Value = true;
             ModEntry.CurrentBillBoardQuests[QuestPosition].canBeCancelled.Value = true;
-            ModEntry.CurrentBillBoardQuests[QuestPosition].showNew.Value = true;
             Game1.player.questLog.Add(ModEntry.CurrentBillBoardQuests[QuestPosition]);
 
             ModEntry.CurrentBillBoardQuests.RemoveAt(QuestPosition);
@@ -132,7 +131,7 @@ namespace ExpandableBillboard.Ui
 
             // quest description
             string questDescription = Game1.parseText(
-                text: Quest.Description,
+                text: $"{Quest.Description}\n     - {Quest.Requester}\n\n{(Quest.FriendshipReward > 0 ? $"- {Quest.Requester} will be thankful\n" : "")}{(Quest.MoneyReward > 0 ? $"- {Quest.MoneyReward}g on delivery" : "")}",
                 whichFont: Game1.dialogueFont,
                 width: 500
             );
@@ -144,57 +143,6 @@ namespace ExpandableBillboard.Ui
                 color: Game1.textColor,
                 shadowColor: new Color(151, 151, 151)
             );
-
-            // requester sign off
-            string questRequester = Game1.parseText(
-                text: $"   - {Quest.Requester}",
-                whichFont: Game1.dialogueFont,
-                width: 640
-            );
-            Utility.drawTextWithColoredShadow(
-                b: b,
-                text: questRequester,
-                font: Game1.dialogueFont,
-                position: new Vector2(this.xPositionOnScreen + 64, this.yPositionOnScreen + NoteBackgroundTexture.Height * 4 - 248),
-                color: Game1.textColor,
-                shadowColor: new Color(151, 151, 151)
-            );
-
-            // friendship reward
-            if (Quest.FriendshipReward > 0)
-            {
-                string questFriendshipReward = Game1.parseText(
-                    text: $"- {Quest.Requester} will be thankful",
-                    whichFont: Game1.dialogueFont,
-                    width: 640
-                );
-                Utility.drawTextWithColoredShadow(
-                    b: b,
-                    text: questFriendshipReward,
-                    font: Game1.dialogueFont,
-                    position: new Vector2(this.xPositionOnScreen + 64, this.yPositionOnScreen + NoteBackgroundTexture.Height * 4 - 128),
-                    color: Game1.textColor,
-                    shadowColor: new Color(151, 151, 151)
-                );
-            }
-
-            // gold reward 
-            if (Quest.MoneyReward > 0)
-            {
-                string questMoneyReward = Game1.parseText(
-                    text: $"- {Quest.MoneyReward}g on delivery",
-                    whichFont: Game1.dialogueFont,
-                    width: 640
-                );
-                Utility.drawTextWithColoredShadow(
-                    b: b,
-                    text: questMoneyReward,
-                    font: Game1.dialogueFont,
-                    position: new Vector2(this.xPositionOnScreen + 64, this.yPositionOnScreen + NoteBackgroundTexture.Height * 4 - (Quest.FriendshipReward > 0 ? 176 : 128)),
-                    color: Game1.textColor,
-                    shadowColor: new Color(151, 151, 151)
-                );
-            }
 
             // accept button button
             IClickableMenu.drawTextureBox(
