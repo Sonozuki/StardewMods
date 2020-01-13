@@ -196,5 +196,40 @@ namespace ExpandableBillboard
                 }
             }
         }
+
+        /// <summary>Turn text tags ({FARMER} & {REQUESTER}) into their constant values.</summary>
+        /// <param name="quest">The quest object that contains the description, objective, and title.</param>
+        /// <returns>An updated quest model.</returns>
+        public static BillBoardQuest ResolveQuestTextTags(BillBoardQuest quest)
+        {
+            quest.Title = quest.Title.Replace("{FARMER}", Game1.player.Name);
+            quest.Title = quest.Title.Replace("{REQUESTER}", quest.Requester);
+            quest.Description = quest.Description.Replace("{FARMER}", Game1.player.Name);
+            quest.Description = quest.Description.Replace("{REQUESTER}", quest.Requester);
+            quest.Objective = quest.Objective.Replace("{FARMER}", Game1.player.Name);
+            quest.Objective = quest.Objective.Replace("{REQUESTER}", quest.Requester);
+
+            return quest;
+        }
+
+        /// <summary>Adds the requester sign off and rewards to the quest description</summary>
+        /// <param name="quest">The quest object that contains the rewards, description, and requester</param>
+        /// <returns></returns>
+        public static string ConstructDescriptionString(BillBoardQuest quest)
+        {
+            string questDescription = $"{quest.Description}\n\n";
+            
+            if (quest.FriendshipReward > 0)
+            {
+                questDescription += $"- {quest.Requester} will be thankful\n";
+            }
+
+            if (quest.MoneyReward > 0)
+            {
+                questDescription += $"- {quest.MoneyReward}g on delivery";
+            }
+
+            return questDescription;
+        }
     }
 }

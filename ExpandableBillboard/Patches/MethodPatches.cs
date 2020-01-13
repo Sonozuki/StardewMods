@@ -46,8 +46,10 @@ namespace ExpandableBillboard.Patches
                 return false;
             }
 
+            quest = ModEntry.ResolveQuestTextTags(quest);
+
             // don't set the quest title here otherwise it will be used in the questlog. we want to default title, 'Delivery', not the user submitted one in the quest log
-            __instance.questDescription = $"{quest.Description}\n     - {quest.Requester}\n\n{(quest.FriendshipReward > 0 ? $"- {quest.Requester} will be thankful\n" : "")}{(quest.MoneyReward > 0 ? $"- {quest.MoneyReward}g on delivery" : "")}";
+            __instance.questDescription = ModEntry.ConstructDescriptionString(quest);
             __instance.currentObjective = quest.Objective;
             __instance.dailyQuest.Value = true;
             __instance.daysLeft.Value = quest.DaysToComplete;

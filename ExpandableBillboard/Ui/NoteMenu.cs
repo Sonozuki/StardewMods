@@ -20,7 +20,7 @@ namespace ExpandableBillboard.Ui
 
         public NoteMenu(BillBoardQuest quest, int questPosition)
         {
-            Quest = quest;
+            Quest = ModEntry.ResolveQuestTextTags(quest);
             QuestPosition = questPosition;
 
             // load assets
@@ -131,7 +131,7 @@ namespace ExpandableBillboard.Ui
 
             // quest description
             string questDescription = Game1.parseText(
-                text: $"{Quest.Description}\n     - {Quest.Requester}\n\n{(Quest.FriendshipReward > 0 ? $"- {Quest.Requester} will be thankful\n" : "")}{(Quest.MoneyReward > 0 ? $"- {Quest.MoneyReward}g on delivery" : "")}",
+                text: ModEntry.ConstructDescriptionString(Quest),
                 whichFont: Game1.dialogueFont,
                 width: 500
             );

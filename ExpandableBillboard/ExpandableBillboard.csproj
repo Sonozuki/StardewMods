@@ -55,6 +55,8 @@
     <Compile Include="Ui\NoteMenu.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\AcceptButton.png" />
+    <Content Include="Assets\CloseButton.png" />
     <Content Include="Assets\NoteBackground.png" />
     <Content Include="Assets\BillboardBackground.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
