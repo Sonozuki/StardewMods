@@ -178,7 +178,8 @@ namespace BetterMixedSeeds
                 { "key.cropspack", "IKeychainsWinterLycheePlant" },
                 { "hung2563hn.GreenPear", "GreenPear" },
                 { "BlatantDecoy.SodaVine", "SodaVine" },
-                { "amburr.spoopyvalley", "SpoopyValley" }
+                { "amburr.spoopyvalley", "SpoopyValley" },
+                { "yaramy.svbakery", "StardewBakery"}
             };
 
             foreach (var integratedMod in integratedMods)

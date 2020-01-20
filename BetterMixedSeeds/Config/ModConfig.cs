@@ -869,5 +869,22 @@ namespace BetterMixedSeeds
                 }),
             winter: null
         );
+
+        /// <summary>All the crops that are in the Stardew Bakery mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod StardewBakery { get; set; } = new CropMod
+        (
+            spring: null,
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Cookie Plant", true, 1)
+                }),
+            fall: null,
+            winter: new Season(
+                new List<Crop>
+                {
+                    new Crop("Cookie Plant", true, 1)
+                })
+        );
     }
 }

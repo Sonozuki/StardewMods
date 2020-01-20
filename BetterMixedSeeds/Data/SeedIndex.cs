@@ -458,5 +458,12 @@ namespace BetterMixedSeeds.Data
             { "Purple Beauty Bell Pepper", "Purple Beauty Bell Pepper Seeds" },
             { "Queen of the Night Tulip", "Queen of the Night Tulip Seeds" }
         };
+
+
+        /// <summary>The dictionary used for converting Stardew Bakery crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> StardewBakery { get; } = new Dictionary<string, string>
+        {
+            { "Cookie Plant", "Cookie Seeds" }
+        };
     }
 }
