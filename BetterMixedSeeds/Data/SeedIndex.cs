@@ -465,5 +465,12 @@ namespace BetterMixedSeeds.Data
         {
             { "Cookie Plant", "Cookie Seeds" }
         };
+
+        /// <summary>The dictionary used for converting Succulents crop names into seed names. (To then get converted into ids with the Json Assets API)</summary>
+        public Dictionary<string, string> Succulents { get; set; } = new Dictionary<string, string>
+        {
+            { "Decorative Succulents", "Decorative Succulents Starter" },
+            { "Edible Succulents", "Edible Succulents Starter" }
+        };
     }
 }

@@ -886,5 +886,29 @@ namespace BetterMixedSeeds
                     new Crop("Cookie Plant", true, 1)
                 })
         );
+
+        /// <summary>All the crops that are in the Succulents mod, by season, so the user can disable and choose the chance for each crop</summary>
+        public CropMod Succulents { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Decorative Succulents", true, 1),
+                    new Crop("Edible Succulents", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Decorative Succulents", true, 1),
+                    new Crop("Edible Succulents", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Decorative Succulents", true, 1),
+                    new Crop("Edible Succulents", true, 1)
+                }),
+            winter: null
+        );
     }
 }

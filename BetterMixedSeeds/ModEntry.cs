@@ -179,7 +179,8 @@ namespace BetterMixedSeeds
                 { "hung2563hn.GreenPear", "GreenPear" },
                 { "BlatantDecoy.SodaVine", "SodaVine" },
                 { "amburr.spoopyvalley", "SpoopyValley" },
-                { "yaramy.svbakery", "StardewBakery"}
+                { "yaramy.svbakery", "StardewBakery"},
+                { "Hesper.JA.Succulents", "Succulents" }
             };
 
             foreach (var integratedMod in integratedMods)
