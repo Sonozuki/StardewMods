@@ -44,10 +44,7 @@
 3. Extract the .zip mod file into your StardewValley/Mods folder and run the game using SMAPI.
 
 ## Use
-First, open the game using SMAPI like normal, this will generate a config.json file in the Mods/BetterMixedSeeds folder.
-Then using the below section configure the mixed seeds to your liking.
-Lastly load back into the game and use mixed seeds like normal.
-
+Add any content packs to the **StardewValley/Mods** file and run the same using SMAPI.
 
 ## Compatibility
 More Grass is compatible with Stardew Valley 1.4+ on Windows/Mac/Linus, both single player and multiplayer. To view reported bug visit both the issues on this repo and bug reports on [Nexus](https://www.nexusmods.com/stardewvalley/mods/5398?tab=bugs).
