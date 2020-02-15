@@ -6,10 +6,12 @@
 1. Create a new folder for the content pack. The convention is: **[MG] mod name**.
 2. Create a sub folder for each season you have grass sprites for (see final result below for reference) NOTE: name is case sensitive, use lowercase.
 3. Add all the **.png** images to the respective season folders. NOTE: the images can have any name, there is no convention. These should be **15px x 20px**
-4. Create a manifest.json, see below for refence
+4. Create a manifest.json, see below for reference
+5. Create a config.json, see below for reference
 
 #### Final Content Pack Layout
     [MG] mod name
+        config.json
         manifest.json
         spring
             1.png
@@ -37,6 +39,13 @@
             "UniqueID": "EpicBellyFlop45.MoreGrass"
         }
     }
+
+#### Config.json example
+    {
+        "EnableDefaultGrass": true
+    }
+
+Only **true** and **false** are accepted, this specifies whether the default grass sprites can also be drawn. If no config.json is present, true is the default. If this config option is set to false and after loading all content packs there is a season with no sprites, then the default game sprites will be added for that season.
 
 ## Install
 1. Install the latest version of [SMAPI](https://www.nexusmods.com/stardewvalley/mods/2400).
