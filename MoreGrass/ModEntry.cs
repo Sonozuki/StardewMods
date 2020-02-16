@@ -44,6 +44,11 @@ namespace MoreGrass
 
             // once all content packs are loaded, make sure there is atleast 1 sprite in each season pool
             ValidateSpritePools();
+
+            Monitor.Log($"A total of {SpringGrassSprites.Count} spring sprites have been loaded.");
+            Monitor.Log($"A total of {SummerGrassSprites.Count} summer sprites have been loaded.");
+            Monitor.Log($"A total of {FallGrassSprites.Count} fall sprites have been loaded.");
+            Monitor.Log($"A total of {WinterGrassSprites.Count} winter sprites have been loaded.");
         }
 
         /// <summary>Apply the harmony patches for replacing game code.</summary>
@@ -76,14 +81,20 @@ namespace MoreGrass
                 // get directory of wintergrass.dll
                 string directory = Directory.GetParent(Helper.DirectoryPath).FullName;
                 string path = Path.Combine(directory, "WinterGrass", "wintergrass.dll");
-                var dll = Assembly.LoadFile(path);
+                if (File.Exists(path))
+                {
+                    var dll = Assembly.LoadFile(path);
+                    var winterGrassModEntry = dll.GetExportedTypes()[0];
 
-                var winterGrassModEntry = dll.GetExportedTypes()[0];
-
-                harmony.Patch(
-                    original: AccessTools.Method(winterGrassModEntry, "FixGrassColor"),
-                    prefix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(WinterGrassFixGrassColorPrefix)))
-                );
+                    harmony.Patch(
+                        original: AccessTools.Method(winterGrassModEntry, "FixGrassColor"),
+                        prefix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(WinterGrassFixGrassColorPrefix)))
+                    );
+                }
+                else
+                {
+                    Monitor.Log("Couldn't disable Winter Grass, this may cause texture bugs in winter. Winter Grass is not needed with them mod as this mod enables winter grass.", LogLevel.Warn);
+                }
             }
         }
 
@@ -103,27 +114,31 @@ namespace MoreGrass
                     loadDefaultGrass = false;
                 }
 
-                string springDirectory = contentPack.DirectoryPath + "\\spring";
+                string springDirectory = Path.Combine(contentPack.DirectoryPath, "spring");
                 if (Directory.Exists(springDirectory))
                 {
+                    Monitor.Log("Loading spring files");
                     LoadFilesFromDirectory(springDirectory, contentPack, Season.Spring);
                 }
 
-                string summerDirectory = contentPack.DirectoryPath + "\\summer";
+                string summerDirectory = Path.Combine(contentPack.DirectoryPath, "summer");
                 if (Directory.Exists(summerDirectory))
                 {
+                    Monitor.Log("Loading summer files");
                     LoadFilesFromDirectory(summerDirectory, contentPack, Season.Summer);
                 }
 
-                string fallDirectory = contentPack.DirectoryPath + "\\fall";
+                string fallDirectory = Path.Combine(contentPack.DirectoryPath, "fall");
                 if (Directory.Exists(fallDirectory))
                 {
+                    Monitor.Log("Loading fall files");
                     LoadFilesFromDirectory(fallDirectory, contentPack, Season.Fall);
                 }
 
-                string winterDirectory = contentPack.DirectoryPath + "\\winter";
+                string winterDirectory = Path.Combine(contentPack.DirectoryPath, "winter");
                 if (Directory.Exists(winterDirectory))
                 {
+                    Monitor.Log("Loading winter files");
                     LoadFilesFromDirectory(winterDirectory, contentPack, Season.Winter);
                 }
             }
@@ -146,31 +161,37 @@ namespace MoreGrass
                 }
 
                 string relativeDirectory = GetRelativeDirectory(directory);
-                string relativePath = $"{relativeDirectory}\\{Path.GetFileName(file)}";
+                string relativePath = Path.Combine(relativeDirectory, Path.GetFileName(file));
                 Texture2D grass = contentPack.LoadAsset<Texture2D>(relativePath);
-
-                switch (season)
+                if (grass == null)
                 {
-                    case Season.Spring:
-                        {
-                            SpringGrassSprites.Add(grass);
-                            break;
-                        }
-                    case Season.Summer:
-                        {
-                            SummerGrassSprites.Add(grass);
-                            break;
-                        }
-                    case Season.Fall:
-                        {
-                            FallGrassSprites.Add(grass);
-                            break;
-                        }
-                    case Season.Winter:
-                        {
-                            WinterGrassSprites.Add(grass);
-                            break;
-                        }
+                    Monitor.Log($"Failed to get grass sprite. Path expected: {relativePath}");
+                }
+                else
+                {
+                    switch (season)
+                    {
+                        case Season.Spring:
+                            {
+                                SpringGrassSprites.Add(grass);
+                                break;
+                            }
+                        case Season.Summer:
+                            {
+                                SummerGrassSprites.Add(grass);
+                                break;
+                            }
+                        case Season.Fall:
+                            {
+                                FallGrassSprites.Add(grass);
+                                break;
+                            }
+                        case Season.Winter:
+                            {
+                                WinterGrassSprites.Add(grass);
+                                break;
+                            }
+                    }
                 }
             }
         }
@@ -180,7 +201,7 @@ namespace MoreGrass
         /// <returns>A relative (to the mods folder) directory.</returns>
         private string GetRelativeDirectory(string absoluteDirectory)
         {
-            string[] splitDirectory = absoluteDirectory.Split('\\');
+            string[] splitDirectory = absoluteDirectory.Split(Path.DirectorySeparatorChar);
             return splitDirectory[splitDirectory.Length - 1];
         }
 
@@ -197,7 +218,7 @@ namespace MoreGrass
         /// <param name="season">The season of grass sprites to load.</param>
         private void LoadDefaultGrass(Season season)
         {
-            Texture2D grassTexture = this.Helper.Content.Load<Texture2D>("TerrainFeatures\\grass", ContentSource.GameContent);
+            Texture2D grassTexture = this.Helper.Content.Load<Texture2D>(Path.Combine("TerrainFeatures", "grass"), ContentSource.GameContent);
 
             switch (season)
             {
