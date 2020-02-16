@@ -2,6 +2,6 @@
 {
     public class ContentPackConfig
     {
-        public bool EnableDefaultGrass { get; set; }
+        public bool EnableDefaultGrass { get; set; } = true;
     }
 }

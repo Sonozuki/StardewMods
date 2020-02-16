@@ -113,6 +113,10 @@ namespace MoreGrass
                 {
                     loadDefaultGrass = false;
                 }
+                else
+                {
+                    contentPack.WriteJsonFile("config.json", new ContentPackConfig());
+                }
 
                 string springDirectory = Path.Combine(contentPack.DirectoryPath, "spring");
                 if (Directory.Exists(springDirectory))
