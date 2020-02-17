@@ -253,10 +253,17 @@ namespace BetterMixedSeeds
                             // Add the to the list [Chance] number of times, so it has an effect on the final result
                             for (int j = 0; j < crop.Chance; j++)
                             {
-                                seedNames.Add(new Seed(0, seedData.SeedName, new string[1] { seasonName }));
+                                // if the seed name is null, load the seed id instead. this is only the case for base game seeds. this is so the code that handles converting ja names to ids doesn't run the base game crops
+                                string seedName = seedData.SeedName;
+                                if (seedData.SeedName == null)
+                                {
+                                    seedName = seedData.SeedId.ToString();
+                                }
+
+                                seedNames.Add(new Seed(0, seedName, new string[1] { seasonName }));
                             }
 
-                            MMonitor.Log($"{seedData.SeedName} has been added to the seed list");
+                            MMonitor.Log($"{seedData.CropName} has been added to the seed list");
                         }
                     }
                 }
