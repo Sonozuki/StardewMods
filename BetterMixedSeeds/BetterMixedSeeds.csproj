@@ -50,7 +50,8 @@
     <Compile Include="Config\ModConfig.cs" />
     <Compile Include="Config\Season.cs" />
     <Compile Include="Config\Seed.cs" />
-    <Compile Include="Data\SeedIndex.cs" />
+    <Compile Include="Data\CropModData.cs" />
+    <Compile Include="Data\SeedData.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Patches\CropPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,7 +59,12 @@
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="pics\greenhouse.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Pathoschild.Stardew.ModBuildConfig.3.0.0\build\Pathoschild.Stardew.ModBuildConfig.targets" Condition="Exists('..\packages\Pathoschild.Stardew.ModBuildConfig.3.0.0\build\Pathoschild.Stardew.ModBuildConfig.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

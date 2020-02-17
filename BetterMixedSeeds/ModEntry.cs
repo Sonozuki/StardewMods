@@ -32,9 +32,6 @@ namespace BetterMixedSeeds
         /// <summary>The mod configuration.</summary>
         public static ModConfig ModConfig { get; private set; }
 
-        /// <summary>The data model for finding the seed name from a crop name.</summary>
-        public static SeedIndex SeedIndex { get; private set; } = new SeedIndex();
-
         /// <summary>The mod entry point.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory as well as the modding api.</param>
         public override void Entry(IModHelper helper)
@@ -209,8 +206,8 @@ namespace BetterMixedSeeds
             PropertyInfo[] modSeasonsInfo = mod.GetType().GetProperties();
 
             // Get the seed index for finding seed names for the crops
-            PropertyInfo seedIndexInfo = SeedIndex.GetType().GetProperty(modName);
-            Dictionary<string, string> seedIndex = (Dictionary<string, string>)seedIndexInfo.GetValue(SeedIndex);
+            PropertyInfo seedIndexInfo = typeof(CropModData).GetProperty(modName);
+            List<SeedData> seedIndex = (List<SeedData>)seedIndexInfo.GetValue(null);
 
             for (int i = 0; i < 4; i++)
             {
@@ -227,23 +224,28 @@ namespace BetterMixedSeeds
                 {
                     if (crop.Enabled)
                     {
-                        string seedName = seedIndex
-                            .Where(seed => seed.Key == crop.Name)
-                            .Select(seed => seed.Value)
+                        SeedData seedData = seedIndex
+                            .Where(seed => seed.CropName == crop.Name)
                             .FirstOrDefault();
 
-                        if (string.IsNullOrEmpty(seedName))
+                        if (string.IsNullOrEmpty(seedData.SeedName) && seedData.SeedId == -1)
                         {
                             MMonitor.Log($"Seed name for {crop.Name} couldn't be found", LogLevel.Error);
                             continue;
                         }
 
+                        if (ModEntry.ModConfig.UseCropYearRequirement && Game1.year < seedData.YearRequirement)
+                        {
+                            MMonitor.Log($"Skipped {crop.Name} as year requirement was not met");
+                            continue;
+                        }
+
                         // If the seed is already in the dictionary, add the season to the array
-                        if (seedNames.Where(seed => seed.Name == seedName).Any())
+                        if (seedNames.Where(seed => seed.Name == seedData.SeedName).Any())
                         {
                             // Add the season to all instances of the seed
                             seedNames
-                                .Where(seed => seed.Name == seedName)
+                                .Where(seed => seed.Name == seedData.SeedName)
                                 .Select(seed => seed.Seasons.Add(seasonName));
                         }
                         else
@@ -251,10 +253,10 @@ namespace BetterMixedSeeds
                             // Add the to the list [Chance] number of times, so it has an effect on the final result
                             for (int j = 0; j < crop.Chance; j++)
                             {
-                                seedNames.Add(new Seed(0, seedName, new string[1] { seasonName }));
+                                seedNames.Add(new Seed(0, seedData.SeedName, new string[1] { seasonName }));
                             }
 
-                            MMonitor.Log($"{seedName} has been added to the seed list");
+                            MMonitor.Log($"{seedData.SeedName} has been added to the seed list");
                         }
                     }
                 }

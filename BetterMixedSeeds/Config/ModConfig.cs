@@ -1,13 +1,15 @@
-﻿using BetterMixedSeeds.Config;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace BetterMixedSeeds
+namespace BetterMixedSeeds.Config
 {
     /// <summary>The mod configuration.</summary>
     public class ModConfig
     {
         /// <summary>The percent chance that a mixed seed is dropped, when fiber isn't dropped, when cutting weeds.</summary>
         public int PercentDropChanceForMixedSeedsWhenNotFiber { get; set; } = 5;
+
+        /// <summary>Whether mixed seeds can only plant seeds if the seed's year requirement is met.</summary>
+        public bool UseCropYearRequirement { get; set; } = true;
 
         /// <summary>All the crops that are in the base game, by season, so the user can disable and choose the chance for each crop</summary>
         public CropMod StardewValley { get; set; } = new CropMod
