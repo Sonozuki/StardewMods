@@ -18,6 +18,9 @@ namespace MoreGrass
         /// <summary>The seasons enum.</summary>
         private enum Season { Spring, Summer, Fall, Winter }
 
+        /// <summary>The mod configuration.</summary>
+        public static ModConfig Config { get; private set; }
+
         /// <summary>The list of all loaded spring grass sprites.</summary>
         public static List<Texture2D> SpringGrassSprites { get; private set; } = new List<Texture2D>();
         /// <summary>The list of all loaded summer grass sprites.</summary>
@@ -31,6 +34,8 @@ namespace MoreGrass
         /// <param name="helper">Provides methods for interacting with the mod directory as well as the modding api.</param>
         public override void Entry(IModHelper helper)
         {
+            Config = helper.ReadConfig<ModConfig>();
+
             ApplyHarmonyPatches();
             bool loadDefaultGrass = LoadContentPacks();
             if (loadDefaultGrass)
@@ -73,6 +78,11 @@ namespace MoreGrass
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(SetupRandomPostFix)))
             );
 
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.GameLocation), "growWeedGrass"),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(GrowWeedGrassPrefix)))
+            );
+
             // winter grass compatibility patch
             if (Helper.ModRegistry.IsLoaded("cat.wintergrass"))
             {
@@ -93,7 +103,7 @@ namespace MoreGrass
                 }
                 else
                 {
-                    Monitor.Log("Couldn't disable Winter Grass, this may cause texture bugs in winter. Winter Grass is not needed with them mod as this mod enables winter grass.", LogLevel.Warn);
+                    Monitor.Log("Couldn't disable Winter Grass, this may cause texture bugs in winter. Winter Grass is not needed with this mod as this mod enables winter grass.", LogLevel.Warn);
                 }
             }
         }
@@ -381,6 +391,33 @@ namespace MoreGrass
         /// <returns>False meaning the original method will never get ran.</returns>
         private static bool WinterGrassFixGrassColorPrefix()
         {
+            return false;
+        }
+
+        /// <summary>This is code that will run before some game code, this is ran everything some grass tries to be grown.</summary>
+        /// <returns>Whether the base method should get ran (Whether grass should grow).</returns>
+        private static bool GrowWeedGrassPrefix()
+        {
+            switch (Game1.currentSeason)
+            {
+                case "spring":
+                    {
+                        return ModEntry.Config.CanGrassGrowInSpring;
+                    }
+                case "summer":
+                    {
+                        return ModEntry.Config.CanGrassGrowInSummer;
+                    }
+                case "fall":
+                    {
+                        return ModEntry.Config.CanGrassGrowInFall;
+                    }
+                case "winter":
+                    {
+                        return ModEntry.Config.CanGrassGrowInWinter;
+                    }
+            }
+
             return false;
         }
     }
