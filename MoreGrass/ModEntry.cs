@@ -4,7 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using MoreGrass.Config;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Network;
 using StardewValley.TerrainFeatures;
+using StardewValley.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,6 +83,11 @@ namespace MoreGrass
             harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.GameLocation), "growWeedGrass"),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(GrowWeedGrassPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.TerrainFeatures.Grass), nameof(StardewValley.TerrainFeatures.Grass.performToolAction)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(ModEntry), nameof(PerformToolActionPrefix)))
             );
 
             // winter grass compatibility patch
@@ -375,7 +382,7 @@ namespace MoreGrass
                     }
             }
 
-            texture.SetValue(__instance, new Lazy<Texture2D>(() => grassTexture ));
+            texture.SetValue(__instance, new Lazy<Texture2D>(() => grassTexture));
             __instance.grassSourceOffset.Value = 0;
         }
 
@@ -418,6 +425,100 @@ namespace MoreGrass
                     }
             }
 
+            return false;
+        }
+
+        private static bool PerformToolActionPrefix(Tool t, int explosion, Vector2 tileLocation, GameLocation location, ref bool __result, Grass __instance)
+        {
+            if (location == null)
+            {
+                location = Game1.currentLocation;
+            }
+
+            if (t != null && t is MeleeWeapon && ((MeleeWeapon)t).type != 2 || explosion > 0)
+            {
+                if (t != null && (t as MeleeWeapon).type != 1)
+                {
+                    DelayedAction.playSoundAfterDelay("daggerswipe", 50, (GameLocation)null, -1);
+                }
+                else
+                {
+                    location.playSound("swordswipe", NetAudio.SoundContext.Default);
+                }
+
+                typeof(Grass).GetMethod("shake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { 3f * (float)Math.PI / 32f, (float)Math.PI / 40f, Game1.random.NextDouble() < 0.5 });
+                int num = explosion <= 0 ? 1 : Math.Max(1, explosion + 2 - Game1.recentMultiplayerRandom.Next(2));
+
+                if (t is MeleeWeapon && t.InitialParentTileIndex == 53)
+                {
+                    num = 2;
+                }
+                __instance.numberOfWeeds.Value = __instance.numberOfWeeds - num;
+
+                Color color = Color.Green;
+                switch (Game1.currentSeason)
+                {
+                    case "spring":
+                        {
+                            color = new Color(60, 180, 58);
+                            break;
+                        }
+                    case "summer":
+                        {
+                            color = new Color(110, 190, 24);
+                            break;
+                        }
+                    case "fall":
+                        {
+                            color = new Color(219, 102, 58);
+                            break;
+                        }
+                    case "winter":
+                        {
+                            color = new Color(76, 214, 183);
+                            break;
+                        }
+                }
+
+                Multiplayer multiplayer = (Multiplayer)typeof(Game1).GetField("multiplayer", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+                multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(28, tileLocation * 64f + new Vector2((float)Game1.random.Next(-16, 16), (float)Game1.random.Next(-16, 16)), color, 8, Game1.random.NextDouble() < 0.5, (float)Game1.random.Next(60, 100), 0, -1, -1f, -1, 0));
+                if (__instance.numberOfWeeds <= 0)
+                {
+                    if (__instance.grassType != (byte)1)
+                    {
+                        Random random = Game1.IsMultiplayer ? Game1.recentMultiplayerRandom : new Random((int)((double)Game1.uniqueIDForThisGame + (double)tileLocation.X * 1000.0 + (double)tileLocation.Y * 11.0 + (double)Game1.CurrentMineLevel + (double)Game1.player.timesReachedMineBottom));
+                        if (random.NextDouble() < 0.005)
+                        {
+                            Game1.createObjectDebris(114, (int)tileLocation.X, (int)tileLocation.Y, -1, 0, 1f, location);
+                        }
+                        else if (random.NextDouble() < 0.01)
+                        {
+                            Game1.createDebris(4, (int)tileLocation.X, (int)tileLocation.Y, random.Next(1, 2), location);
+                        }
+                        else if (random.NextDouble() < 0.02)
+                        {
+                            Game1.createDebris(92, (int)tileLocation.X, (int)tileLocation.Y, random.Next(2, 4), location);
+                        }
+                    }
+                    else if (t is MeleeWeapon && (t.Name.Contains("Scythe") || (t as MeleeWeapon).isScythe(-1)) && ((Game1.IsMultiplayer ? Game1.recentMultiplayerRandom : new Random((int)((double)Game1.uniqueIDForThisGame + (double)tileLocation.X * 1000.0 + (double)tileLocation.Y * 11.0))).NextDouble() < (t.InitialParentTileIndex == 53 ? 0.75 : 0.5) && (Game1.getLocationFromName("Farm") as Farm).tryToAddHay(1) == 0))
+                    {
+                        multiplayer.broadcastSprites(t.getLastFarmerToUse().currentLocation, new TemporaryAnimatedSprite("Maps\\springobjects", Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 178, 16, 16), 750f, 1, 0, t.getLastFarmerToUse().Position - new Vector2(0.0f, 128f), false, false, t.getLastFarmerToUse().Position.Y / 10000f, 0.005f, Color.White, 4f, -0.005f, 0.0f, 0.0f, false)
+                        {
+                            motion = {
+                                Y = -1f
+                            },
+
+                            layerDepth = (float)(1.0 - (double)Game1.random.Next(100) / 10000.0),
+                            delayBeforeAnimationStart = Game1.random.Next(350)
+                        });
+                        Game1.addHUDMessage(new HUDMessage("Hay", 1, true, Color.LightGoldenrodYellow, (Item)new StardewValley.Object(178, 1, false, -1, 0)));
+                    }
+                    __result = true;
+                    return false;
+                }
+            }
+
+            __result = false;
             return false;
         }
     }
