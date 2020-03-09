@@ -1,7 +1,7 @@
-﻿namespace BetterRarecrows
+﻿namespace BetterRarecrows.Config
 {
     /// <summary>The mod configuration.</summary>
-    class ModConfig
+    public class ModConfig
     {
         /// <summary>The number of distinct rarecrows the player needs to have placed on their farm.</summary>
         public int NumberOfRequiredRareCrows { get; set; } = 8;
