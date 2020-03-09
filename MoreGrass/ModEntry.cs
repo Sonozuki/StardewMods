@@ -5,10 +5,6 @@ using MoreGrass.Config;
 using MoreGrass.Patches;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Network;
-using StardewValley.TerrainFeatures;
-using StardewValley.Tools;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -18,21 +14,28 @@ namespace MoreGrass
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod
     {
-        /// <summary>The seasons enum.</summary>
-        private enum Season { Spring, Summer, Fall, Winter }
-
+        /*********
+        ** Accessors 
+        *********/
         /// <summary>The mod configuration.</summary>
         public static ModConfig Config { get; private set; }
 
         /// <summary>The list of all loaded spring grass sprites.</summary>
         public static List<Texture2D> SpringGrassSprites { get; private set; } = new List<Texture2D>();
+
         /// <summary>The list of all loaded summer grass sprites.</summary>
         public static List<Texture2D> SummerGrassSprites { get; private set; } = new List<Texture2D>();
+
         /// <summary>The list of all loaded fall grass sprites.</summary>
         public static List<Texture2D> FallGrassSprites { get; private set; } = new List<Texture2D>();
+
         /// <summary>The list of all loaded winter grass sprites.</summary>
         public static List<Texture2D> WinterGrassSprites { get; private set; } = new List<Texture2D>();
 
+
+        /*********
+        ** Public Methods 
+        *********/
         /// <summary>The mod entry point.</summary>
         /// <param name="helper">Provides methods for interacting with the mod directory as well as the modding api.</param>
         public override void Entry(IModHelper helper)
@@ -59,6 +62,13 @@ namespace MoreGrass
             Monitor.Log($"A total of {WinterGrassSprites.Count} winter sprites have been loaded.");
         }
 
+
+        /*********
+        ** Private Methods 
+        *********/
+        /****
+        ** Methods 
+        ****/
         /// <summary>Apply the harmony patches for replacing game code.</summary>
         private void ApplyHarmonyPatches()
         {
@@ -338,5 +348,11 @@ namespace MoreGrass
                 LoadDefaultGrass(Season.Winter);
             }
         }
+
+        /****
+        ** Enumerators 
+        ****/
+        /// <summary>The seasons enum.</summary>
+        private enum Season { Spring, Summer, Fall, Winter }
     }
 }
