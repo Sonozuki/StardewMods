@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 
 namespace BetterMixedSeeds.Patches
 {
+    /// <summary>Contains patches for patching game code in the StardewValley.Crop class.</summary>
     internal class CropPatch
     {
         /// <summary>Change the condition for the seed index from 473 to 1. (this was preventing Green Beans from being planted as it would decrement the number)</summary>
