@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Better10Hearts
+﻿namespace Better10Hearts.Config
 {
     /// <summary>The mod configuration.</summary>
-    class ModConfig
+    public class ModConfig
     {
         /// <summary>The amount of stamina the player will gain when talking to an NPC.</summary>
         public int NPCStaminaIncrease { get; set; } = 20;
