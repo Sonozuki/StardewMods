@@ -6,17 +6,14 @@ using System.IO;
 namespace CustomizeCursorSprite
 {
     /// <summary>The mod entry point.</summary>
-    class CustomizeCursorSprite : Mod, IAssetEditor
+    public class ModEntry : Mod, IAssetEditor
     {
         /// <summary>The mod entry point.</summary>
         /// <param name="helper">Provides method for interacting with the modding API and mod directory.</param>
         public override void Entry(IModHelper helper)
         {
-            // Get the path for the cursor asset
-            string cursorPath = Path.Combine(Helper.DirectoryPath, "Assets", "Cursor.png");
-
-            // Check the cursor asset exists
-            if (!File.Exists(cursorPath))
+            // check the cursor asset exists
+            if (!File.Exists(Path.Combine(this.Helper.DirectoryPath, "assets", "Cursor.png")))
             {
                 this.Monitor.Log("Cursor asset missing from assets folder", LogLevel.Warn);
             }
@@ -28,11 +25,9 @@ namespace CustomizeCursorSprite
         /// <returns>True if the passed asset is one that needs to be changed.</returns>
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            string cursorPath = Path.Combine(Helper.DirectoryPath, "Assets", "cursor.png");
-
             if (asset.AssetNameEquals("LooseSprites/Cursors"))
             {
-                return File.Exists(cursorPath);
+                return File.Exists(Path.Combine(Helper.DirectoryPath, "assets", "cursor.png"));
             }
 
             return false;
@@ -43,7 +38,7 @@ namespace CustomizeCursorSprite
         /// <param name="asset">The asset data.</param>
         public void Edit<T>(IAssetData asset)
         {
-            Texture2D cursorTexture = this.Helper.Content.Load<Texture2D>("Assets/Cursor.png", ContentSource.ModFolder);
+            Texture2D cursorTexture = this.Helper.Content.Load<Texture2D>("assets/Cursor.png", ContentSource.ModFolder);
             asset.AsImage().PatchImage(cursorTexture, sourceArea: new Rectangle(0, 0, 126, 27), targetArea: new Rectangle(0, 0, 126, 27), patchMode: PatchMode.Replace);
         }
     }
