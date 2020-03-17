@@ -912,5 +912,28 @@ namespace BetterMixedSeeds.Config
                 }),
             winter: null
         );
+
+        /// <summary>All the crops that are in the Tropical Farm mod, by season, so the user can disable and choose the chance for each crop.</summary>
+        public CropMod TropicalFarm { get; set; } = new CropMod
+        (
+            spring: new Season(
+                new List<Crop>
+                {
+                    new Crop("Tuberose", true, 1)
+                }),
+            summer: new Season(
+                new List<Crop>
+                {
+                    new Crop("Chinese Hibiscus", true, 1),
+                    new Crop("Night-Blooming Jasmine", true, 1),
+                    new Crop("Snakefruit", true, 1)
+                }),
+            fall: new Season(
+                new List<Crop>
+                {
+                    new Crop("Snakefruit", true, 1)
+                }),
+            winter: null
+        );
     }
 }

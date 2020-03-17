@@ -67,7 +67,6 @@ namespace BetterMixedSeeds
         ** Methods
         ****/
         /// <summary>Apply the harmony patches for replacing game code.</summary>
-        /// <param name="uniqueId">The mod unique id.</param>
         private void ApplyHarmonyPatches()
         {
             // create a new Harmony instance for patching source code
@@ -75,7 +74,7 @@ namespace BetterMixedSeeds
 
             // apply the patches
             harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Crop), nameof(StardewValley.Crop), new Type[] { typeof(int), typeof(int), typeof(int) }),
+                original: AccessTools.Constructor(typeof(StardewValley.Crop), new Type[] { typeof(int), typeof(int), typeof(int) }),
                 transpiler: new HarmonyMethod(AccessTools.Method(typeof(CropPatch), nameof(CropPatch.ConstructorTranspile)))
             );
 
@@ -190,7 +189,8 @@ namespace BetterMixedSeeds
                 { "BlatantDecoy.SodaVine", "SodaVine" },
                 { "amburr.spoopyvalley", "SpoopyValley" },
                 { "yaramy.svbakery", "StardewBakery"},
-                { "Hesper.JA.Succulents", "Succulents" }
+                { "Hesper.JA.Succulents", "Succulents" },
+                { "SSaturn.TropicalFarm", "TropicalFarm" }
             };
 
             foreach (var integratedMod in integratedMods)
