@@ -12,15 +12,8 @@ using System.IO;
 namespace FarmAnimalVarietyRedux
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod, IAssetEditor
+    public class ModEntry : Mod
     {
-        /*********
-        ** Fields 
-        *********/
-        /// <summary>All the new animals in the structure the game requires to read them.</summary>
-        private List<string> AnimalDataStrings = new List<string>();
-
-
         /*********
         ** Accessors
         *********/
@@ -46,25 +39,6 @@ namespace FarmAnimalVarietyRedux
 
             this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             this.Helper.Events.Input.ButtonPressed += OnButtonPressed;
-        }
-
-        /// <summary>Get whether this instance can edit the given asset.</summary>
-        /// <param name="asset">Basic metadata about the asset being loaded.</param>
-        public bool CanEdit<T>(IAssetInfo asset)
-        {
-            return asset.AssetNameEquals(Path.Combine("Data", "FarmAnimals"));
-        }
-
-        /// <summary>Edit a matched asset.</summary>
-        /// <param name="asset">A helper which encapsulates metadata about an asset and enables changes to it.</param>
-        public void Edit<T>(IAssetData asset)
-        {
-            var data = asset.AsDictionary<string, string>().Data;
-            foreach (var animalData in AnimalDataStrings)
-            {
-                string animalType = animalData.Split('/')[25];
-                data.Add(animalType, animalData);
-            }
         }
 
 
