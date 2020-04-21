@@ -52,7 +52,7 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.harvestType.Value = Convert.ToByte(strArray[13]);
             __instance.showDifferentTextureWhenReadyForHarvest.Value = Convert.ToBoolean(strArray[14]);
             __instance.buildingTypeILiveIn.Value = strArray[15];
-            __instance.Sprite = GetAnimatedSprite(__instance);
+            __instance.Sprite = GetAnimatedSprite(Convert.ToInt32(strArray[16]), Convert.ToInt32(strArray[17]), __instance);
             __instance.frontBackSourceRect.Value = new Microsoft.Xna.Framework.Rectangle(0, 0, Convert.ToInt32(strArray[16]), Convert.ToInt32(strArray[17]));
             __instance.sidewaysSourceRect.Value = new Microsoft.Xna.Framework.Rectangle(0, 0, Convert.ToInt32(strArray[18]), Convert.ToInt32(strArray[19]));
             __instance.fullnessDrain.Value = Convert.ToByte(strArray[20]);
@@ -74,7 +74,7 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <summary>Create an <see cref="AnimatedSprite"/> for the passed <see cref="FarmAnimal"/>.</summary>
         /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
         /// <returns>False meaning the original method won't get ran.</returns>
-        private static AnimatedSprite GetAnimatedSprite(FarmAnimal __instance)
+        private static AnimatedSprite GetAnimatedSprite(int spriteWidth, int spriteHeight, FarmAnimal __instance)
         {
             // get sprite name
             string textureName = __instance.type.Value;
@@ -135,6 +135,10 @@ namespace FarmAnimalVarietyRedux.Patches
             // manually create animated sprite so the custom sprite sheets can be used
             var animatedSprite = new AnimatedSprite();
             typeof(AnimatedSprite).GetField("spriteTexture", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(animatedSprite, animalSpriteSheet);
+
+            animatedSprite.SpriteWidth = spriteWidth;
+            animatedSprite.SpriteHeight = spriteHeight;
+            animatedSprite.CurrentFrame = 0;
             return animatedSprite;
         }
     }

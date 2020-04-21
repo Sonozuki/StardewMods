@@ -132,11 +132,12 @@ namespace FarmAnimalVarietyRedux.Models
                 isValid = false;
             }
 
-            if (SoundId == null)
-            {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, SoundId was not valid on Animal: {animalName}.", LogLevel.Error);
-                isValid = false;
-            }
+            // TODO: ensure the sound id exists
+            //if (SoundId == null)
+            //{
+                //ModEntry.ModMonitor.Log($"Animal Data Validation failed, SoundId was not valid on Animal: {animalName}.", LogLevel.Error);
+                //isValid = false;
+            //}
 
             if (FrontAndBackSpriteWidth <= 0)
             {
