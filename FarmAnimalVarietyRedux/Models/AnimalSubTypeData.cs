@@ -1,5 +1,4 @@
 ﻿using StardewModdingAPI;
-using System;
 
 namespace FarmAnimalVarietyRedux.Models
 {
@@ -15,7 +14,7 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>The item id of the deluxe product (API tokens are accepted).</summary>
         public string DeluxeProductId { get; set; }
 
-        
+
         /*********
         ** Public Methods
         *********/

@@ -1,5 +1,4 @@
 ﻿using StardewModdingAPI;
-using System;
 using System.Collections.Generic;
 
 namespace FarmAnimalVarietyRedux.Models
@@ -10,6 +9,9 @@ namespace FarmAnimalVarietyRedux.Models
         /*********
         ** Accessors
         *********/
+        /// <summary>The name of the animal.</summary>
+        public string Name { get; set; }
+
         /// <summary>The description of the animal.</summary>
         public string Description { get; set; }
 
@@ -44,13 +46,10 @@ namespace FarmAnimalVarietyRedux.Models
         public int SideSpriteHeight { get; set; }
 
         /// <summary>The amount the animal's hunger bar will drain each night.</summary>
-        public int FullnessDrain { get; set; }
+        public byte FullnessDrain { get; set; }
 
         /// <summary>The amount the animal's happiness bar will drain each night.</summary>
-        public int HappinessDrain { get; set; }
-
-        /// <summary>The amount the animal's happiness bar will increase when pet.</summary>
-        public int HappinessIncrease { get; set; }
+        public byte HappinessDrain { get; set; }
 
         /// <summary>The amount the animal costs.</summary>
         public int BuyPrice { get; set; }
@@ -72,6 +71,8 @@ namespace FarmAnimalVarietyRedux.Models
         ** Public Methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">The name of the animal.</param>
+        /// <param name="description">The description of the animal.</param>
         /// <param name="daysToProduce">The number of days it takes the animal to produce product.</param>
         /// <param name="daysTillMature">The number of days it takes the animal to become an adult.</param>
         /// <param name="soundId">The id of the sound the animal will make.</param>
@@ -83,16 +84,16 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="sideSpriteHeight">The height of the animal sprite when it's looking to the side.</param>
         /// <param name="fullnessDrain">The amount the animal's hunger bar will drain each night.</param>
         /// <param name="happinessDrain">The amount the animal's happiness bar will drain each night.</param>
-        /// <param name="happinessIncrease">The amount the animal's happiness bar will increase when pet.</param>
         /// <param name="buyPrice">The amount the animal costs.</param>
         /// <param name="buildings">The name(s) of the building(s) the animal can be housed in.</param>
         /// <param name="walkSpeed">The walk speed multiple of the animal.</param>
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
-        public AnimalData(string description, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
-            int sideSpriteWidth, int sideSpriteHeight, int fullnessDrain, int happinessDrain, int happinessIncrease, int buyPrice, List<string> buildings, float walkSpeed, int bedTime, 
+        public AnimalData(string name, string description, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
+            int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, float walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {
+            Name = name;
             Description = description;
             DaysToProduce = daysToProduce;
             DaysTillMature = daysTillMature;
@@ -105,7 +106,6 @@ namespace FarmAnimalVarietyRedux.Models
             SideSpriteHeight = sideSpriteHeight;
             FullnessDrain = fullnessDrain;
             HappinessDrain = happinessDrain;
-            HappinessIncrease = happinessIncrease;
             BuyPrice = buyPrice;
             Buildings = buildings;
             WalkSpeed = walkSpeed;
@@ -171,12 +171,6 @@ namespace FarmAnimalVarietyRedux.Models
             if (HappinessDrain < 0)
             {
                 ModEntry.ModMonitor.Log($"Animal Data Validation failed, HappinessDrain was not valid on Animal: {animalName}.", LogLevel.Error);
-                isValid = false;
-            }
-
-            if (HappinessIncrease < 0)
-            {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, HappinessIncrease was not valid on Animal: {animalName}.", LogLevel.Error);
                 isValid = false;
             }
 

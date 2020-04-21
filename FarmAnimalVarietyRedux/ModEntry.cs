@@ -1,18 +1,19 @@
 ﻿using FarmAnimalVarietyRedux.Models;
-using FarmAnimalVarietyRedux.UI;
-using Microsoft.Xna.Framework;
+using FarmAnimalVarietyRedux.Patches;
+using Harmony;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace FarmAnimalVarietyRedux
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod
+    public class ModEntry : Mod, IAssetEditor
     {
         /*********
         ** Accessors
@@ -26,6 +27,9 @@ namespace FarmAnimalVarietyRedux
         /// <summary>A list of all the animals.</summary>
         public static List<Animal> Animals { get; private set; } = new List<Animal>();
 
+        /// <summary>The custom animal data for the custom farm animals.</summary>
+        public Dictionary<string, string> DataStrings { get; private set; } = new Dictionary<string, string>();
+
 
         /*********
         ** Public Methods 
@@ -37,408 +41,76 @@ namespace FarmAnimalVarietyRedux
             ModHelper = this.Helper;
             ModMonitor = this.Monitor;
 
-            this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-            this.Helper.Events.Input.ButtonPressed += OnButtonPressed;
+            ApplyHarmonyPatches();
+            LoadContentPacks();
+        }
+
+        /// <summary>This will call when loading each asset, if the mail asset is being loaded, return true as we want to edit this.</summary>
+        /// <typeparam name="T">The type of the assets being loaded.</typeparam>
+        /// <param name="asset">The asset info being loaded.</param>
+        /// <returns>True if the assets being loaded needs to be edited.</returns>
+        public bool CanEdit<T>(IAssetInfo asset) => asset.AssetNameEquals("Data\\FarmAnimals");
+
+        /// <summary>Edit the farm animals asset to add the the custom data strings.</summary>
+        /// <typeparam name="T">The type of the assets being loaded.</typeparam>
+        /// <param name="asset">The asset data being loaded.</param>
+        public void Edit<T>(IAssetData asset)
+        {
+            var data = asset.AsDictionary<string, string>().Data;
+            foreach (var dataString in DataStrings)
+                data.Add(dataString);
         }
 
 
         /*********
         ** Private Methods 
         *********/
-        /****
-        ** Event Handlers
-        ****/
-        /// <summary>Invoked when the player presses a button.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        /// <summary>Apply the harmony patches for patching game code.</summary>
+        private void ApplyHarmonyPatches()
         {
-            if (e.Button == SButton.L)
-            {
-                if (Game1.activeClickableMenu is AnimalPurchaseMenu)
-                {
-                    Game1.activeClickableMenu = null;
-                }
-                else
-                {
-                    Game1.activeClickableMenu = new AnimalPurchaseMenu();
-                }
-            }
+            // create a new Harmony instance for patching source code
+            HarmonyInstance harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
 
-            if (e.Button == SButton.J)
-            {
-                if (Game1.activeClickableMenu is PurchaseAnimalsMenu)
-                {
-                    Game1.activeClickableMenu = null;
-                }
-                else
-                {
-                    Game1.activeClickableMenu = new PurchaseAnimalsMenu(Utility.getPurchaseAnimalStock());
-                }
-            }
-        }
+            // apply the patches
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.FarmAnimal), new Type[] { typeof(string), typeof(long), typeof(long) }),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ConstructorPostFix)))
+            );
 
-        /// <summary>Invoked when the player loads up a save.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
-        {
-            // if the user loads another save without restarting the game then there will be duplicates in the Animals list
-            Animals = new List<Animal>();
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.reloadData)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ReloadDataPrefix)))
+            );
 
-            LoadDefaultAnimals();
-            LoadContentPacks();
-        }
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.Menus.PurchaseAnimalsMenu), new Type[] { typeof(List<StardewValley.Object>) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ConstructorPrefix)))
+            );
 
-        /****
-        ** Methods
-        ****/
-        /// <summary>Load all the animal data for the in-game animals.</summary>
-        private void LoadDefaultAnimals()
-        {
-            // chicken
-            Animals.Add(new Animal(
-                name: "Chicken",
-                data: new AnimalData(
-                    description: "Well cared-for adult chickens lay eggs every day.\nLives in the coop.",
-                    daysToProduce: 1,
-                    daysTillMature: 3,
-                    soundId: "cluck",
-                    harvestType: HarvestType.Lay,
-                    harvestToolName: null,
-                    frontAndBackSpriteWidth: 16,
-                    frontAndBackSpriteHeight: 16,
-                    sideSpriteWidth: 16,
-                    sideSpriteHeight: 16,
-                    fullnessDrain: 4,
-                    happinessDrain: 7,
-                    happinessIncrease: 36,
-                    buyPrice: 800,
-                    buildings: new List<string>
-                    {
-                        "Coop",
-                        "Big Coop",
-                        "Deluxe Coop"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(0, 448, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "White Chicken",
-                        data: new AnimalSubTypeData(
-                            productId: "176",
-                            deluxeProductId: "174"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "white chicken"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babywhite chicken"), ContentSource.GameContent))
-                    ),
-                    new AnimalSubType(
-                        name: "Brown Chicken",
-                        data: new AnimalSubTypeData(
-                            productId: "180",
-                            deluxeProductId: "182"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "brown chicken"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babybrown chicken"), ContentSource.GameContent))
-                    ),
-                }
-            ));
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.getAnimalDescription)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.GetAnimalDescriptionPostFix)))
+            );
 
-            // cow
-            Animals.Add(new Animal(
-                name: "Cow",
-                data: new AnimalData(
-                    description: "Adults can be milked daily. A milk pail is required to harvest the milk.\nLives in the barn.",
-                    daysToProduce: 1,
-                    daysTillMature: 5,
-                    soundId: "cow",
-                    harvestType: HarvestType.Tool,
-                    harvestToolName: "Milk Pail",
-                    frontAndBackSpriteWidth: 32,
-                    frontAndBackSpriteHeight: 32,
-                    sideSpriteWidth: 32,
-                    sideSpriteHeight: 32,
-                    fullnessDrain: 15,
-                    happinessDrain: 5,
-                    happinessIncrease:35 ,
-                    buyPrice: 1500,
-                    buildings: new List<string>
-                    {
-                        "Barn",
-                        "Big Barn",
-                        "Deluxe Barn"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(32, 448, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "White Cow",
-                        data: new AnimalSubTypeData(
-                            productId: "184",
-                            deluxeProductId: "186"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "white cow"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babywhite cow"), ContentSource.GameContent))
-                    ),
-                }
-            ));
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.performHoverAction)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.PerformHoverActionPrefix)))
+            );
 
-            // goat
-            Animals.Add(new Animal(
-                name: "Goat",
-                data: new AnimalData(
-                    description: "Happy adults provide goat milk every other day. A milk pail is required to harvest the milk.\nLives in the barn.",
-                    daysToProduce: 2,
-                    daysTillMature: 5,
-                    soundId: "goat",
-                    harvestType: HarvestType.Tool,
-                    harvestToolName: "Milk Pail",
-                    frontAndBackSpriteWidth: 32,
-                    frontAndBackSpriteHeight: 32,
-                    sideSpriteWidth: 32,
-                    sideSpriteHeight: 32,
-                    fullnessDrain: 10,
-                    happinessDrain: 5,
-                    happinessIncrease: 30,
-                    buyPrice: 4000,
-                    buildings: new List<string>
-                    {
-                        "Big Barn",
-                        "Deluxe Barn"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(64, 448, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "Goat",
-                        data: new AnimalSubTypeData(
-                            productId: "436",
-                            deluxeProductId: "438"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "goat"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babygoat"), ContentSource.GameContent))
-                    ),
-                }
-            ));
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveLeftClick)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveLeftClickPrefix)))
+            );
 
-            // duck
-            Animals.Add(new Animal(
-                name: "Duck",
-                data: new AnimalData(
-                    description: "Happy adults lay duck eggs every other day.\nLives in the coop.",
-                    daysToProduce: 2,
-                    daysTillMature: 5,
-                    soundId: "Duck",
-                    harvestType: HarvestType.Lay,
-                    harvestToolName: null,
-                    frontAndBackSpriteWidth: 16,
-                    frontAndBackSpriteHeight: 16,
-                    sideSpriteWidth: 16,
-                    sideSpriteHeight: 16,
-                    fullnessDrain: 3,
-                    happinessDrain: 8,
-                    happinessIncrease: 32,
-                    buyPrice: 4000,
-                    buildings: new List<string>
-                    {
-                        "Big Coop",
-                        "Deluxe Coop"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(0, 464, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "Duck",
-                        data: new AnimalSubTypeData(
-                            productId: "442",
-                            deluxeProductId: "444"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "duck"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babywhite chicken"), ContentSource.GameContent))
-                    ),
-                }
-            )); ; ;
-        
-            // sheep
-            Animals.Add(new Animal(
-                name: "Sheep",
-                data: new AnimalData(
-                    description: "Adults can be shorn for wool. Sheep who form a close bond with their owners can grow wool faster. A pair of shears is required to harvest the wool.\nLives in the barn.",
-                    daysToProduce: 3,
-                    daysTillMature: 4,
-                    soundId: "sheep",
-                    harvestType: HarvestType.Tool,
-                    harvestToolName: "Shears",
-                    frontAndBackSpriteWidth: 32,
-                    frontAndBackSpriteHeight: 32,
-                    sideSpriteWidth: 32,
-                    sideSpriteHeight: 32,
-                    fullnessDrain: 15,
-                    happinessDrain: 5,
-                    happinessIncrease: 35,
-                    buyPrice: 8000,
-                    buildings: new List<string>
-                    {
-                        "Deluxe Barn"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(32, 464, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "Sheep",
-                        data: new AnimalSubTypeData(
-                            productId: "440",
-                            deluxeProductId: "-1"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "sheep"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babysheep"), ContentSource.GameContent),
-                            harvestedSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "shearedsheep"), ContentSource.GameContent))
-                    ),
-                }
-            ));
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.draw), new Type[] { typeof(SpriteBatch) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.DrawPrefix)))
+            );
 
-            // rabbit
-            Animals.Add(new Animal(
-                name: "Rabbit",
-                data: new AnimalData(
-                    description: "These are wooly rabbits! They shed precious wool every few days.\nLives in the coop.",
-                    daysToProduce: 4,
-                    daysTillMature: 6,
-                    soundId: "rabbit",
-                    harvestType: HarvestType.Lay,
-                    harvestToolName: null,
-                    frontAndBackSpriteWidth: 16,
-                    frontAndBackSpriteHeight: 16,
-                    sideSpriteWidth: 16,
-                    sideSpriteHeight: 16,
-                    fullnessDrain: 10,
-                    happinessDrain: 5,
-                    happinessIncrease: 35,
-                    buyPrice: 8000,
-                    buildings: new List<string>
-                    {
-                        "Deluxe Coop"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(64, 464, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "Rabbit",
-                        data: new AnimalSubTypeData(
-                            productId: "440",
-                            deluxeProductId: "446"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "rabbit"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babyrabbit"), ContentSource.GameContent))
-                    ),
-                }
-            ));
-            
-            // pig
-            Animals.Add(new Animal(
-                name: "Pig",
-                data: new AnimalData(
-                    description: "These pigs are trained to find truffles!\nLives in the barn.",
-                    daysToProduce: 1,
-                    daysTillMature: 10,
-                    soundId: "pig",
-                    harvestType: HarvestType.Scavenge,
-                    harvestToolName: null,
-                    frontAndBackSpriteWidth: 32,
-                    frontAndBackSpriteHeight: 32,
-                    sideSpriteWidth: 32,
-                    sideSpriteHeight: 32,
-                    fullnessDrain: 20,
-                    happinessDrain: 5,
-                    happinessIncrease: 35,
-                    buyPrice: 16000,
-                    buildings: new List<string>
-                    {
-                        "Deluxe Barn"
-                    },
-                    walkSpeed: 1,
-                    bedTime: 1900,
-                    seasonsAllowedOutdoors: new List<Season>
-                    {
-                        Season.Spring,
-                        Season.Summer,
-                        Season.Fall
-                    }),
-                shopIcon: GetDefaultShopIcon(new Rectangle(0, 480, 32, 16)),
-                subTypes: new List<AnimalSubType>
-                {
-                    new AnimalSubType(
-                        name: "Pig",
-                        data: new AnimalSubTypeData(
-                            productId: "430",
-                            deluxeProductId: "-1"),
-                        sprites: new AnimalSprites(
-                            adultSpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "pig"), ContentSource.GameContent),
-                            babySpriteSheet: this.Helper.Content.Load<Texture2D>(Path.Combine("animals", "babypig"), ContentSource.GameContent))
-                    ),
-                }
-            ));
-        }
-
-        /// <summary>Get the sub sprite of Game1.MouseCursors.</summary>
-        /// <param name="bound">The rectangle of the sub sprite to get.</param>
-        /// <returns>The sub sprite using bound.</returns>
-        private Texture2D GetDefaultShopIcon(Rectangle bound)
-        {
-            Texture2D shopIconSprite = new Texture2D(Game1.graphics.GraphicsDevice, bound.Width, bound.Height);
-            Color[] shopIconData = new Color[bound.Width * bound.Height];
-
-            Game1.mouseCursors.GetData(0, bound, shopIconData, 0, shopIconData.Length);
-            shopIconSprite.SetData(shopIconData);
-            return shopIconSprite;
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Utility), nameof(Utility.getPurchaseAnimalStock)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(UtilityPatch), nameof(UtilityPatch.GetPurchaseAnimalStockPostFix)))
+            );
         }
 
         /// <summary>Load all the sprites for the new animals from the loaded content packs.</summary>
@@ -478,18 +150,18 @@ namespace FarmAnimalVarietyRedux
                         var sprites = new AnimalSprites(
                             adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{type}.png"), contentPack),
                             babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {type}.png"), contentPack),
-                            harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {type}.png"), contentPack),
+                            harvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvestable {type}.png"), contentPack),
                             springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{type}.png"), contentPack),
-                            springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {type}.png"), contentPack),
+                            springHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvestable {type}.png"), contentPack),
                             springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {type}.png"), contentPack),
                             summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{type}.png"), contentPack),
-                            summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {type}.png"), contentPack),
+                            summerHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvestable {type}.png"), contentPack),
                             summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {type}.png"), contentPack),
                             fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{type}.png"), contentPack),
-                            fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {type}.png"), contentPack),
+                            fallHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvestable {type}.png"), contentPack),
                             fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {type}.png"), contentPack),
                             winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{type}.png"), contentPack),
-                            winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {type}.png"), contentPack),
+                            winterHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvestable {type}.png"), contentPack),
                             winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {type}.png"), contentPack)
                         );
 
@@ -556,6 +228,10 @@ namespace FarmAnimalVarietyRedux
                     }
 
                     Animals.Add(animal);
+
+                    // construct data string for game to use
+                    foreach (var subType in animal.SubTypes)
+                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.Data.ProductId}/{subType.Data.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasHarvestableSpriteSheets()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
                 }
             }
         }

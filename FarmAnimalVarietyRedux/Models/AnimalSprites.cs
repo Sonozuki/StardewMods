@@ -15,7 +15,7 @@ namespace FarmAnimalVarietyRedux.Models
         public Texture2D AdultSpriteSheet { get; set; }
 
         /// <summary>The non seasonal sprite sheet for the animal when it's ready for harvest.</summary>
-        public Texture2D HarvestedSpriteSheet { get; set; }
+        public Texture2D HarvestableSpriteSheet { get; set; }
 
         /// <summary>The non seasonal baby sprite sheet for the animal.</summary>
         public Texture2D BabySpriteSheet { get; set; }
@@ -27,7 +27,7 @@ namespace FarmAnimalVarietyRedux.Models
         public Texture2D SpringAdultSpriteSheet { get; set; }
 
         /// <summary>The spring ready to harvest sprite sheet for the animal.</summary>
-        public Texture2D SpringHarvestedSpriteSheet { get; set; }
+        public Texture2D SpringHarvestableSpriteSheet { get; set; }
 
         /// <summary>The spring baby sprite sheet for the animal.</summary>
         public Texture2D SpringBabySpriteSheet { get; set; }
@@ -39,7 +39,7 @@ namespace FarmAnimalVarietyRedux.Models
         public Texture2D SummerAdultSpriteSheet { get; set; }
 
         /// <summary>The summer ready to harvest sprite sheet for the animal.</summary>
-        public Texture2D SummerHarvestedSpriteSheet { get; set; }
+        public Texture2D SummerHarvestableSpriteSheet { get; set; }
 
         /// <summary>The summer baby sprite sheet of the animal.</summary>
         public Texture2D SummerBabySpriteSheet { get; set; }
@@ -51,7 +51,7 @@ namespace FarmAnimalVarietyRedux.Models
         public Texture2D FallAdultSpriteSheet { get; set; }
 
         /// <summary>The fall ready to harvest sprite sheet for the animal.</summary>
-        public Texture2D FallHarvestedSpriteSheet { get; set; }
+        public Texture2D FallHarvestableSpriteSheet { get; set; }
 
         /// <summary>The fall baby sprite sheet of the animal.</summary>
         public Texture2D FallBabySpriteSheet { get; set; }
@@ -63,7 +63,7 @@ namespace FarmAnimalVarietyRedux.Models
         public Texture2D WinterAdultSpriteSheet { get; set; }
 
         /// <summary>The winter ready to harvest sprite sheet for the animal.</summary>
-        public Texture2D WinterHarvestedSpriteSheet { get; set; }
+        public Texture2D WinterHarvestableSpriteSheet { get; set; }
 
         /// <summary>The winter baby sprite sheet of the animal.</summary>
         public Texture2D WinterBabySpriteSheet { get; set; }
@@ -75,38 +75,38 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>Construct an instance.</summary>
         /// <param name="adultSpriteSheet">The non seasonal adult sprite sheet for the animal.</param>
         /// <param name="babySpriteSheet">The non seasonal sprite sheet for the animal when it's ready for harvest.</param>
-        /// <param name="harvestedSpriteSheet">The non seasonal baby sprite sheet for the animal.</param>
+        /// <param name="harvestableSpriteSheet">The non seasonal baby sprite sheet for the animal.</param>
         /// <param name="springAdultSpriteSheet">The spring adult sprite sheet for the animal.</param>
-        /// <param name="springHarvestedSpriteSheet">The spring ready to harvest sprite sheet for the animal.</param>
+        /// <param name="springHarvestableSpriteSheet">The spring ready to harvest sprite sheet for the animal.</param>
         /// <param name="springBabySpriteSheet">The spring baby sprite sheet for the animal.</param>
         /// <param name="summerAdultSpriteSheet">The summer adult sprite sheet of the animal.</param>
-        /// <param name="summerHarvestedSpriteSheet">The summer ready to harvest sprite sheet for the animal.</param>
+        /// <param name="summerHarvestableSpriteSheet">The summer ready to harvest sprite sheet for the animal.</param>
         /// <param name="summerBabySpriteSheet">The summer baby sprite sheet of the animal.</param>
         /// <param name="fallAdultSpriteSheet">The fall adult sprite sheet of the animal.</param>
-        /// <param name="fallHarvestedSpriteSheet">The fall ready to harvest sprite sheet for the animal.</param>
+        /// <param name="fallHarvestableSpriteSheet">The fall ready to harvest sprite sheet for the animal.</param>
         /// <param name="fallBabySpriteSheet">The fall baby sprite sheet of the animal.</param>
         /// <param name="winterAdultSpriteSheet">The winter adult sprite sheet of the animal.</param>
-        /// <param name="winterHarvestedSpriteSheet">The winter ready to harvest sprite sheet for the animal.</param>
+        /// <param name="winterHarvestableSpriteSheet">The winter ready to harvest sprite sheet for the animal.</param>
         /// <param name="winterBabySpriteSheet">The winter baby sprite sheet of the animal.</param>
-        public AnimalSprites(Texture2D adultSpriteSheet, Texture2D babySpriteSheet, Texture2D harvestedSpriteSheet = null, Texture2D springAdultSpriteSheet = null, Texture2D springHarvestedSpriteSheet = null,
-            Texture2D springBabySpriteSheet = null, Texture2D summerAdultSpriteSheet = null, Texture2D summerHarvestedSpriteSheet = null, Texture2D summerBabySpriteSheet = null, 
-            Texture2D fallAdultSpriteSheet = null, Texture2D fallHarvestedSpriteSheet = null, Texture2D fallBabySpriteSheet = null, Texture2D winterAdultSpriteSheet = null, Texture2D winterHarvestedSpriteSheet = null,
+        public AnimalSprites(Texture2D adultSpriteSheet, Texture2D babySpriteSheet, Texture2D harvestableSpriteSheet = null, Texture2D springAdultSpriteSheet = null, Texture2D springHarvestableSpriteSheet = null,
+            Texture2D springBabySpriteSheet = null, Texture2D summerAdultSpriteSheet = null, Texture2D summerHarvestableSpriteSheet = null, Texture2D summerBabySpriteSheet = null, 
+            Texture2D fallAdultSpriteSheet = null, Texture2D fallHarvestableSpriteSheet = null, Texture2D fallBabySpriteSheet = null, Texture2D winterAdultSpriteSheet = null, Texture2D winterHarvestableSpriteSheet = null,
             Texture2D winterBabySpriteSheet = null)
         {
             AdultSpriteSheet = adultSpriteSheet;
             BabySpriteSheet = babySpriteSheet;
-            HarvestedSpriteSheet = harvestedSpriteSheet;
+            HarvestableSpriteSheet = harvestableSpriteSheet;
             SpringAdultSpriteSheet = springAdultSpriteSheet;
-            SpringHarvestedSpriteSheet = springHarvestedSpriteSheet;
+            SpringHarvestableSpriteSheet = springHarvestableSpriteSheet;
             SpringBabySpriteSheet = springBabySpriteSheet;
             SummerAdultSpriteSheet = summerAdultSpriteSheet;
-            SummerHarvestedSpriteSheet = summerHarvestedSpriteSheet;
+            SummerHarvestableSpriteSheet = summerHarvestableSpriteSheet;
             SummerBabySpriteSheet = summerBabySpriteSheet;
             FallAdultSpriteSheet = fallAdultSpriteSheet;
-            FallHarvestedSpriteSheet = fallHarvestedSpriteSheet;
+            FallHarvestableSpriteSheet = fallHarvestableSpriteSheet;
             FallBabySpriteSheet = fallBabySpriteSheet;
             WinterAdultSpriteSheet = winterAdultSpriteSheet;
-            WinterHarvestedSpriteSheet = winterHarvestedSpriteSheet;
+            WinterHarvestableSpriteSheet = winterHarvestableSpriteSheet;
             WinterBabySpriteSheet = winterBabySpriteSheet;
         }
 
@@ -132,6 +132,44 @@ namespace FarmAnimalVarietyRedux.Models
 
             // winter
             if ((WinterAdultSpriteSheet != null || AdultSpriteSheet != null) && (WinterBabySpriteSheet != null || BabySpriteSheet != null))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>Get a valid sprite sheet.</summary>
+        /// <param name="isBaby">Whether the sprite sheet should be the baby version.</param>
+        /// <param name="isHarvested">Whether the sprite sheet should be the harvestable version.</param>
+        /// <param name="season">The season the sprite sheet should be in.</param>
+        /// <returns>The sprite sheet </returns>
+        public Texture2D GetSpriteSheet(bool isBaby, bool isHarvestable, Season season)
+        {
+            return (isBaby, isHarvestable, season) switch
+            {
+                (false, false, Season.Spring) => SpringAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, false, Season.Summer) => SummerAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, false, Season.Fall) => FallAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, false, Season.Winter) => WinterAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, true, Season.Spring) => SpringHarvestableSpriteSheet ?? HarvestableSpriteSheet ?? SpringAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, true, Season.Summer) => SummerHarvestableSpriteSheet ?? HarvestableSpriteSheet ?? SummerAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, true, Season.Fall) => FallHarvestableSpriteSheet ?? HarvestableSpriteSheet ?? FallAdultSpriteSheet ?? AdultSpriteSheet,
+                (false, true, Season.Winter) => WinterHarvestableSpriteSheet ?? HarvestableSpriteSheet ?? WinterAdultSpriteSheet ?? AdultSpriteSheet,
+                (true, false, Season.Spring) => SpringBabySpriteSheet ?? BabySpriteSheet,
+                (true, false, Season.Summer) => SummerBabySpriteSheet ?? BabySpriteSheet,
+                (true, false, Season.Fall) => FallBabySpriteSheet ?? BabySpriteSheet,
+                (true, false, Season.Winter) => WinterBabySpriteSheet ?? BabySpriteSheet,
+                (true, _, _) => BabySpriteSheet
+            };
+        }
+
+        /// <summary>Get whether the animal has valid harvestable sprite sheets.</summary>
+        /// <returns>Whether the animal has valid harvestable sprite sheets.</returns>
+        public bool HasHarvestableSpriteSheets()
+        {
+            if (HarvestableSpriteSheet != null)
+                return true;
+
+            if (SpringHarvestableSpriteSheet != null && SummerHarvestableSpriteSheet != null && FallHarvestableSpriteSheet != null && WinterHarvestableSpriteSheet != null)
                 return true;
 
             return false;
