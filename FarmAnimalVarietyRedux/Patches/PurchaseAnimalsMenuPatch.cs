@@ -50,7 +50,7 @@ namespace FarmAnimalVarietyRedux.Patches
             // get the top left position for the background asset
             Vector2 backgroundTopLeftPosition = Utility.getTopLeftPositionForCenteringOnScreen(__instance.width, __instance.height);
             __instance.xPositionOnScreen = (int)backgroundTopLeftPosition.X;
-            __instance.yPositionOnScreen = (int)backgroundTopLeftPosition.Y - __instance.height / 3;
+            __instance.yPositionOnScreen = (int)backgroundTopLeftPosition.Y;
 
             __instance.animalsToPurchase = new List<ClickableTextureComponent>();
             // add a clickable texture for each animal

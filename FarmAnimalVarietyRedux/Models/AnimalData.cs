@@ -73,6 +73,7 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>Construct an instance.</summary>
         /// <param name="name">The name of the animal.</param>
         /// <param name="description">The description of the animal.</param>
+        /// <param name="types">The sub types of the animal.</param>
         /// <param name="daysToProduce">The number of days it takes the animal to produce product.</param>
         /// <param name="daysTillMature">The number of days it takes the animal to become an adult.</param>
         /// <param name="soundId">The id of the sound the animal will make.</param>
@@ -89,12 +90,13 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="walkSpeed">The walk speed multiple of the animal.</param>
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
-        public AnimalData(string name, string description, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
+        public AnimalData(string name, string description, List<string> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
             int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, float walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {
             Name = name;
             Description = description;
+            Types = types;
             DaysToProduce = daysToProduce;
             DaysTillMature = daysTillMature;
             SoundId = soundId;
@@ -187,23 +189,29 @@ namespace FarmAnimalVarietyRedux.Models
                 isValid = false;
             }
 
-            if (WalkSpeed <= 0)
+            if (Types == null)
             {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, WalkSpeed was not valid on Animal: {animalName}.", LogLevel.Error);
+                ModEntry.ModMonitor.Log($"Animal Data Validation failed, Types was not valid on Animal: {animalName}.", LogLevel.Error);
                 isValid = false;
             }
 
-            if (BedTime < 0)
-            {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, BedTime was not valid on Animal: {animalName}.", LogLevel.Error);
-                isValid = false;
-            }
+            //if (WalkSpeed <= 0)
+            //{
+                //ModEntry.ModMonitor.Log($"Animal Data Validation failed, WalkSpeed was not valid on Animal: {animalName}.", LogLevel.Error);
+                //isValid = false;
+            //}
 
-            if (SeasonsAllowedOutdoors == null)
-            {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, SeasonsAllowedOutdoors was not valid on Animal: {animalName}.", LogLevel.Error);
-                isValid = false;
-            }
+            //if (BedTime < 0)
+            //{
+                //ModEntry.ModMonitor.Log($"Animal Data Validation failed, BedTime was not valid on Animal: {animalName}.", LogLevel.Error);
+                //isValid = false;
+            //}
+
+            //if (SeasonsAllowedOutdoors == null)
+            //{
+                //ModEntry.ModMonitor.Log($"Animal Data Validation failed, SeasonsAllowedOutdoors was not valid on Animal: {animalName}.", LogLevel.Error);
+                //isValid = false;
+            //}
 
             return isValid;
         }

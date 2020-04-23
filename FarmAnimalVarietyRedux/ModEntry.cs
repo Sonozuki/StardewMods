@@ -3,7 +3,6 @@ using FarmAnimalVarietyRedux.Patches;
 using Harmony;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
@@ -30,6 +29,12 @@ namespace FarmAnimalVarietyRedux
         /// <summary>The custom animal data for the custom farm animals.</summary>
         public Dictionary<string, string> DataStrings { get; private set; } = new Dictionary<string, string>();
 
+        /// <summary>Whether the content packs have been loaded.</summary>
+        public bool ContentPacksLoaded { get; set; }
+
+        /// <summary>The singleton instance of the <see cref="ModEntry"/>.</summary>
+        public static ModEntry Instance { get; set; }
+
 
         /*********
         ** Public Methods 
@@ -40,9 +45,9 @@ namespace FarmAnimalVarietyRedux
         {
             ModHelper = this.Helper;
             ModMonitor = this.Monitor;
+            Instance = this;
 
             ApplyHarmonyPatches();
-            LoadContentPacks();
         }
 
         /// <summary>This will call when loading each asset, if the mail asset is being loaded, return true as we want to edit this.</summary>
@@ -61,60 +66,8 @@ namespace FarmAnimalVarietyRedux
                 data.Add(dataString);
         }
 
-
-        /*********
-        ** Private Methods 
-        *********/
-        /// <summary>Apply the harmony patches for patching game code.</summary>
-        private void ApplyHarmonyPatches()
-        {
-            // create a new Harmony instance for patching source code
-            HarmonyInstance harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
-
-            // apply the patches
-            harmony.Patch(
-                original: AccessTools.Constructor(typeof(StardewValley.FarmAnimal), new Type[] { typeof(string), typeof(long), typeof(long) }),
-                postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ConstructorPostFix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.reloadData)),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ReloadDataPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Constructor(typeof(StardewValley.Menus.PurchaseAnimalsMenu), new Type[] { typeof(List<StardewValley.Object>) }),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ConstructorPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.getAnimalDescription)),
-                postfix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.GetAnimalDescriptionPostFix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.performHoverAction)),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.PerformHoverActionPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveLeftClick)),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveLeftClickPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.draw), new Type[] { typeof(SpriteBatch) }),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.DrawPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.Utility), nameof(Utility.getPurchaseAnimalStock)),
-                postfix: new HarmonyMethod(AccessTools.Method(typeof(UtilityPatch), nameof(UtilityPatch.GetPurchaseAnimalStockPostFix)))
-            );
-        }
-
         /// <summary>Load all the sprites for the new animals from the loaded content packs.</summary>
-        private void LoadContentPacks()
+        public void LoadContentPacks()
         {
             foreach (IContentPack contentPack in this.Helper.ContentPacks.GetOwned())
             {
@@ -150,18 +103,18 @@ namespace FarmAnimalVarietyRedux
                         var sprites = new AnimalSprites(
                             adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{type}.png"), contentPack),
                             babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {type}.png"), contentPack),
-                            harvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvestable {type}.png"), contentPack),
+                            harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {type}.png"), contentPack),
                             springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{type}.png"), contentPack),
-                            springHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvestable {type}.png"), contentPack),
+                            springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {type}.png"), contentPack),
                             springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {type}.png"), contentPack),
                             summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{type}.png"), contentPack),
-                            summerHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvestable {type}.png"), contentPack),
+                            summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {type}.png"), contentPack),
                             summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {type}.png"), contentPack),
                             fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{type}.png"), contentPack),
-                            fallHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvestable {type}.png"), contentPack),
+                            fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {type}.png"), contentPack),
                             fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {type}.png"), contentPack),
                             winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{type}.png"), contentPack),
-                            winterHarvestableSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvestable {type}.png"), contentPack),
+                            winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {type}.png"), contentPack),
                             winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {type}.png"), contentPack)
                         );
 
@@ -231,9 +184,78 @@ namespace FarmAnimalVarietyRedux
 
                     // construct data string for game to use
                     foreach (var subType in animal.SubTypes)
-                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.Data.ProductId}/{subType.Data.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasHarvestableSpriteSheets()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
+                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.Data.ProductId}/{subType.Data.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
                 }
             }
+
+            // print all added farm animals to trace
+            foreach (var animalDataString in DataStrings)
+                this.Monitor.Log($"{animalDataString.Key}: {animalDataString.Value}");
+
+            // invalidate farm animal cache to add the new data strings to it
+            this.Helper.Content.InvalidateCache("Data/FarmAnimals");
+        }
+
+
+        /*********
+        ** Private Methods 
+        *********/
+        /// <summary>Apply the harmony patches for patching game code.</summary>
+        private void ApplyHarmonyPatches()
+        {
+            // create a new Harmony instance for patching source code
+            HarmonyInstance harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
+
+            // apply the patches
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.FarmAnimal), new Type[] { typeof(string), typeof(long), typeof(long) }),
+                transpiler: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ConstructorTranspile)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.FarmAnimal), new Type[] { typeof(string), typeof(long), typeof(long) }),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ConstructorPostFix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.reloadData)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ReloadDataPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.Menus.PurchaseAnimalsMenu), new Type[] { typeof(List<StardewValley.Object>) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ConstructorPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.getAnimalDescription)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.GetAnimalDescriptionPostFix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.performHoverAction)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.PerformHoverActionPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveLeftClick)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveLeftClickPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.draw), new Type[] { typeof(SpriteBatch) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.DrawPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Utility), nameof(Utility.getPurchaseAnimalStock)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(UtilityPatch), nameof(UtilityPatch.GetPurchaseAnimalStockPostFix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.AnimatedSprite), "loadTexture"),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimatedSpritePatch), nameof(AnimatedSpritePatch.LoadTexturePrefix)))
+            );
         }
 
         /// <summary>Get the sprite at the passed relative path.</summary>
