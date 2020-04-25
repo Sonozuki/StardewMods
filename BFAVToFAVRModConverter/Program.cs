@@ -67,11 +67,15 @@ namespace BFAVToFAVRModConverter
         {
             Logger.WriteLine("Converting manifest.json file", ConsoleColor.Gray);
             var bfavManifest = DeserializeJsonFile<ModManifest>(Path.Combine(bfavFolderPath, "manifest.json"));
+            if (bfavManifest == default)
+                return;
             var favrManifest = ConvertBfavManifest(bfavManifest);
             SerializeObjectToJson(favrManifest, Path.Combine(destinationFavrFolderPath, "manifest.json"));
 
             Logger.WriteLine("Converting content.json file", ConsoleColor.Gray);
             var bfavContent = DeserializeJsonFile<BfavContent>(Path.Combine(bfavFolderPath, "content.json"));
+            if (bfavContent == default)
+                return;
             if (bfavContent.Categories[0].Action != "Create")
             {
                 Logger.WriteLine("Content.json isn't valid. FAVR doesn't support editing previous entries. Skipping", ConsoleColor.Red);
