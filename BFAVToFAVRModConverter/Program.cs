@@ -65,6 +65,7 @@ namespace BFAVToFAVRModConverter
         /// <param name="destinationFavrFolderPath">The path where the converted FAVR mod folder will go.</param>
         private static void ConvertBFAVModFolder(string bfavFolderPath, string destinationFavrFolderPath)
         {
+            // deserialize, convert, and serialize manifest.json
             Logger.WriteLine("Converting manifest.json file", ConsoleColor.Gray);
             var bfavManifest = DeserializeJsonFile<ModManifest>(Path.Combine(bfavFolderPath, "manifest.json"));
             if (bfavManifest == default)
@@ -72,23 +73,33 @@ namespace BFAVToFAVRModConverter
             var favrManifest = ConvertBfavManifest(bfavManifest);
             SerializeObjectToJson(favrManifest, Path.Combine(destinationFavrFolderPath, "manifest.json"));
 
-            Logger.WriteLine("Converting content.json file", ConsoleColor.Gray);
+            // deserialize, convert, and serialize content.json files
             var bfavContent = DeserializeJsonFile<BfavContent>(Path.Combine(bfavFolderPath, "content.json"));
             if (bfavContent == default)
                 return;
-            if (bfavContent.Categories[0].Action != "Create")
+            var favrContents = ConvertBfavContent(bfavContent);
+            foreach (var favrContent in favrContents)
             {
-                Logger.WriteLine("Content.json isn't valid. FAVR doesn't support editing previous entries. Skipping", ConsoleColor.Red);
-                return;
+                Logger.WriteLine($"Converting content.json file for animal: {favrContent.Name}", ConsoleColor.Gray);
+                SerializeObjectToJson(favrContent, Path.Combine(destinationFavrFolderPath, favrContent.Name, "content.json"));
             }
-            var favrContent = ConvertBfavContent(bfavContent);
-            SerializeObjectToJson(favrContent, Path.Combine(destinationFavrFolderPath, favrContent.Name, "content.json"));
 
-            Logger.WriteLine("Converting sprite sheets", ConsoleColor.Gray);
-            MoveSpriteSheets(bfavFolderPath, destinationFavrFolderPath, bfavContent, favrContent);
+            // copy over sprite sheets
+            foreach (var bfavCategory in bfavContent.Categories)
+            {
+                var favrContent = favrContents.Where(content => content.Name == bfavCategory.Category).FirstOrDefault();
+                if (favrContent == null)
+                {
+                    Logger.WriteLine($"Couldn't find FAVRContent related to animal: {bfavCategory.Category}", ConsoleColor.Red);
+                    continue;
+                }
 
-            Logger.WriteLine("Converting animal subtype content.json files", ConsoleColor.Gray);
-            CreateSubTypeContent(bfavContent, Path.Combine(destinationFavrFolderPath, favrContent.Name, "assets"));
+                Logger.WriteLine($"Converting sprite sheets for animal: {favrContent.Name}", ConsoleColor.Gray);
+                MoveSpriteSheets(bfavFolderPath, destinationFavrFolderPath, bfavCategory, favrContent);
+            }
+
+            //Logger.WriteLine("Converting animal subtype content.json files", ConsoleColor.Gray);
+            //CreateSubTypeContent(bfavContent, Path.Combine(destinationFavrFolderPath, favrContent.Name, "assets"));
         }
 
         /// <summary>Read an serialize the file at the given path.</summary>
@@ -146,7 +157,7 @@ namespace BFAVToFAVRModConverter
         /// <returns>The converted pased <see cref="ModManifest"/>.</returns>
         private static ModManifest ConvertBfavManifest(ModManifest bfavManifest)
         {
-            bfavManifest.ContentPackFor["UniqueId"] = "EpicBellyFlop45.FarmAnimalVarietyRedux";
+            bfavManifest.ContentPackFor["UniqueID"] = "EpicBellyFlop45.FarmAnimalVarietyRedux";
 
             return new ModManifest(
                 name: bfavManifest.Name.Replace("BFAV", "FAVR"),
@@ -162,33 +173,36 @@ namespace BFAVToFAVRModConverter
         /// <summary>Convert the given <see cref="BfavContent"/> to <see cref="FavrContent"/>.</summary>
         /// <param name="bfavContent">The <see cref="BfavContent"/> to convert.</param>
         /// <returns>The converted passed <see cref="BfavContent"/>.</returns>
-        private static FavrContent ConvertBfavContent(BfavContent bfavContent)
+        private static IEnumerable<FavrContent> ConvertBfavContent(BfavContent bfavContent)
         {
-            var dataString = bfavContent.Categories[0].Types[0].Data; // use types[0] as the data used here is common on all sub types
-            var splitDataString = dataString.Split('/');
+            foreach (var category in bfavContent.Categories)
+            {
+                var dataString = category.Types[0].Data; // use types[0] as the data used here is common on all sub types
+                var splitDataString = dataString.Split('/');
 
-            var dataStringValid = ValidateBfavContentDataString(splitDataString, bfavContent.Categories[0].Types[0].Type);
-            if (!dataStringValid)
-                return null;
+                var dataStringValid = ValidateBfavContentDataString(splitDataString, category.Types[0].Type);
+                if (!dataStringValid)
+                    continue;
 
-            return new FavrContent(
-                name: bfavContent.Categories[0].AnimalShop.Name,
-                description: bfavContent.Categories[0].AnimalShop.Description,
-                types: bfavContent.Categories[0].Types.Select(type => type.Type).ToList(),
-                daysToProduce: Convert.ToInt32(splitDataString[0]),
-                daysTillMature: Convert.ToInt32(splitDataString[1]),
-                soundId: splitDataString[4],
-                harvestType: (HarvestType)Enum.Parse(typeof(HarvestType), splitDataString[13]),
-                harvestToolName: splitDataString[22] == "null" ? null : splitDataString[22],
-                frontAndBackSpriteWidth: Convert.ToInt32(splitDataString[16]),
-                frontAndBackSpriteHeight: Convert.ToInt32(splitDataString[17]),
-                sideSpriteWidth: Convert.ToInt32(splitDataString[18]),
-                sideSpriteHeight: Convert.ToInt32(splitDataString[19]),
-                fullnessDrain: Convert.ToByte(splitDataString[20]),
-                happinessDrain: Convert.ToByte(splitDataString[21]),
-                buyPrice: bfavContent.Categories[0].AnimalShop.Price,
-                buildings: bfavContent.Categories[0].Buildings
-            );
+                yield return new FavrContent(
+                    name: category.AnimalShop.Name,
+                    description: category.AnimalShop.Description,
+                    types: category.Types.Select(type => type.Type).ToList(),
+                    daysToProduce: Convert.ToInt32(splitDataString[0]),
+                    daysTillMature: Convert.ToInt32(splitDataString[1]),
+                    soundId: splitDataString[4],
+                    harvestType: (HarvestType)Enum.Parse(typeof(HarvestType), splitDataString[13]),
+                    harvestToolName: splitDataString[22] == "null" ? null : splitDataString[22],
+                    frontAndBackSpriteWidth: Convert.ToInt32(splitDataString[16]),
+                    frontAndBackSpriteHeight: Convert.ToInt32(splitDataString[17]),
+                    sideSpriteWidth: Convert.ToInt32(splitDataString[18]),
+                    sideSpriteHeight: Convert.ToInt32(splitDataString[19]),
+                    fullnessDrain: Convert.ToByte(splitDataString[20]),
+                    happinessDrain: Convert.ToByte(splitDataString[21]),
+                    buyPrice: category.AnimalShop.Price,
+                    buildings: category.Buildings
+                );
+            }
         }
 
         /// <summary>Validate a BFAV content.json data string.</summary>
@@ -261,12 +275,18 @@ namespace BFAVToFAVRModConverter
         /// <summary>Move and rename all the spritesheets to the correct format.</summary>
         /// <param name="bfavFolderPath">The root folder path of the bfav mod being converted.</param>
         /// <param name="destinationFavrFolderPath">The destination folder path where the favr mod will be converted to.</param>
-        /// <param name="bfavContent">The deserialized 'content.json' file for the current mod being converted.</param>
-        /// <param name="favrContent">The converted 'content.json' file for the current bfav mod being converted.</param>
-        private static void MoveSpriteSheets(string bfavFolderPath, string destinationFavrFolderPath, BfavContent bfavContent, FavrContent favrContent)
+        /// <param name="bfavCategory">The animal whose sprite sheets to convert.</param>
+        /// <param name="favrContent">The favrContent corrosponding to the passed bfavCategory.</param>
+        private static void MoveSpriteSheets(string bfavFolderPath, string destinationFavrFolderPath, BfavCategory bfavCategory, FavrContent favrContent)
         {
             try
             {
+                if (bfavCategory.Action != "Create")
+                {
+                    Logger.WriteLine($"Animal: {bfavCategory.Category} was skipped. FAVR doesn't support editing previous entries.", ConsoleColor.Red);
+                    return;
+                }
+
                 // create asset folder in destination folder
                 var favrAssetsFolder = Path.Combine(destinationFavrFolderPath, favrContent.Name, "assets");
                 if (!Directory.Exists(favrAssetsFolder))
@@ -274,16 +294,16 @@ namespace BFAVToFAVRModConverter
 
                 // shop icon
                 File.Copy(
-                    sourceFileName: Path.Combine(bfavFolderPath, bfavContent.Categories[0].AnimalShop.Icon),
+                    sourceFileName: Path.Combine(bfavFolderPath, bfavCategory.AnimalShop.Icon),
                     destFileName: Path.Combine(favrAssetsFolder, @"..\", "shopdisplay.png"),
                     overwrite: true
                 );
 
-                foreach (var subType in bfavContent.Categories[0].Types)
+                foreach (var subType in bfavCategory.Types)
                 {
                     // adult sprite sheet
                     var adultSpriteSheetPath = Path.Combine(bfavFolderPath, subType.Sprites.Adult);
-                    
+
                     // baby sprite sheet
                     var babySpriteSheetPath = "";
                     if (!string.IsNullOrEmpty(subType.Sprites.Baby) && subType.Sprites.Baby.ToLower() != subType.Sprites.Adult.ToLower()) // ensure it's not the same as the adult, some mods use the same sprite sheet. this would create duplicates of the sprite sheet otherwise

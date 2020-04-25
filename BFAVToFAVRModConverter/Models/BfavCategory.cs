@@ -2,7 +2,7 @@
 
 namespace BFAVToFAVRModConverter.Models
 {
-    /// <summary>Represents the category property in BFAV's 'content.json' file.</summary>
+    /// <summary>Represents the an animal in BFAV's 'content.json' file.</summary>
     public class BfavCategory
     {
         /*********

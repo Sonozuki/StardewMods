@@ -8,7 +8,7 @@ namespace BFAVToFAVRModConverter.Models
         /*********
         ** Accessors
         *********/
-        /// <summary>The content wrapper for the content file.</summary>
+        /// <summary>The content wrapper for each animal.</summary>
         public List<BfavCategory> Categories { get; set; }
     }
 }
