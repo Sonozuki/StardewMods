@@ -23,6 +23,9 @@ namespace BFAVToFAVRModConverter.Models
         /// <summary>The unique id of the mod.</summary>
         public string UniqueId { get; set; }
 
+        /// <summary>The update keys of a mod.</summary>
+        public List<string> UpdateKeys { get; set; }
+
         /// <summary>The mod requirements for the mod.</summary>
         public Dictionary<string, string> ContentPackFor { get; set; }
 
@@ -37,13 +40,14 @@ namespace BFAVToFAVRModConverter.Models
         /// <param name="description">The description of the mod.</param>
         /// <param name="uniqueId">The unique id of the mod.</param>
         /// <param name="contentPackFor">The mod requirements for the mod.</param>
-        public ModManifest(string name, string author, string version, string description, string uniqueId, Dictionary<string, string> contentPackFor)
+        public ModManifest(string name, string author, string version, string description, string uniqueId, List<string> updateKeys, Dictionary<string, string> contentPackFor)
         {
             Name = name;
             Author = author;
             Version = version;
             Description = description;
             UniqueId = uniqueId;
+            UpdateKeys = updateKeys;
             ContentPackFor = contentPackFor;
         }
     }

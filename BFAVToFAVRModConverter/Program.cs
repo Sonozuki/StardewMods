@@ -146,13 +146,16 @@ namespace BFAVToFAVRModConverter
         /// <returns>The converted pased <see cref="ModManifest"/>.</returns>
         private static ModManifest ConvertBfavManifest(ModManifest bfavManifest)
         {
+            bfavManifest.ContentPackFor["UniqueId"] = "EpicBellyFlop45.FarmAnimalVarietyRedux";
+
             return new ModManifest(
-                name: bfavManifest.Name.Replace("[BFAV]", "[FAVR]"),
+                name: bfavManifest.Name.Replace("BFAV", "FAVR"),
                 author: bfavManifest.Author,
                 version: bfavManifest.Version,
                 description: bfavManifest.Description,
                 uniqueId: bfavManifest.UniqueId,
-                contentPackFor: new Dictionary<string, string> { { "UniqueId", "EpicBellyFlop45.FarmAnimalVarietyRedux" } }
+                updateKeys: bfavManifest.UpdateKeys,
+                contentPackFor: bfavManifest.ContentPackFor
             );
         }
 
