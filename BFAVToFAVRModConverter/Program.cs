@@ -97,9 +97,6 @@ namespace BFAVToFAVRModConverter
                 Logger.WriteLine($"Converting sprite sheets for animal: {favrContent.Name}", ConsoleColor.Gray);
                 MoveSpriteSheets(bfavFolderPath, destinationFavrFolderPath, bfavCategory, favrContent);
             }
-
-            //Logger.WriteLine("Converting animal subtype content.json files", ConsoleColor.Gray);
-            //CreateSubTypeContent(bfavContent, Path.Combine(destinationFavrFolderPath, favrContent.Name, "assets"));
         }
 
         /// <summary>Read an serialize the file at the given path.</summary>
@@ -177,6 +174,29 @@ namespace BFAVToFAVRModConverter
         {
             foreach (var category in bfavContent.Categories)
             {
+                var subTypes = new List<FavrAnimalSubType>();
+                foreach (var type in category.Types)
+                {
+                    var typeData = type.Data.Split('/');
+
+                    var productId = typeData[2];
+                    var deluxeProductId = typeData[3];
+                    
+                    // check if the (deluxe)product ids are valid ids, or it they should have api tokens added to them
+                    if (!int.TryParse(productId, out _))
+                        productId = $"spacechase0.JsonAssets:GetObjectId:{productId}";
+
+                    if (!int.TryParse(deluxeProductId, out _))
+                        deluxeProductId = $"spacechase0.JsonAssets:GetObjectId:{deluxeProductId}";
+
+                    subTypes.Add(new FavrAnimalSubType(
+                            name: type.Type,
+                            productId: productId,
+                            deluxeProductId: deluxeProductId
+                        )
+                    );
+                }
+
                 var dataString = category.Types[0].Data; // use types[0] as the data used here is common on all sub types
                 var splitDataString = dataString.Split('/');
 
@@ -187,7 +207,7 @@ namespace BFAVToFAVRModConverter
                 yield return new FavrContent(
                     name: category.AnimalShop.Name,
                     description: category.AnimalShop.Description,
-                    types: category.Types.Select(type => type.Type).ToList(),
+                    types: subTypes,
                     daysToProduce: Convert.ToInt32(splitDataString[0]),
                     daysTillMature: Convert.ToInt32(splitDataString[1]),
                     soundId: splitDataString[4],
@@ -346,40 +366,6 @@ namespace BFAVToFAVRModConverter
             catch (Exception ex)
             {
                 Logger.WriteLine($"Failed to move sprites: {ex.Message}\n{ex.StackTrace}", ConsoleColor.Red);
-            }
-        }
-
-        /// <summary>Create the 'content.json' files for each animal sub type</summary>
-        /// <param name="bfavContent">The deseralized 'content.json' file for the BFAV mod currently being converted.</param>
-        /// <param name="favrAssetsPath">The path the FAVR assets folder where the 'content.json' files will go.</param>
-        private static void CreateSubTypeContent(BfavContent bfavContent, string favrAssetsPath)
-        {
-            try
-            {
-                foreach (var animalType in bfavContent.Categories[0].Types)
-                {
-                    var splitDataString = animalType.Data.Split('/');
-
-                    var productId = splitDataString[2];
-                    var deluxeProductId = splitDataString[3];
-                    // check if the (deluxe)product ids are valid ids, or it they should have api tokens added to them
-                    if (!int.TryParse(productId, out _))
-                        productId = $"spacechase0.JsonAssets:GetObjectId:{productId}";
-
-                    if (!int.TryParse(deluxeProductId, out _))
-                        deluxeProductId = $"spacechase0.JsonAssets:GetObjectId:{deluxeProductId}";
-
-                    var subTypeContent = new FavrSubTypeContent(
-                        productId: productId,
-                        deluxeProductId: deluxeProductId
-                    );
-
-                    SerializeObjectToJson(subTypeContent, Path.Combine(favrAssetsPath, $"{animalType.Type} content.json"));
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.WriteLine($"Failed to create sub type content.json files: {ex.Message}\n{ex.StackTrace}", ConsoleColor.Red);
             }
         }
 

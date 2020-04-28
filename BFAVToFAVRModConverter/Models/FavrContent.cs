@@ -15,7 +15,7 @@ namespace BFAVToFAVRModConverter.Models
         public string Description { get; set; }
 
         /// <summary>The sub types of the animal.</summary>
-        public List<string> Types { get; set; }
+        public List<FavrAnimalSubType> Types { get; set; }
 
         /// <summary>The number of days it takes the animal to produce product.</summary>
         public int DaysToProduce { get; set; }
@@ -77,7 +77,7 @@ namespace BFAVToFAVRModConverter.Models
         /// <param name="happinessDrain">The amount the animal's happiness bar will drain each night.</param>
         /// <param name="buyPrice">The amount the animal costs.</param>
         /// <param name="buildings">The name(s) of the building(s) the animal can be housed in.</param>
-        public FavrContent(string name, string description, List<string> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName, int frontAndBackSpriteWidth, int frontAndBackSpriteHeight,
+        public FavrContent(string name, string description, List<FavrAnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName, int frontAndBackSpriteWidth, int frontAndBackSpriteHeight,
             int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings)
         {
             Name = name;

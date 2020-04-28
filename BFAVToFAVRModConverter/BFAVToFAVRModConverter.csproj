@@ -53,8 +53,8 @@
     <Compile Include="Models\BfavAnimalTypeSprites.cs" />
     <Compile Include="Models\BfavCategory.cs" />
     <Compile Include="Models\BfavContent.cs" />
+    <Compile Include="Models\FavrAnimalSubType.cs" />
     <Compile Include="Models\FavrContent.cs" />
-    <Compile Include="Models\FavrSubTypeContent.cs" />
     <Compile Include="Models\ModManifest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
