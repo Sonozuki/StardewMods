@@ -16,7 +16,7 @@ namespace FarmAnimalVarietyRedux.Models
         public string Description { get; set; }
 
         /// <summary>The sub types of the animal.</summary>
-        public List<string> Types { get; set; }
+        public List<AnimalSubType> Types { get; set; }
 
         /// <summary>The number of days it takes the animal to produce product.</summary>
         public int DaysToProduce { get; set; }
@@ -90,7 +90,7 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="walkSpeed">The walk speed multiple of the animal.</param>
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
-        public AnimalData(string name, string description, List<string> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
+        public AnimalData(string name, string description, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
             int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, float walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {

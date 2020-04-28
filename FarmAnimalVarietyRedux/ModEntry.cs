@@ -124,39 +124,17 @@ namespace FarmAnimalVarietyRedux
                             this.Monitor.Log($"Sprites are not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {type}", LogLevel.Error);
                             continue;
                         }
-
-                        // get data
-                        AnimalSubTypeData data;
-                        if (File.Exists(Path.Combine(animalFolder, "assets", $"{type} content.json")))
-                        {
-                            data = contentPack.LoadAsset<AnimalSubTypeData>(Path.Combine(animalName, "assets", $"{type} content.json"));
-                        }
-                        else if (File.Exists(Path.Combine(animalFolder, "assets", "content.json")))
-                        {
-                            data = contentPack.LoadAsset<AnimalSubTypeData>(Path.Combine(animalName, "assets", "content.json"));
-                        }
-                        else
-                        {
-                            this.Monitor.Log($"Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Type: {type} doesn't have a content.json file.", LogLevel.Error);
-                            continue;
-                        }
+                        type.Sprites = sprites;
 
                         // resolve API tokens in data and validate it
-                        data.ResolveTokens();
-                        if (!data.IsValid(type))
+                        type.ResolveTokens();
+                        if (!type.IsValid())
                         {
-                            this.Monitor.Log($"Data is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {type}", LogLevel.Error);
+                            this.Monitor.Log($"Data is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {type.Name}", LogLevel.Error);
                             continue;
                         }
 
-                        // create subtype and add to animal
-                        var animalSubType = new AnimalSubType(
-                            name: type,
-                            data: data,
-                            sprites: sprites
-                        );
-
-                        animalSubTypes.Add(animalSubType);
+                        animalSubTypes.Add(type);
                     }
 
                     // ensure there were valid sub types
@@ -184,7 +162,7 @@ namespace FarmAnimalVarietyRedux
 
                     // construct data string for game to use
                     foreach (var subType in animal.SubTypes)
-                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.Data.ProductId}/{subType.Data.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
+                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.ProductId}/{subType.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
                 }
             }
 

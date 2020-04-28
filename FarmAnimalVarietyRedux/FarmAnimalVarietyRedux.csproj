@@ -53,7 +53,6 @@
     <Compile Include="Models\AnimalData.cs" />
     <Compile Include="Models\AnimalSubType.cs" />
     <Compile Include="Models\AnimalSprites.cs" />
-    <Compile Include="Models\AnimalSubTypeData.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Patches\AnimalQueryMenuPatch.cs" />
     <Compile Include="Patches\AnimatedSpritePatch.cs" />
