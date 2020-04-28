@@ -256,6 +256,21 @@ namespace FarmAnimalVarietyRedux
                 original: AccessTools.Method(typeof(StardewValley.AnimatedSprite), "loadTexture"),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimatedSpritePatch), nameof(AnimatedSpritePatch.LoadTexturePrefix)))
             );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.draw), new Type[] { typeof(SpriteBatch) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.DrawPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.performHoverAction)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.PerformHoverActionPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.receiveLeftClick)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.ReceiveLeftClickPrefix)))
+            );
         }
 
         /// <summary>Get the sprite at the passed relative path.</summary>

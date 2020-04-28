@@ -55,6 +55,7 @@
     <Compile Include="Models\AnimalSprites.cs" />
     <Compile Include="Models\AnimalSubTypeData.cs" />
     <Compile Include="ModEntry.cs" />
+    <Compile Include="Patches\AnimalQueryMenuPatch.cs" />
     <Compile Include="Patches\AnimatedSpritePatch.cs" />
     <Compile Include="Patches\FarmAnimalPatch.cs" />
     <Compile Include="Patches\PurchaseAnimalsMenuPatch.cs" />
