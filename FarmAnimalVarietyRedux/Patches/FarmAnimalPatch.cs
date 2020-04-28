@@ -9,7 +9,7 @@ using System.Reflection.Emit;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
-    /// <summary>Contains patches for patching game code in the StardewValley.FarmAnimal class.</summary>
+    /// <summary>Contains patches for patching game code in the <see cref="FarmAnimal"/> class.</summary>
     internal static class FarmAnimalPatch
     {
         /*********

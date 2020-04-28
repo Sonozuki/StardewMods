@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
-    /// <summary>Contains patches for patching game code in the StardewValley.Menus.PurchaseAnimalsMenu class.</summary>
+    /// <summary>Contains patches for patching game code in the <see cref="PurchaseAnimalsMenu"/> class.</summary>
     internal class PurchaseAnimalsMenuPatch
     {
         /*********

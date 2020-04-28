@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
-    /// <summary>Contains patches for patching game code in the StardewValley.Utility class.</summary>
+    /// <summary>Contains patches for patching game code in the <see cref="Utility"/> class.</summary>
     internal class UtilityPatch
     {
         /*********

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
-    /// <summary>Contains patches for patching game code in the StardewValley.AnimatedSprite class.</summary>
+    /// <summary>Contains patches for patching game code in the <see cref="AnimatedSprite"/> class.</summary>
     internal class AnimatedSpritePatch
     {
         /*********
