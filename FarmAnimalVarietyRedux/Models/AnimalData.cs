@@ -57,8 +57,8 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>The name(s) of the building(s) the animal can be housed in.</summary>
         public List<string> Buildings { get; set; }
 
-        /// <summary>The walk speed multiple of the animal.</summary>
-        public float WalkSpeed { get; set; } = 1;
+        /// <summary>The walk speed of the animal.</summary>
+        public int WalkSpeed { get; set; } = 2;
 
         /// <summary>The time the animal will go to sleep.</summary>
         public int BedTime { get; set; } = 1900;
@@ -91,7 +91,7 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
         public AnimalData(string name, string description, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
-            int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, float walkSpeed, int bedTime, 
+            int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, int walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {
             Name = name;
@@ -195,11 +195,11 @@ namespace FarmAnimalVarietyRedux.Models
                 isValid = false;
             }
 
-            //if (WalkSpeed <= 0)
-            //{
-                //ModEntry.ModMonitor.Log($"Animal Data Validation failed, WalkSpeed was not valid on Animal: {animalName}.", LogLevel.Error);
-                //isValid = false;
-            //}
+            if (WalkSpeed <= 0)
+            {
+                ModEntry.ModMonitor.Log($"Animal Data Validation failed, WalkSpeed was not valid on Animal: {animalName}.", LogLevel.Error);
+                isValid = false;
+            }
 
             //if (BedTime < 0)
             //{

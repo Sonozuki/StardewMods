@@ -119,6 +119,15 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.toolUsedForHarvest.Value = strArray[22].Length > 0 ? strArray[22] : "";
             __instance.meatIndex.Value = Convert.ToInt32(strArray[23]);
             __instance.price.Value = Convert.ToInt32(strArray[24]);
+            
+            // get the animal data to set the custom walk speed
+            foreach (var animal in ModEntry.Animals)
+            {
+                if (animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).Any())
+                {
+                    __instance.Speed = animal.Data.WalkSpeed;
+                }
+            }
 
             if (!__instance.isCoopDweller())
                 __instance.Sprite.textureUsesFlippedRightForLeft = true;
