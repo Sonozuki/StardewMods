@@ -1,6 +1,7 @@
 ﻿using FarmAnimalVarietyRedux.Models;
 using FarmAnimalVarietyRedux.Patches;
 using Harmony;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
@@ -88,8 +89,7 @@ namespace FarmAnimalVarietyRedux
 
                     // serialize and validate content.json file
                     AnimalData animalData = contentPack.LoadAsset<AnimalData>(Path.Combine(animalName, "content.json"));
-                    bool isAnimalValid = animalData.IsValid(animalName);
-                    if (!isAnimalValid)
+                    if (!animalData.IsValid(animalName))
                     {
                         this.Monitor.Log($"Content.json is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}", LogLevel.Error);
                         continue;
@@ -101,21 +101,21 @@ namespace FarmAnimalVarietyRedux
                     {
                         // get sprites
                         var sprites = new AnimalSprites(
-                            adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{type}.png"), contentPack),
-                            babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {type}.png"), contentPack),
-                            harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {type}.png"), contentPack),
-                            springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{type}.png"), contentPack),
-                            springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {type}.png"), contentPack),
-                            springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {type}.png"), contentPack),
-                            summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{type}.png"), contentPack),
-                            summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {type}.png"), contentPack),
-                            summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {type}.png"), contentPack),
-                            fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{type}.png"), contentPack),
-                            fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {type}.png"), contentPack),
-                            fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {type}.png"), contentPack),
-                            winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{type}.png"), contentPack),
-                            winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {type}.png"), contentPack),
-                            winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {type}.png"), contentPack)
+                            adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{type.Name}.png"), contentPack),
+                            babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {type.Name}.png"), contentPack),
+                            harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {type.Name}.png"), contentPack),
+                            springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{type.Name}.png"), contentPack),
+                            springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {type.Name}.png"), contentPack),
+                            springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {type.Name}.png"), contentPack),
+                            summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{type.Name}.png"), contentPack),
+                            summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {type.Name}.png"), contentPack),
+                            summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {type.Name}.png"), contentPack),
+                            fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{type.Name}.png"), contentPack),
+                            fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {type.Name}.png"), contentPack),
+                            fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {type.Name}.png"), contentPack),
+                            winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{type.Name}.png"), contentPack),
+                            winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {type.Name}.png"), contentPack),
+                            winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {type.Name}.png"), contentPack)
                         );
 
                         // ensure sprites are valid
