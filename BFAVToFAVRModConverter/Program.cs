@@ -40,7 +40,7 @@ namespace BFAVToFAVRModConverter
                 foreach (var modDirectory in modDirectorties)
                 {
                     var bfavModFolderName = GetDirectoryRootName(modDirectory);
-                    var favrModFolderName = bfavModFolderName.Replace("[BFAV]", "[FAVR]");
+                    var favrModFolderName = bfavModFolderName.Replace("BFAV", "FAVR");
 
                     Logger.WriteLine($"Converting {GetDirectoryRootName(modDirectory)} to {favrModFolderName}", ConsoleColor.White);
 
@@ -87,7 +87,7 @@ namespace BFAVToFAVRModConverter
             // copy over sprite sheets
             foreach (var bfavCategory in bfavContent.Categories)
             {
-                var favrContent = favrContents.Where(content => content.Name == bfavCategory.Category).FirstOrDefault();
+                var favrContent = favrContents.Where(content => content.Name == (bfavCategory.AnimalShop?.Name ?? bfavCategory.Category)).FirstOrDefault();
                 if (favrContent == null)
                 {
                     Logger.WriteLine($"Couldn't find FAVRContent related to animal: {bfavCategory.Category}", ConsoleColor.Red);
@@ -174,6 +174,12 @@ namespace BFAVToFAVRModConverter
         {
             foreach (var category in bfavContent.Categories)
             {
+                if (category.Action != "Create")
+                {
+                    Logger.WriteLine($"Animal: {category.Category} was skipped. FAVR doesn't support editing previous entries.", ConsoleColor.Red);
+                    continue;
+                }
+
                 var subTypes = new List<FavrAnimalSubType>();
                 foreach (var type in category.Types)
                 {
@@ -315,7 +321,7 @@ namespace BFAVToFAVRModConverter
                 // shop icon
                 File.Copy(
                     sourceFileName: Path.Combine(bfavFolderPath, bfavCategory.AnimalShop.Icon),
-                    destFileName: Path.Combine(favrAssetsFolder, @"..\", "shopdisplay.png"),
+                    destFileName: Path.Combine(favrAssetsFolder, "..\\", "shopdisplay.png"),
                     overwrite: true
                 );
 

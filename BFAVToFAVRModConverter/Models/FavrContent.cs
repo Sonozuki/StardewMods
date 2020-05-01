@@ -56,6 +56,9 @@ namespace BFAVToFAVRModConverter.Models
         /// <summary>The name(s) of the building(s) the animal can be housed in.</summary>
         public List<string> Buildings { get; set; }
 
+        /// <summary>The walk speed of the animal.</summary>
+        public int WalkSpeed { get; set; } = 2;
+
 
         /*********
         ** Public Methods
