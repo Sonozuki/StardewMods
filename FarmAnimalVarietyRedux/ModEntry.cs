@@ -8,6 +8,7 @@ using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace FarmAnimalVarietyRedux
 {
@@ -69,6 +70,9 @@ namespace FarmAnimalVarietyRedux
         /// <summary>Load all the sprites for the new animals from the loaded content packs.</summary>
         public void LoadContentPacks()
         {
+            // loading Json Assets early is only required on connected clients - Game1.IsClient can't be used as that doesn't get set yet - this should have no effect on host
+            LoadJAEarly();
+
             foreach (IContentPack contentPack in this.Helper.ContentPacks.GetOwned())
             {
                 Monitor.Log($"Loading {contentPack.Manifest.Name}");
@@ -267,6 +271,19 @@ namespace FarmAnimalVarietyRedux
             }
 
             return null;
+        }
+
+        /// <summary>Run the initialisation code for Json Assets early. This is required for connected multiplayer clients as Farm Animals get loaded before JA loads assets for clients.</summary>
+        private void LoadJAEarly()
+        {
+            if (!this.Helper.ModRegistry.IsLoaded("spacechase0.JsonAssets"))
+                return;
+
+            this.Monitor.Log("Initialising JA early");
+
+            var jaModData = this.Helper.ModRegistry.Get("spacechase0.JsonAssets");
+            var jaInstance = (Mod)jaModData.GetType().GetProperty("Mod", BindingFlags.Public | BindingFlags.Instance).GetValue(jaModData);
+            jaInstance.GetType().GetMethod("initStuff", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(jaInstance, new object[] { false });
         }
     }
 }
