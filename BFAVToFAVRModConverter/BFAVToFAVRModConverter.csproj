@@ -53,6 +53,9 @@
     <Compile Include="Models\BfavAnimalTypeSprites.cs" />
     <Compile Include="Models\BfavCategory.cs" />
     <Compile Include="Models\BfavContent.cs" />
+    <Compile Include="Models\FavrAnimalProduce.cs" />
+    <Compile Include="Models\FavrAnimalProduceSeason.cs" />
+    <Compile Include="Models\FavrAnimalProduct.cs" />
     <Compile Include="Models\FavrAnimalSubType.cs" />
     <Compile Include="Models\FavrContent.cs" />
     <Compile Include="Models\ModManifest.cs" />

@@ -26,12 +26,6 @@ namespace BFAVToFAVRModConverter.Models
         /// <summary>The id of the sound the animal will make.</summary>
         public string SoundId { get; set; }
 
-        /// <summary>The method required to harvest product from the animal.</summary>
-        public HarvestType HarvestType { get; set; }
-
-        /// <summary>The name of the tool required to harvest (If the harvest method requires a tool).</summary>
-        public string HarvestToolName { get; set; }
-
         /// <summary>The width of the animal sprite when it's looking toward / away from the camera.</summary>
         public int FrontAndBackSpriteWidth { get; set; }
 
@@ -80,7 +74,7 @@ namespace BFAVToFAVRModConverter.Models
         /// <param name="happinessDrain">The amount the animal's happiness bar will drain each night.</param>
         /// <param name="buyPrice">The amount the animal costs.</param>
         /// <param name="buildings">The name(s) of the building(s) the animal can be housed in.</param>
-        public FavrContent(string name, string description, List<FavrAnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName, int frontAndBackSpriteWidth, int frontAndBackSpriteHeight,
+        public FavrContent(string name, string description, List<FavrAnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, int frontAndBackSpriteWidth, int frontAndBackSpriteHeight,
             int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings)
         {
             Name = name;
@@ -89,8 +83,6 @@ namespace BFAVToFAVRModConverter.Models
             DaysToProduce = daysToProduce;
             DaysTillMature = daysTillMature;
             SoundId = soundId;
-            HarvestType = harvestType;
-            HarvestToolName = harvestToolName;
             FrontAndBackSpriteWidth = frontAndBackSpriteWidth;
             FrontAndBackSpriteHeight = frontAndBackSpriteHeight;
             SideSpriteWidth = sideSpriteWidth;

@@ -9,11 +9,8 @@
         /// <summary>The name of the subtype.</summary>
         public string Name { get; set; }
 
-        /// <summary>The item id of the product (API tokens are accepted).</summary>
-        public string ProductId { get; set; }
-
-        /// <summary>The item id of the deluxe product (API tokens are accepted).</summary>
-        public string DeluxeProductId { get; set; }
+        /// <summary>The produce for the sub type.</summary>
+        public FavrAnimalProduce Produce { get; set; }
 
 
         /*********
@@ -21,13 +18,11 @@
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="name">The name of the subtype.</param>
-        /// <param name="productId">The item id of the product (API tokens are accepted).</param>
-        /// <param name="deluxeProductId">The item id of the deluxe product (API tokens are accepted).</param>
-        public FavrAnimalSubType(string name, string productId, string deluxeProductId)
+        /// <param name="produce">The produce for the sub type.</param>
+        public FavrAnimalSubType(string name, FavrAnimalProduce produce)
         {
             Name = name;
-            ProductId = productId;
-            DeluxeProductId = deluxeProductId;
+            Produce = produce;
         }
     }
 }

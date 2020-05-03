@@ -195,10 +195,16 @@ namespace BFAVToFAVRModConverter
                     if (!int.TryParse(deluxeProductId, out _))
                         deluxeProductId = $"spacechase0.JsonAssets:GetObjectId:{deluxeProductId}";
 
+                    // create an FavrAnimalProduce to house the products
+                    var produce = new FavrAnimalProduce(
+                        allSeasons: new FavrAnimalProduceSeason(
+                            products: productId == "-1" ? null : new List<FavrAnimalProduct> { new FavrAnimalProduct(productId, (HarvestType)Convert.ToInt32(typeData[13]), typeData[22]) },
+                            deluxeProducts: deluxeProductId == "-1" ? null : new List<FavrAnimalProduct> { new FavrAnimalProduct(deluxeProductId, (HarvestType)Convert.ToInt32(typeData[13]), typeData[22]) })
+                    );
+
                     subTypes.Add(new FavrAnimalSubType(
                             name: type.Type,
-                            productId: productId,
-                            deluxeProductId: deluxeProductId
+                            produce: produce
                         )
                     );
                 }
@@ -217,8 +223,6 @@ namespace BFAVToFAVRModConverter
                     daysToProduce: Convert.ToInt32(splitDataString[0]),
                     daysTillMature: Convert.ToInt32(splitDataString[1]),
                     soundId: splitDataString[4],
-                    harvestType: (HarvestType)Enum.Parse(typeof(HarvestType), splitDataString[13]),
-                    harvestToolName: splitDataString[22] == "null" ? null : splitDataString[22],
                     frontAndBackSpriteWidth: Convert.ToInt32(splitDataString[16]),
                     frontAndBackSpriteHeight: Convert.ToInt32(splitDataString[17]),
                     sideSpriteWidth: Convert.ToInt32(splitDataString[18]),
