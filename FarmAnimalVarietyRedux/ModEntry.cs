@@ -1,7 +1,6 @@
 ﻿using FarmAnimalVarietyRedux.Models;
 using FarmAnimalVarietyRedux.Patches;
 using Harmony;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
@@ -162,7 +161,7 @@ namespace FarmAnimalVarietyRedux
 
                     // construct data string for game to use
                     foreach (var subType in animal.SubTypes)
-                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}/{subType.ProductId}/{subType.DeluxeProductId}/{animal.Data.SoundId}/0/0/0/0/0/0/0/0/{(int)animal.Data.HarvestType}/{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}/{animal.Data.HarvestToolName}/0/{animal.Data.BuyPrice}/{subType.Name}/");
+                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}///{animal.Data.SoundId}/0/0/0/0/0/0/0/0//{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}//0/{animal.Data.BuyPrice}/{subType.Name}/");
                 }
             }
 
@@ -248,6 +247,11 @@ namespace FarmAnimalVarietyRedux
             harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.receiveLeftClick)),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.ReceiveLeftClickPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.dayUpdate)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.DayUpdatePrefix)))
             );
         }
 

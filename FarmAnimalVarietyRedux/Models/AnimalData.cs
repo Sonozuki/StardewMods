@@ -27,12 +27,6 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>The id of the sound the animal will make.</summary>
         public string SoundId { get; set; }
 
-        /// <summary>The method required to harvest product from the animal.</summary>
-        public HarvestType HarvestType { get; set; }
-
-        /// <summary>The name of the tool required to harvest (If the harvest method requires a tool).</summary>
-        public string HarvestToolName { get; set; }
-
         /// <summary>The width of the animal sprite when it's looking toward / away from the camera.</summary>
         public int FrontAndBackSpriteWidth { get; set; }
 
@@ -77,8 +71,6 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="daysToProduce">The number of days it takes the animal to produce product.</param>
         /// <param name="daysTillMature">The number of days it takes the animal to become an adult.</param>
         /// <param name="soundId">The id of the sound the animal will make.</param>
-        /// <param name="harvestType">The method required to harvest product from the animal.</param>
-        /// <param name="harvestToolName">The name of the tool required to harvest (If the harvest method requires a tool).</param>
         /// <param name="frontAndBackSpriteWidth">The width of the animal sprite when it's looking toward / away from the camera.</param>
         /// <param name="frontAndBackSpriteHeight">The height of the animal sprite when it's looking toward / away from the camera.</param>
         /// <param name="sideSpriteWidth">The width of the animal sprite when it's looking to the side.</param>
@@ -90,7 +82,7 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="walkSpeed">The walk speed multiple of the animal.</param>
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
-        public AnimalData(string name, string description, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, HarvestType harvestType, string harvestToolName,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
+        public AnimalData(string name, string description, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
             int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, int walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {
@@ -100,8 +92,6 @@ namespace FarmAnimalVarietyRedux.Models
             DaysToProduce = daysToProduce;
             DaysTillMature = daysTillMature;
             SoundId = soundId;
-            HarvestType = harvestType;
-            HarvestToolName = harvestToolName;
             FrontAndBackSpriteWidth = frontAndBackSpriteWidth;
             FrontAndBackSpriteHeight = frontAndBackSpriteHeight;
             SideSpriteWidth = sideSpriteWidth;

@@ -1,23 +1,21 @@
 ﻿using StardewModdingAPI;
+using System.Reflection;
 
 namespace FarmAnimalVarietyRedux.Models
 {
-    /// <summary>Metadata about an animal subtype.</summary>
+    /// <summary>Metadata about an animal sub type.</summary>
     public class AnimalSubType
     {
         /*********
         ** Accessors
         *********/
-        /// <summary>The name of the subtype.</summary>
+        /// <summary>The name of the sub type.</summary>
         public string Name { get; set; }
 
-        /// <summary>The item id of the product (API tokens are accepted).</summary>
-        public string ProductId { get; set; }
+        /// <summary>The produce for the sub type.</summary>
+        public AnimalProduce Produce { get; set; }
 
-        /// <summary>The item id of the deluxe product (API tokens are accepted).</summary>
-        public string DeluxeProductId { get; set; }
-
-        /// <summary>The sprite sheets for the subtype.</summary>
+        /// <summary>The sprite sheets for the sub type.</summary>
         public AnimalSprites Sprites { get; set; }
 
 
@@ -25,15 +23,13 @@ namespace FarmAnimalVarietyRedux.Models
         ** Public Methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="name">The name of the subtype.</param>
-        /// <param name="productId">The item id of the product (API tokens are accepted).</param>
-        /// <param name="deluxeProductId">The item id of the deluxe product (API tokens are accepted).</param>
+        /// <param name="name">The name of the sub type.</param>
+        /// <param name="produce">The produce for the sub type.</param>
         /// <param name="sprites">The sprite sheets for the subtype.</param>
-        public AnimalSubType(string name, string productId, string deluxeProductId, AnimalSprites sprites)
+        public AnimalSubType(string name, AnimalProduce produce, AnimalSprites sprites)
         {
             Name = name;
-            ProductId = productId;
-            DeluxeProductId = deluxeProductId;
+            Produce = produce;
             Sprites = sprites;
         }
 
@@ -41,18 +37,41 @@ namespace FarmAnimalVarietyRedux.Models
         /// <returns>Whether the sub type is valid.</returns>
         public bool IsValid()
         {
+            if (Produce == null)
+                return false;
+
             var isValid = true;
 
-            if (!int.TryParse(ProductId, out _))
+            var seasonsInfo = typeof(AnimalProduce).GetProperties();
+            foreach (var seasonInfo in seasonsInfo)
             {
-                ModEntry.ModMonitor.Log($"Animal Sub Type Data Validation failed, ProductId was not valid. Sub Type: {Name}", LogLevel.Error);
-                isValid = false;
-            }
+                var season = (AnimalProduceSeason)seasonInfo.GetValue(Produce);
 
-            if (!int.TryParse(DeluxeProductId, out _))
-            {
-                ModEntry.ModMonitor.Log($"Animal Sub Type Data Validation failed, DeluxeProductId was not valid. Sub Type: {Name}", LogLevel.Error);
-                isValid = false;
+                // regular products
+                if (season?.Products != null)
+                {
+                    foreach (var productId in season.Products)
+                    {
+                        if (!int.TryParse(productId.Id, out _))
+                        {
+                            ModEntry.ModMonitor.Log($"Animal Sub Type Data Validation failed, ProductId was not valid. Sub Type: {Name} >> Season: {seasonInfo.Name}", LogLevel.Error);
+                            isValid = false;
+                        }
+                    }
+                }
+                
+                // deluxe products
+                if (season?.DeluxeProducts != null)
+                {
+                    foreach (var deluxeProductId in season.DeluxeProducts)
+                    {
+                        if (!int.TryParse(deluxeProductId.Id, out _))
+                        {
+                            ModEntry.ModMonitor.Log($"Animal Sub Type Data Validation failed, DeluxeProductId was not valid. Sub Type: {Name} >> Season: {seasonInfo.Name}", LogLevel.Error);
+                            isValid = false;
+                        }
+                    }
+                }
             }
 
             return isValid;
@@ -61,8 +80,21 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>Convert all the external mod API tokens into numerical ids.</summary>
         public void ResolveTokens()
         {
-            ProductId = ResolveToken(ProductId);
-            DeluxeProductId = ResolveToken(DeluxeProductId);
+            var seasonsInfo = typeof(AnimalProduce).GetProperties();
+            foreach (var seasonInfo in seasonsInfo)
+            {
+                var season = (AnimalProduceSeason)seasonInfo.GetValue(Produce);
+
+                // regular products
+                if (season?.Products != null)
+                    for (var i = 0; i < season.Products.Count; i++)
+                        season.Products[i].Id = ResolveToken(season.Products[i].Id);
+
+                // deluxe products
+                if (season?.DeluxeProducts != null)
+                    for (var i = 0; i < season.DeluxeProducts.Count; i++)
+                        season.DeluxeProducts[i].Id = ResolveToken(season.DeluxeProducts[i].Id);
+            }
         }
 
 
