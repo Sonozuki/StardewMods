@@ -1,5 +1,6 @@
 ﻿using StardewValley;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
@@ -13,9 +14,12 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__result">The return value of the method.</param>
         internal static void GetPurchaseAnimalStockPostFix(List<StardewValley.Object> __result)
         {
-            foreach (var animal in ModEntry.Animals)
+            foreach (var animal in ModEntry.Animals.Where(animal => animal.Data.Buyable))
             {
-                Object animalObject = new Object(100, 1, false, animal.Data.BuyPrice, 0);
+                if (animal.Data.AnimalShopInfo == null)
+                    continue;
+
+                Object animalObject = new Object(100, 1, false, animal.Data.AnimalShopInfo.BuyPrice, 0);
                 animalObject.Name = animal.Name;
                 animalObject.displayName = animal.Name;
 

@@ -105,8 +105,6 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.defaultProduceIndex.Value = string.IsNullOrEmpty(dataSplit[2]) ? -1 : Convert.ToInt32(dataSplit[2]);
             __instance.deluxeProduceIndex.Value = string.IsNullOrEmpty(dataSplit[3]) ? -1 : Convert.ToInt32(dataSplit[3]);
             __instance.sound.Value = dataSplit[4].Equals("none") ? (string)null : dataSplit[4];
-            __instance.frontBackBoundingBox.Value = new Rectangle(Convert.ToInt32(dataSplit[5]), Convert.ToInt32(dataSplit[6]), Convert.ToInt32(dataSplit[7]), Convert.ToInt32(dataSplit[8]));
-            __instance.sidewaysBoundingBox.Value = new Rectangle(Convert.ToInt32(dataSplit[9]), Convert.ToInt32(dataSplit[10]), Convert.ToInt32(dataSplit[11]), Convert.ToInt32(dataSplit[12]));
             __instance.showDifferentTextureWhenReadyForHarvest.Value = Convert.ToBoolean(dataSplit[14]);
             __instance.buildingTypeILiveIn.Value = dataSplit[15];
 

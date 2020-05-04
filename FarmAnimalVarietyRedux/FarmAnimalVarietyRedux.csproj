@@ -54,6 +54,7 @@
     <Compile Include="Models\AnimalProduce.cs" />
     <Compile Include="Models\AnimalProduceSeason.cs" />
     <Compile Include="Models\AnimalProduct.cs" />
+    <Compile Include="Models\AnimalShopInfo.cs" />
     <Compile Include="Models\AnimalSubType.cs" />
     <Compile Include="Models\AnimalSprites.cs" />
     <Compile Include="ModEntry.cs" />

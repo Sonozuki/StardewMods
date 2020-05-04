@@ -12,8 +12,11 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>The name of the animal.</summary>
         public string Name { get; set; }
 
-        /// <summary>The description of the animal.</summary>
-        public string Description { get; set; }
+        /// <summary>Whether the animal can be bought from Marnie's shop.</summary>
+        public bool Buyable { get; set; } = true;
+
+        /// <summary>The data about the animal in Marnie's shop.</summary>
+        public AnimalShopInfo AnimalShopInfo { get; set; }
 
         /// <summary>The sub types of the animal.</summary>
         public List<AnimalSubType> Types { get; set; }
@@ -45,9 +48,6 @@ namespace FarmAnimalVarietyRedux.Models
         /// <summary>The amount the animal's happiness bar will drain each night.</summary>
         public byte HappinessDrain { get; set; }
 
-        /// <summary>The amount the animal costs.</summary>
-        public int BuyPrice { get; set; }
-
         /// <summary>The name(s) of the building(s) the animal can be housed in.</summary>
         public List<string> Buildings { get; set; }
 
@@ -66,7 +66,8 @@ namespace FarmAnimalVarietyRedux.Models
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="name">The name of the animal.</param>
-        /// <param name="description">The description of the animal.</param>
+        /// <param name="buyable">Whether the animal can be bought from Marnie's shop.</param>
+        /// <param name="animalShopInfo">The data about the animal in Marnie's shop.</param>
         /// <param name="types">The sub types of the animal.</param>
         /// <param name="daysToProduce">The number of days it takes the animal to produce product.</param>
         /// <param name="daysTillMature">The number of days it takes the animal to become an adult.</param>
@@ -77,17 +78,17 @@ namespace FarmAnimalVarietyRedux.Models
         /// <param name="sideSpriteHeight">The height of the animal sprite when it's looking to the side.</param>
         /// <param name="fullnessDrain">The amount the animal's hunger bar will drain each night.</param>
         /// <param name="happinessDrain">The amount the animal's happiness bar will drain each night.</param>
-        /// <param name="buyPrice">The amount the animal costs.</param>
         /// <param name="buildings">The name(s) of the building(s) the animal can be housed in.</param>
         /// <param name="walkSpeed">The walk speed multiple of the animal.</param>
         /// <param name="bedTime">The time the animal will go to sleep.</param>
         /// <param name="seasonsAllowedOutdoors">The seasons the animal is able to go outside.</param>
-        public AnimalData(string name, string description, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId,int frontAndBackSpriteWidth, int frontAndBackSpriteHeight, 
-            int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, int buyPrice, List<string> buildings, int walkSpeed, int bedTime, 
+        public AnimalData(string name, bool buyable, AnimalShopInfo animalShopInfo, List<AnimalSubType> types, int daysToProduce, int daysTillMature, string soundId, int frontAndBackSpriteWidth, 
+            int frontAndBackSpriteHeight, int sideSpriteWidth, int sideSpriteHeight, byte fullnessDrain, byte happinessDrain, List<string> buildings, int walkSpeed, int bedTime, 
             List<Season> seasonsAllowedOutdoors)
         {
             Name = name;
-            Description = description;
+            Buyable = buyable;
+            AnimalShopInfo = animalShopInfo;
             Types = types;
             DaysToProduce = daysToProduce;
             DaysTillMature = daysTillMature;
@@ -98,7 +99,6 @@ namespace FarmAnimalVarietyRedux.Models
             SideSpriteHeight = sideSpriteHeight;
             FullnessDrain = fullnessDrain;
             HappinessDrain = happinessDrain;
-            BuyPrice = buyPrice;
             Buildings = buildings;
             WalkSpeed = walkSpeed;
             BedTime = bedTime;
@@ -167,9 +167,9 @@ namespace FarmAnimalVarietyRedux.Models
                 isValid = false;
             }
 
-            if (BuyPrice < 0)
+            if (AnimalShopInfo != null && AnimalShopInfo.BuyPrice < 0)
             {
-                ModEntry.ModMonitor.Log($"Animal Data Validation failed, BuyPrice was not valid on Animal: {animalName}.", LogLevel.Error);
+                ModEntry.ModMonitor.Log($"Animal Data Validation failed, AnimalShopInfo.BuyPrice was not valid on Animal: {animalName}.", LogLevel.Error);
                 isValid = false;
             }
 

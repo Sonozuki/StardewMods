@@ -198,7 +198,7 @@ namespace FarmAnimalVarietyRedux.Patches
             if (animalData == null)
                 return;
 
-            __result = animalData.Description;
+            __result = animalData.AnimalShopInfo.Description;
         }
 
         /// <summary>The prefix for the PerformHoverAction method.</summary>
