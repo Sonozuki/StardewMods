@@ -180,6 +180,7 @@ namespace BFAVToFAVRModConverter
                     continue;
                 }
 
+                // create the animal sub types
                 var subTypes = new List<FavrAnimalSubType>();
                 foreach (var type in category.Types)
                 {
@@ -218,7 +219,10 @@ namespace BFAVToFAVRModConverter
 
                 yield return new FavrContent(
                     name: category.AnimalShop.Name,
-                    description: category.AnimalShop.Description,
+                    buyable: category.AnimalShop != null,
+                    animalShopInfo: new FavrAnimalShopInfo(
+                        description: category.AnimalShop.Description,
+                        buyPrice: category.AnimalShop.Price),
                     types: subTypes,
                     daysToProduce: Convert.ToInt32(splitDataString[0]),
                     daysTillMature: Convert.ToInt32(splitDataString[1]),
@@ -229,7 +233,6 @@ namespace BFAVToFAVRModConverter
                     sideSpriteHeight: Convert.ToInt32(splitDataString[19]),
                     fullnessDrain: Convert.ToByte(splitDataString[20]),
                     happinessDrain: Convert.ToByte(splitDataString[21]),
-                    buyPrice: category.AnimalShop.Price,
                     buildings: category.Buildings
                 );
             }
