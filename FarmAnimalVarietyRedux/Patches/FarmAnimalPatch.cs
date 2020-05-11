@@ -332,13 +332,13 @@ namespace FarmAnimalVarietyRedux.Patches
             if (producedItemId != -1 && __instance.home != null)
             {
                 var needsToPlaceProduce = true; // whether the animal needs to place there object - used for determining the the produce has been placed in an autograbber
-                var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, false) { Quality = __instance.produceQuality };
 
                 // check if the animal house has an auto grabber, if so spawn the item in there
                 foreach (SObject environmentObject in __instance.home.indoors.Value.objects.Values)
                 {
                     if (environmentObject.bigCraftable && environmentObject.parentSheetIndex == 165 && environmentObject.heldObject.Value != null)
                     {
+                        var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, false) { Quality = __instance.produceQuality };
                         if ((environmentObject.heldObject.Value as Chest).addItem(producedItem) == null) // if addItem returns null it mean's all the items could be placed in the autograbber
                         {
                             environmentObject.showNextIndex.Value = true;
@@ -350,7 +350,10 @@ namespace FarmAnimalVarietyRedux.Patches
 
                 // spawn the object if there was no valid auto grabber and there is a valid space under the animal
                 if (needsToPlaceProduce && !__instance.home.indoors.Value.Objects.ContainsKey(__instance.getTileLocation()))
+                {
+                    var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, true) { Quality = __instance.produceQuality };
                     __instance.home.indoors.Value.Objects.Add(__instance.getTileLocation(), producedItem);
+                }
             }
 
             // calculate the mood message for the animal
