@@ -1,7 +1,9 @@
 ﻿using Harmony;
 using Microsoft.Xna.Framework;
+using Netcode;
 using StardewModdingAPI;
 using StardewValley;
+using StardewValley.Buildings;
 using StardewValley.Network;
 using StardewValley.Objects;
 using System;
@@ -137,249 +139,396 @@ namespace FarmAnimalVarietyRedux.Patches
             return false;
         }
 
-        /// <summary>The prefix for the DayUpdate method.</summary>
-        /// <param name="environtment">The current location of the animal.</param>
+
+        /// <summary>The prefix for the ReloadData method.</summary>
         /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
         /// <returns>False meaning the original method won't get ran.</returns>
-        internal static bool DayUpdatePrefix(GameLocation environtment, FarmAnimal __instance)
+
+        /// <summary>The prefix for the UpdateWhenNotCurrentLocation method.</summary>
+        /// <param name="currentBuilding"></param>
+        /// <param name="time"></param>
+        /// <param name="environment"></param>
+        /// <returns>False meaning the original method won't get ran.</returns>
+        public static bool UpdateWhenNotCurrentLocationPrefix(Building currentBuilding, GameTime time, GameLocation environment, FarmAnimal __instance)
         {
-            var random = new Random((int)(__instance.myID / 2 + Game1.stats.DaysPlayed));
-            __instance.controller = null;
-            __instance.health.Value = 3;
+            var behaviors = typeof(FarmAnimal).GetMethod("behaviors", BindingFlags.NonPublic | BindingFlags.Instance);
+            var doFarmerPushEvent = (NetEvent1Field<int, NetInt>)typeof(FarmAnimal).GetField("doFarmerPushEvent", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+            var doBuildingPokeEvent = (NetEvent0)typeof(FarmAnimal).GetField("doBuildingPokeEvent", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            var hasBeenLockedOutside = false;
-            // check if the animal is currently outside
-            if (__instance.home != null && !(__instance.home.indoors.Value as AnimalHouse).animals.ContainsKey(__instance.myID) && environtment is Farm)
+            doFarmerPushEvent.Poll();
+            doBuildingPokeEvent.Poll();
+
+            // skip if time is paused
+            if (!Game1.shouldTimePass())
+                return false;
+
+            __instance.update(time, environment, __instance.myID, false);
+
+            // ensure this is the game host (not the farmhands)
+            if (!Game1.IsMasterGame)
+                return false;
+
+            // check if the animal is able to go outside
+            if (currentBuilding == null || Game1.random.NextDouble() > .002 || !currentBuilding.animalDoorOpen || Game1.timeOfDay >= 1630 || Game1.isRaining || environment.farmers.Count > 0)
             {
-                // check if they were locked outside
-                if (!__instance.home.animalDoorOpen)
+                behaviors.Invoke(__instance, new object[] { time, environment });
+                return false;
+            }
+
+            // check for special season conditions on the animal
+            foreach (var animal in ModEntry.Animals)
+            {
+                if (!animal.SubTypes.Where(subType => subType.Name == __instance.type).Any())
+                    continue;
+
+                // convert season string value into enum
+                Season season = Season.Spring;
+                switch (Game1.currentSeason)
                 {
-                    __instance.moodMessage.Value = 6; // locked outside mood message
-                    __instance.happiness.Value /= (byte)2;
-                    hasBeenLockedOutside = true;
+                    case "summer":
+                        season = Season.Summer;
+                        break;
+                    case "fall":
+                        season = Season.Fall;
+                        break;
+                    case "winter":
+                        season = Season.Winter;
+                        break;
                 }
-                else // animal is outside but door is open, move the animal inside
+
+                if (!animal.Data.SeasonsAllowedOutdoors.Contains(season))
                 {
-                    (environtment as Farm).animals.Remove(__instance.myID);
-                    (__instance.home.indoors.Value as AnimalHouse).animals.Add(__instance.myID, __instance);
-
-                    if (Game1.timeOfDay > 1800)
-                        __instance.happiness.Value /= 2;
-
-                    environtment = __instance.home.indoors;
-                    __instance.setRandomPosition(environtment);
-
+                    behaviors.Invoke(__instance, new object[] { time, environment });
                     return false;
                 }
+
+                break;
             }
 
-            __instance.daysSinceLastLay.Value++;
-            if (!__instance.wasPet) // check if the animal wasn't pet, if it wasn't then reduce happiness and friendship
-            {
-                __instance.friendshipTowardFarmer.Value = Math.Max(0, __instance.friendshipTowardFarmer - (10 - __instance.friendshipTowardFarmer / 200));
-                __instance.happiness.Value = (byte)Math.Max(0, __instance.happiness - __instance.happinessDrain * 5);
-            }
-            __instance.wasPet.Value = false;
+            // get the farm location to spawn the animal in
+            Farm farm = (Farm)Game1.getLocationFromName("Farm");
 
-            // check if there is hay to eat
-            if ((__instance.fullness < 200 || Game1.timeOfDay < 1700) && environtment is AnimalHouse)
+            // ensure the animal won't be colliding with anything when they leave the house
+            var exitCollisionBox = new Rectangle(
+                x: (currentBuilding.tileX + currentBuilding.animalDoor.X) * 64 + 2,
+                y: (currentBuilding.tileY + currentBuilding.animalDoor.Y) * 64 + 2,
+                width: __instance.isCoopDweller() ? 60 : 124,
+                height: 60
+            );
+
+            if (farm.isCollidingPosition(exitCollisionBox, Game1.viewport, false, 0, false, __instance, false, false, false))
+                return false;
+
+            // remove animal from farm
+            if (farm.animals.ContainsKey(__instance.myID))
             {
-                for (int index = environtment.objects.Count() - 1; index >= 0; --index)
+                for (int index = farm.animals.Count() - 1; index >= 0; --index)
                 {
-                    var environmentObjects = environtment.objects.Pairs.ElementAt(index); // Key: location - Value: object
-                    if (environmentObjects.Value.Name == "Hay")
+                    if (farm.animals.Pairs.ElementAt(index).Key.Equals(__instance.myID))
                     {
-                        // remove object and restore fullness
-                        var objects = environtment.objects;
-                        environmentObjects = environtment.objects.Pairs.ElementAt(index);
-                        var location = environmentObjects.Key;
-                        objects.Remove(location);
-                        __instance.fullness.Value = byte.MaxValue;
+                        farm.animals.Remove(__instance.myID);
                         break;
                     }
                 }
             }
 
-            // increase age of animal
-            if (__instance.fullness > 200 || random.NextDouble() < (__instance.fullness - 30) / 170.0)
+            // remove animal from building
+            (currentBuilding.indoors.Value as AnimalHouse).animals.Remove(__instance.myID);
+
+            // add animal to farm, initial values
+            farm.animals.Add(__instance.myID, __instance);
+            __instance.faceDirection(2);
+            __instance.SetMovingDown(true);
+            __instance.Position = new Vector2((float)currentBuilding.getRectForAnimalDoor().X, (float)((currentBuilding.tileY + currentBuilding.animalDoor.Y) * 64 - (__instance.Sprite.getHeight() * 4 - __instance.GetBoundingBox().Height) + 32));
+
+            // sort out path finding
+            if (FarmAnimal.NumPathfindingThisTick < FarmAnimal.MaxPathfindingPerTick)
             {
-                __instance.age.Value++;
-                if (__instance.age == __instance.ageWhenMature)
-                {
-                    // change sprite sheet to be adult
-                    __instance.Sprite.LoadTexture(Path.Combine("Animals", __instance.type.Value));
-
-                    // make sheep harvestable
-                    if (__instance.type.Value.Contains("Sheep"))
-                        __instance.currentProduce.Value = __instance.defaultProduceIndex;
-
-                    // ensure all animals are redy to produce - this is so the player doesn't need to wait a couple of days for them to produce
-                    __instance.daysSinceLastLay.Value = 99;
-                }
-
-                // increase animal happiness - they increase happiness when full, even if not pet
-                __instance.happiness.Value = (byte)Math.Min(byte.MaxValue, __instance.happiness + __instance.happinessDrain * 2);
+                ++FarmAnimal.NumPathfindingThisTick;
+                __instance.controller = new PathFindController(
+                    c: __instance,
+                    location: farm,
+                    endFunction: new PathFindController.isAtEnd(FarmAnimal.grassEndPointFunction),
+                    finalFacingDirection: Game1.random.Next(4),
+                    eraseOldPathController: false,
+                    endBehaviorFunction: new PathFindController.endBehavior(FarmAnimal.behaviorAfterFindingGrassPatch),
+                    limit: 200,
+                    endPoint: Point.Zero
+                );
             }
 
-            // decrease animal happiness and friendship if they are hungry
-            if (__instance.fullness.Value < 200)
+            if (__instance.controller == null || __instance.controller.pathToEndPoint == null || __instance.controller.pathToEndPoint.Count < 3)
             {
-                __instance.happiness.Value = (byte)Math.Max(0, __instance.happiness - 100);
-                __instance.friendshipTowardFarmer.Value = Math.Max(0, __instance.friendshipTowardFarmer - 20);
+                __instance.SetMovingDown(true);
+                __instance.controller = null;
+            }
+            else
+            {
+                __instance.faceDirection(2);
+                __instance.Position = new Vector2(
+                    x: __instance.controller.pathToEndPoint.Peek().X * 64, 
+                    y: (__instance.controller.pathToEndPoint.Peek().Y * 64 - (__instance.Sprite.getHeight() * 4 - __instance.GetBoundingBox().Height) + 16)
+                );
+                
+                if (!__instance.isCoopDweller())
+                    __instance.position.X -= 32f;
             }
 
-            // determine whether the animal can produce an item today
-            bool canProduceItem = __instance.daysSinceLastLay >= __instance.daysToLay - (!__instance.type.Value.Equals("Sheep") || !Game1.getFarmer((long)__instance.ownerID).professions.Contains(3) ? 0 : 1) && random.NextDouble() < __instance.fullness / 200.0 && random.NextDouble() < __instance.happiness / 70.0;
+            __instance.noWarpTimer = 3000;
+            currentBuilding.currentOccupants.Value--;
+            if (Utility.isOnScreen(__instance.getTileLocationPoint(), 192, farm))
+                farm.localSound("sandyStep");
 
-            var producedItemId = -1;
-            if (canProduceItem && !__instance.isBaby()) // check whether the animal can produce an item and which one
+            if (environment.isTileOccupiedByFarmer(__instance.getTileLocation()) != null)
+                environment.isTileOccupiedByFarmer(__instance.getTileLocation()).TemporaryPassableTiles.Add(__instance.GetBoundingBox());
+
+            behaviors.Invoke(__instance, new object[] { time, environment });
+            return false;
+        }
+
+    /// <summary>The prefix for the DayUpdate method.</summary>
+    /// <param name="environtment">The current location of the animal.</param>
+    /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
+    /// <returns>False meaning the original method won't get ran.</returns>
+    internal static bool DayUpdatePrefix(GameLocation environtment, FarmAnimal __instance)
+    {
+        var random = new Random((int)(__instance.myID / 2 + Game1.stats.DaysPlayed));
+        __instance.controller = null;
+        __instance.health.Value = 3;
+
+        var hasBeenLockedOutside = false;
+        // check if the animal is currently outside
+        if (__instance.home != null && !(__instance.home.indoors.Value as AnimalHouse).animals.ContainsKey(__instance.myID) && environtment is Farm)
+        {
+            // check if they were locked outside
+            if (!__instance.home.animalDoorOpen)
             {
-                producedItemId = __instance.defaultProduceIndex.Value;
-                if (producedItemId == -1) // animal is a custom animal
+                __instance.moodMessage.Value = 6; // locked outside mood message
+                __instance.happiness.Value /= (byte)2;
+                hasBeenLockedOutside = true;
+            }
+            else // animal is outside but door is open, move the animal inside
+            {
+                (environtment as Farm).animals.Remove(__instance.myID);
+                (__instance.home.indoors.Value as AnimalHouse).animals.Add(__instance.myID, __instance);
+
+                if (Game1.timeOfDay > 1800)
+                    __instance.happiness.Value /= 2;
+
+                environtment = __instance.home.indoors;
+                __instance.setRandomPosition(environtment);
+
+                return false;
+            }
+        }
+
+        __instance.daysSinceLastLay.Value++;
+        if (!__instance.wasPet) // check if the animal wasn't pet, if it wasn't then reduce happiness and friendship
+        {
+            __instance.friendshipTowardFarmer.Value = Math.Max(0, __instance.friendshipTowardFarmer - (10 - __instance.friendshipTowardFarmer / 200));
+            __instance.happiness.Value = (byte)Math.Max(0, __instance.happiness - __instance.happinessDrain * 5);
+        }
+        __instance.wasPet.Value = false;
+
+        // check if there is hay to eat
+        if ((__instance.fullness < 200 || Game1.timeOfDay < 1700) && environtment is AnimalHouse)
+        {
+            for (int index = environtment.objects.Count() - 1; index >= 0; --index)
+            {
+                var environmentObjects = environtment.objects.Pairs.ElementAt(index); // Key: location - Value: object
+                if (environmentObjects.Value.Name == "Hay")
                 {
-                    foreach (var animal in ModEntry.Animals)
+                    // remove object and restore fullness
+                    var objects = environtment.objects;
+                    environmentObjects = environtment.objects.Pairs.ElementAt(index);
+                    var location = environmentObjects.Key;
+                    objects.Remove(location);
+                    __instance.fullness.Value = byte.MaxValue;
+                    break;
+                }
+            }
+        }
+
+        // increase age of animal
+        if (__instance.fullness > 200 || random.NextDouble() < (__instance.fullness - 30) / 170.0)
+        {
+            __instance.age.Value++;
+            if (__instance.age == __instance.ageWhenMature)
+            {
+                // change sprite sheet to be adult
+                __instance.Sprite.LoadTexture(Path.Combine("Animals", __instance.type.Value));
+
+                // make sheep harvestable
+                if (__instance.type.Value.Contains("Sheep"))
+                    __instance.currentProduce.Value = __instance.defaultProduceIndex;
+
+                // ensure all animals are redy to produce - this is so the player doesn't need to wait a couple of days for them to produce
+                __instance.daysSinceLastLay.Value = 99;
+            }
+
+            // increase animal happiness - they increase happiness when full, even if not pet
+            __instance.happiness.Value = (byte)Math.Min(byte.MaxValue, __instance.happiness + __instance.happinessDrain * 2);
+        }
+
+        // decrease animal happiness and friendship if they are hungry
+        if (__instance.fullness.Value < 200)
+        {
+            __instance.happiness.Value = (byte)Math.Max(0, __instance.happiness - 100);
+            __instance.friendshipTowardFarmer.Value = Math.Max(0, __instance.friendshipTowardFarmer - 20);
+        }
+
+        // determine whether the animal can produce an item today
+        bool canProduceItem = __instance.daysSinceLastLay >= __instance.daysToLay - (!__instance.type.Value.Equals("Sheep") || !Game1.getFarmer((long)__instance.ownerID).professions.Contains(3) ? 0 : 1) && random.NextDouble() < __instance.fullness / 200.0 && random.NextDouble() < __instance.happiness / 70.0;
+
+        var producedItemId = -1;
+        if (canProduceItem && !__instance.isBaby()) // check whether the animal can produce an item and which one
+        {
+            producedItemId = __instance.defaultProduceIndex.Value;
+            if (producedItemId == -1) // animal is a custom animal
+            {
+                foreach (var animal in ModEntry.Animals)
+                {
+                    var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
+                    if (subType != null)
                     {
-                        var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
-                        if (subType != null)
-                        {
-                            producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
-                            __instance.harvestType.Value = (byte)harvestType;
-                            break;
-                        }
+                        producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
+                        __instance.harvestType.Value = (byte)harvestType;
+                        break;
                     }
                 }
+            }
 
-                if (random.NextDouble() < __instance.happiness / 150.0)
+            if (random.NextDouble() < __instance.happiness / 150.0)
+            {
+                // create a frienship modifier based off of animal happiness - this is so deluxe item drops are also determine from animal happiness, not just friendship
+                float frienshipModifier = __instance.happiness > 200 ? __instance.happiness * 1.5f : __instance.happiness <= 100 ? __instance.happiness - 100 : 0.0f;
+
+                // determine deluxe products for Ducks and Rabbits separately as their deluxe products are rare drops, unlike other animals
+                if (__instance.type.Value.Equals("Duck") && random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 5000.0 + Game1.player.team.AverageDailyLuck() + Game1.player.team.AverageLuckLevel() * 0.01)
+                    producedItemId = __instance.deluxeProduceIndex;
+                else if (__instance.type.Value.Equals("Rabbit") && random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 5000.0 + Game1.player.team.AverageDailyLuck() + Game1.player.team.AverageLuckLevel() * 0.02)
+                    producedItemId = __instance.deluxeProduceIndex;
+
+                __instance.daysSinceLastLay.Value = 0;
+
+                // increase game stats for items produced - this only applies to items layable by default animals
+                switch (producedItemId)
                 {
-                    // create a frienship modifier based off of animal happiness - this is so deluxe item drops are also determine from animal happiness, not just friendship
-                    float frienshipModifier = __instance.happiness > 200 ? __instance.happiness * 1.5f : __instance.happiness <= 100 ? __instance.happiness - 100 : 0.0f;
+                    case 176:
+                        Game1.stats.ChickenEggsLayed++;
+                        break;
+                    case 180:
+                        Game1.stats.ChickenEggsLayed++;
+                        break;
+                    case 440:
+                        Game1.stats.RabbitWoolProduced++;
+                        break;
+                    case 442:
+                        Game1.stats.DuckEggsLayed++;
+                        break;
+                }
 
-                    // determine deluxe products for Ducks and Rabbits separately as their deluxe products are rare drops, unlike other animals
-                    if (__instance.type.Value.Equals("Duck") && random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 5000.0 + Game1.player.team.AverageDailyLuck() + Game1.player.team.AverageLuckLevel() * 0.01)
-                        producedItemId = __instance.deluxeProduceIndex;
-                    else if (__instance.type.Value.Equals("Rabbit") && random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 5000.0 + Game1.player.team.AverageDailyLuck() + Game1.player.team.AverageLuckLevel() * 0.02)
-                        producedItemId = __instance.deluxeProduceIndex;
-
-                    __instance.daysSinceLastLay.Value = 0;
-
-                    // increase game stats for items produced - this only applies to items layable by default animals
-                    switch (producedItemId)
+                // determine whether deluxe product should be produced, exclude Ducks and Rabbits as they've been handled above
+                if (!__instance.type.Value.Equals("Duck") && !__instance.type.Value.Equals("Rabbit"))
+                {
+                    if (random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 1200.0 && __instance.friendshipTowardFarmer >= 200)
                     {
-                        case 176:
-                            Game1.stats.ChickenEggsLayed++;
-                            break;
-                        case 180:
-                            Game1.stats.ChickenEggsLayed++;
-                            break;
-                        case 440:
-                            Game1.stats.RabbitWoolProduced++;
-                            break;
-                        case 442:
-                            Game1.stats.DuckEggsLayed++;
-                            break;
-                    }
-
-                    // determine whether deluxe product should be produced, exclude Ducks and Rabbits as they've been handled above
-                    if (!__instance.type.Value.Equals("Duck") && !__instance.type.Value.Equals("Rabbit"))
-                    {
-                        if (random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 1200.0 && __instance.friendshipTowardFarmer >= 200)
+                        if (__instance.deluxeProduceIndex == -1) // animal is a custom animal
                         {
-                            if (__instance.deluxeProduceIndex == -1) // animal is a custom animal
+                            foreach (var animal in ModEntry.Animals)
                             {
-                                foreach (var animal in ModEntry.Animals)
+                                var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
+                                if (subType != null)
                                 {
-                                    var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
-                                    if (subType != null)
+                                    var deluxeId = subType.Produce.GetRandomDeluxe(out var harvestType);
+                                    if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
                                     {
-                                        var deluxeId = subType.Produce.GetRandomDeluxe(out var harvestType);
-                                        if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
-                                        {
-                                            producedItemId = deluxeId;
-                                            __instance.harvestType.Value = (byte)harvestType;
-                                        }
+                                        producedItemId = deluxeId;
+                                        __instance.harvestType.Value = (byte)harvestType;
                                     }
                                 }
                             }
                         }
                     }
-
-                    double productQualityChance = __instance.friendshipTowardFarmer / 1000.0 - (1.0 - __instance.happiness / 225.0);
-
-                    // if the farmer has a related profession, increase the chance of getting a high quality drop
-                    if (!__instance.isCoopDweller() && Game1.getFarmer(__instance.ownerID).professions.Contains(3) || __instance.isCoopDweller() && Game1.getFarmer(__instance.ownerID).professions.Contains(2))
-                        productQualityChance += 0.33;
-
-                    // determine quality of produced item
-                    if (productQualityChance >= 0.95 && random.NextDouble() < productQualityChance / 2.0)
-                        __instance.produceQuality.Value = 4;
-                    else if (random.NextDouble() < productQualityChance / 2.0)
-                        __instance.produceQuality.Value = 2;
-                    else if (random.NextDouble() < productQualityChance)
-                        __instance.produceQuality.Value = 1;
-                    else
-                        __instance.produceQuality.Value = 0;
                 }
+
+                double productQualityChance = __instance.friendshipTowardFarmer / 1000.0 - (1.0 - __instance.happiness / 225.0);
+
+                // if the farmer has a related profession, increase the chance of getting a high quality drop
+                if (!__instance.isCoopDweller() && Game1.getFarmer(__instance.ownerID).professions.Contains(3) || __instance.isCoopDweller() && Game1.getFarmer(__instance.ownerID).professions.Contains(2))
+                    productQualityChance += 0.33;
+
+                // determine quality of produced item
+                if (productQualityChance >= 0.95 && random.NextDouble() < productQualityChance / 2.0)
+                    __instance.produceQuality.Value = 4;
+                else if (random.NextDouble() < productQualityChance / 2.0)
+                    __instance.produceQuality.Value = 2;
+                else if (random.NextDouble() < productQualityChance)
+                    __instance.produceQuality.Value = 1;
+                else
+                    __instance.produceQuality.Value = 0;
             }
+        }
 
-            // setup harvest type with a tool - this is so it's produce doesn't spawn in the animal house, instead must be manually harvested
-            if (__instance.harvestType == 1 & canProduceItem)
+        // setup harvest type with a tool - this is so it's produce doesn't spawn in the animal house, instead must be manually harvested
+        if (__instance.harvestType == 1 & canProduceItem)
+        {
+            __instance.currentProduce.Value = producedItemId;
+            producedItemId = -1;
+        }
+
+        // ensure animal has an item ready to spawn and a valid home to spawn it in
+        if (producedItemId != -1 && __instance.home != null)
+        {
+            var needsToPlaceProduce = true; // whether the animal needs to place there object - used for determining the the produce has been placed in an autograbber
+
+            // check if the animal house has an auto grabber, if so spawn the item in there
+            foreach (SObject environmentObject in __instance.home.indoors.Value.objects.Values)
             {
-                __instance.currentProduce.Value = producedItemId;
-                producedItemId = -1;
-            }
-
-            // ensure animal has an item ready to spawn and a valid home to spawn it in
-            if (producedItemId != -1 && __instance.home != null)
-            {
-                var needsToPlaceProduce = true; // whether the animal needs to place there object - used for determining the the produce has been placed in an autograbber
-
-                // check if the animal house has an auto grabber, if so spawn the item in there
-                foreach (SObject environmentObject in __instance.home.indoors.Value.objects.Values)
+                if (environmentObject.bigCraftable && environmentObject.parentSheetIndex == 165 && environmentObject.heldObject.Value != null)
                 {
-                    if (environmentObject.bigCraftable && environmentObject.parentSheetIndex == 165 && environmentObject.heldObject.Value != null)
+                    var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, false) { Quality = __instance.produceQuality };
+                    if ((environmentObject.heldObject.Value as Chest).addItem(producedItem) == null) // if addItem returns null it mean's all the items could be placed in the autograbber
                     {
-                        var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, false) { Quality = __instance.produceQuality };
-                        if ((environmentObject.heldObject.Value as Chest).addItem(producedItem) == null) // if addItem returns null it mean's all the items could be placed in the autograbber
-                        {
-                            environmentObject.showNextIndex.Value = true;
-                            needsToPlaceProduce = false;
-                            break;
-                        }
+                        environmentObject.showNextIndex.Value = true;
+                        needsToPlaceProduce = false;
+                        break;
                     }
                 }
-
-                // spawn the object if there was no valid auto grabber and there is a valid space under the animal
-                if (needsToPlaceProduce && !__instance.home.indoors.Value.Objects.ContainsKey(__instance.getTileLocation()))
-                {
-                    var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, true) { Quality = __instance.produceQuality };
-                    __instance.home.indoors.Value.Objects.Add(__instance.getTileLocation(), producedItem);
-                }
             }
 
-            // calculate the mood message for the animal
-            if (!hasBeenLockedOutside) // ensure they haven't been locked outside, this is because a mood message would have been set already
+            // spawn the object if there was no valid auto grabber and there is a valid space under the animal
+            if (needsToPlaceProduce && !__instance.home.indoors.Value.Objects.ContainsKey(__instance.getTileLocation()))
             {
-                if (__instance.fullness < 30)
-                    __instance.moodMessage.Value = 4;
-                else if (__instance.happiness < 30)
-                    __instance.moodMessage.Value = 3;
-                else if (__instance.happiness < 200)
-                    __instance.moodMessage.Value = 2;
-                else
-                    __instance.moodMessage.Value = 1;
+                var producedItem = new SObject(Vector2.Zero, producedItemId, null, false, true, false, true) { Quality = __instance.produceQuality };
+                __instance.home.indoors.Value.Objects.Add(__instance.getTileLocation(), producedItem);
             }
-
-            // make animal hungry
-            __instance.fullness.Value = 0;
-
-            // if it's a festival today, don't make animal hungry - festivals go on for most of the day so making them hungry would be unfair to the player
-            if (Utility.isFestivalDay(Game1.dayOfMonth, Game1.currentSeason))
-                __instance.fullness.Value = 250;
-
-            // reload animal data
-            __instance.reload(__instance.home);
-
-            return false;
         }
+
+        // calculate the mood message for the animal
+        if (!hasBeenLockedOutside) // ensure they haven't been locked outside, this is because a mood message would have been set already
+        {
+            if (__instance.fullness < 30)
+                __instance.moodMessage.Value = 4;
+            else if (__instance.happiness < 30)
+                __instance.moodMessage.Value = 3;
+            else if (__instance.happiness < 200)
+                __instance.moodMessage.Value = 2;
+            else
+                __instance.moodMessage.Value = 1;
+        }
+
+        // make animal hungry
+        __instance.fullness.Value = 0;
+
+        // if it's a festival today, don't make animal hungry - festivals go on for most of the day so making them hungry would be unfair to the player
+        if (Utility.isFestivalDay(Game1.dayOfMonth, Game1.currentSeason))
+            __instance.fullness.Value = 250;
+
+        // reload animal data
+        __instance.reload(__instance.home);
+
+        return false;
     }
+}
 }
