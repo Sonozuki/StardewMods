@@ -170,8 +170,7 @@ namespace FarmAnimalVarietyRedux
             }
 
             // print all added farm animals to trace
-            foreach (var animalDataString in DataStrings)
-                this.Monitor.Log($"{animalDataString.Key}: {animalDataString.Value}");
+            PrintAnimalData();
 
             // invalidate farm animal cache to add the new data strings to it
             this.Helper.Content.InvalidateCache("Data/FarmAnimals");
@@ -309,6 +308,61 @@ namespace FarmAnimalVarietyRedux
             var jaModData = this.Helper.ModRegistry.Get("spacechase0.JsonAssets");
             var jaInstance = (Mod)jaModData.GetType().GetProperty("Mod", BindingFlags.Public | BindingFlags.Instance).GetValue(jaModData);
             jaInstance.GetType().GetMethod("initStuff", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(jaInstance, new object[] { false });
+        }
+
+        /// <summary>Print all the custom animal data.</summary>
+        private void PrintAnimalData()
+        {
+            // print data string
+            foreach (var animalDataString in DataStrings)
+                this.Monitor.Log($"{animalDataString.Key}: {animalDataString.Value}");
+
+            // print animal objects
+            foreach (var animal in Animals)
+            {
+                this.Monitor.Log($"ANIMALDATA FOR: {animal.Name}\nBuyable: {animal.Data.Buyable}\tDaysToProduce: {animal.Data.DaysToProduce}\tDaysTillMature: {animal.Data.DaysTillMature}\tSoundId: {animal.Data.SoundId}\tFrontAndBackSpriteWidth: {animal.Data.FrontAndBackSpriteWidth}\tFrontAndBackSpriteHeight: {animal.Data.FrontAndBackSpriteHeight}\tSideSpriteWidth: {animal.Data.SideSpriteWidth}\tSideSpriteHeight: {animal.Data.SideSpriteHeight}\tFullnessDrain: {animal.Data.FullnessDrain}\tHappinessDrain: {animal.Data.HappinessDrain}\tWalkSpeed: {animal.Data.WalkSpeed}\tBedTime: {animal.Data.BedTime}\tBuildings: [{string.Join(",", animal.Data.Buildings ?? default)}]\tSeasonsAllowedOutdoors: [{string.Join(",", animal.Data.SeasonsAllowedOutdoors ?? default)}]\tShopDescription: {animal.Data.AnimalShopInfo?.Description}\tShopBuyPrice: {animal.Data.AnimalShopInfo?.BuyPrice}");
+                this.Monitor.Log($"SUBTYPES FOR: {animal.Name}");
+                foreach (var subType in animal.SubTypes)
+                {
+                    this.Monitor.Log($"Name: {subType.Name}");
+                    PrintAnimalProduce(subType.Produce);
+                }
+            }
+        }
+
+        /// <summary>Print the passed <see cref="AnimalProduce"/>.</summary>
+        /// <param name="animalProduce">The <see cref="AnimalProduce"/> to print.</param>
+        private void PrintAnimalProduce(AnimalProduce animalProduce)
+        {
+            if (animalProduce.AllSeasons != null)
+                PrintAnimalProduceSeason(animalProduce.AllSeasons);
+            if (animalProduce.Spring != null)
+                PrintAnimalProduceSeason(animalProduce.Spring);
+            if (animalProduce.Summer != null)
+                PrintAnimalProduceSeason(animalProduce.Summer);
+            if (animalProduce.Fall != null)
+                PrintAnimalProduceSeason(animalProduce.Fall);
+            if (animalProduce.Winter != null)
+                PrintAnimalProduceSeason(animalProduce.Winter);
+        }
+
+        /// <summary>Print the passed <see cref="AnimalProduceSeason"/>.</summary>
+        /// <param name="animalProduceSeason">The <see cref="AnimalProduceSeason"/> to print.</param>
+        private void PrintAnimalProduceSeason(AnimalProduceSeason animalProduceSeason)
+        {
+            if (animalProduceSeason.Products != null)
+            {
+                this.Monitor.Log("Products:");
+                foreach (var product in animalProduceSeason.Products)
+                    this.Monitor.Log($"Id: {product?.Id}\tHarvestType: {product?.HarvestType}\tToolName: {product?.ToolName}");
+            }
+
+            if (animalProduceSeason.DeluxeProducts != null)
+            {
+                this.Monitor.Log("DeluxeProducts:");
+                foreach (var deluxeProduct in animalProduceSeason.DeluxeProducts)
+                    this.Monitor.Log($"Id: {deluxeProduct?.Id}\tHarvestType: {deluxeProduct?.HarvestType}\tToolName: {deluxeProduct?.ToolName}");
+            }
         }
     }
 }
