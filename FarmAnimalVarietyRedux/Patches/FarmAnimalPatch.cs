@@ -70,7 +70,7 @@ namespace FarmAnimalVarietyRedux.Patches
         internal static void ConstructorPostFix(string type, FarmAnimal __instance)
         {
             // check if the type is custom
-            var animal = ModEntry.Animals.Where(animal => animal.Name == type).FirstOrDefault();
+            var animal = ModEntry.Instance.Api.GetAnimalByName(type);
             if (animal != null)
             {
                 var subType = animal.SubTypes[Game1.random.Next(animal.SubTypes.Count())];
@@ -126,12 +126,10 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.price.Value = Convert.ToInt32(dataSplit[24]);
 
             // get the animal data to set the custom walk speed
-            foreach (var animal in ModEntry.Animals)
+            var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(__instance.type.Value);
+            if (animal != null)
             {
-                if (animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).Any())
-                {
-                    __instance.Speed = animal.Data.WalkSpeed;
-                }
+                __instance.Speed = animal.Data.WalkSpeed;
             }
 
             if (!__instance.isCoopDweller())
@@ -247,13 +245,9 @@ namespace FarmAnimalVarietyRedux.Patches
             if (location.IsOutdoors && !Game1.isRaining && __instance.currentProduce != -1 && !__instance.isBaby() && Game1.random.NextDouble() < 0.0002)
             {
                 // check if animal has produce that can be foraged
-                var hasValidProduce = false;
-                foreach (var animal in ModEntry.Animals)
+                var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type);
+                if (subType != null)
                 {
-                    var subType = animal.SubTypes.Where(subType => subType.Name == __instance.type).FirstOrDefault();
-                    if (subType == null)
-                        continue;
-
                     // get the forage items count
                     var productCount = subType.Produce?.AllSeasons?.Products.Where(product => product.HarvestType == HarvestType.Forage).Select(product => product.Id).Count() ?? 0;
                     switch (Game1.currentSeason)
@@ -284,14 +278,12 @@ namespace FarmAnimalVarietyRedux.Patches
                             }
                     }
 
-                    hasValidProduce = productCount > 0;
-                    break;
-                }
-
-                if (!hasValidProduce)
-                {
-                    __result = false;
-                    return false;
+                    // ensure there is a valid product for the animal
+                    if (productCount == 0)
+                    {
+                        __result = false;
+                        return false;
+                    }
                 }
 
                 // amke sure the place is blank for spawning the foraged item
@@ -387,12 +379,9 @@ namespace FarmAnimalVarietyRedux.Patches
         {
             // detemine the item to drop
             var productId = -1;
-            foreach (var animal in ModEntry.Animals)
+            var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type);
+            if (subType != null)
             {
-                var subType = animal.SubTypes.Where(subType => subType.Name == __instance.type).FirstOrDefault();
-                if (subType == null)
-                    continue;
-
                 // get all the foragable items
                 var foragableItems = subType.Produce?.AllSeasons?.Products?.Where(product => product.HarvestType == HarvestType.Forage).Select(product => product.Id).ToList();
                 switch (Game1.currentSeason)
@@ -437,8 +426,6 @@ namespace FarmAnimalVarietyRedux.Patches
                 var productStringId = foragableItems[Game1.random.Next(foragableItems.Count)];
                 if (!int.TryParse(productStringId, out productId))
                     return false;
-
-                break;
             }
 
             // try to spawn the product around the animal
@@ -488,11 +475,9 @@ namespace FarmAnimalVarietyRedux.Patches
             }
 
             // check for special season conditions on the animal
-            foreach (var animal in ModEntry.Animals)
+            var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(__instance.type);
+            if (animal != null)
             {
-                if (!animal.SubTypes.Where(subType => subType.Name == __instance.type).Any())
-                    continue;
-
                 // convert season string value into enum
                 Season season = Season.Spring;
                 switch (Game1.currentSeason)
@@ -513,8 +498,6 @@ namespace FarmAnimalVarietyRedux.Patches
                     behaviors.Invoke(__instance, new object[] { time, environment });
                     return false;
                 }
-
-                break;
             }
 
             // get the farm location to spawn the animal in
@@ -698,15 +681,11 @@ namespace FarmAnimalVarietyRedux.Patches
                 producedItemId = __instance.defaultProduceIndex.Value;
                 if (producedItemId == -1) // animal is a custom animal
                 {
-                    foreach (var animal in ModEntry.Animals)
+                    var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
+                    if (subType != null)
                     {
-                        var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
-                        if (subType != null)
-                        {
-                            producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
-                            __instance.harvestType.Value = (byte)harvestType;
-                            break;
-                        }
+                        producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
+                        __instance.harvestType.Value = (byte)harvestType;
                     }
                 }
 
@@ -747,17 +726,14 @@ namespace FarmAnimalVarietyRedux.Patches
                         {
                             if (__instance.deluxeProduceIndex == -1) // animal is a custom animal
                             {
-                                foreach (var animal in ModEntry.Animals)
+                                var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
+                                if (subType != null)
                                 {
-                                    var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == __instance.type.Value.ToLower()).FirstOrDefault();
-                                    if (subType != null)
+                                    var deluxeId = subType.Produce.GetRandomDeluxe(out var harvestType);
+                                    if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
                                     {
-                                        var deluxeId = subType.Produce.GetRandomDeluxe(out var harvestType);
-                                        if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
-                                        {
-                                            producedItemId = deluxeId;
-                                            __instance.harvestType.Value = (byte)harvestType;
-                                        }
+                                        producedItemId = deluxeId;
+                                        __instance.harvestType.Value = (byte)harvestType;
                                     }
                                 }
                             }

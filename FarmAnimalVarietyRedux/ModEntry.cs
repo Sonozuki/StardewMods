@@ -25,7 +25,7 @@ namespace FarmAnimalVarietyRedux
         public static IMonitor ModMonitor { get; private set; }
 
         /// <summary>A list of all the animals.</summary>
-        public static List<Animal> Animals { get; private set; } = new List<Animal>();
+        public List<Animal> Animals { get; private set; } = new List<Animal>();
 
         /// <summary>The custom animal data for the custom farm animals.</summary>
         public Dictionary<string, string> DataStrings { get; private set; } = new Dictionary<string, string>();
@@ -35,6 +35,9 @@ namespace FarmAnimalVarietyRedux
 
         /// <summary>The singleton instance of the <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; set; }
+
+        /// <summary>Provides basic FAVR apis.</summary>
+        public IApi Api { get; private set; }
 
 
         /*********
@@ -47,9 +50,17 @@ namespace FarmAnimalVarietyRedux
             ModHelper = this.Helper;
             ModMonitor = this.Monitor;
             Instance = this;
+            Api = new Api();
 
             ApplyHarmonyPatches();
+
+            // add the default animals to the data strings
+            LoadDefaultAnimals();
         }
+
+        /// <summary>Expose the Api to other mods.</summary>
+        /// <returns>An instance of the <see cref="Api"/>.</returns>
+        public override object GetApi() => new Api();
 
         /// <summary>This will call when loading each asset, if the mail asset is being loaded, return true as we want to edit this.</summary>
         /// <typeparam name="T">The type of the assets being loaded.</typeparam>
@@ -63,8 +74,7 @@ namespace FarmAnimalVarietyRedux
         public void Edit<T>(IAssetData asset)
         {
             var data = asset.AsDictionary<string, string>().Data;
-            foreach (var dataString in DataStrings)
-                data.Add(dataString);
+            data = DataStrings;
         }
 
         /// <summary>Load all the sprites for the new animals from the loaded content packs.</summary>
@@ -363,6 +373,26 @@ namespace FarmAnimalVarietyRedux
                 foreach (var deluxeProduct in animalProduceSeason.DeluxeProducts)
                     this.Monitor.Log($"Id: {deluxeProduct?.Id}\tHarvestType: {deluxeProduct?.HarvestType}\tToolName: {deluxeProduct?.ToolName}");
             }
+        }
+
+        /// <summary>Load all the default animals into the datastrings. This is so content packs can also edit default animals.</summary>
+        private void LoadDefaultAnimals()
+        {
+            // TODO: chicken
+
+            // TODO: duck
+
+            // TODO: rabbit
+
+            // TODO: dinosaur
+
+            // TODO: cow
+
+            // TODO: goat
+
+            // TODO: pig
+
+            // TODO: sheep
         }
     }
 }

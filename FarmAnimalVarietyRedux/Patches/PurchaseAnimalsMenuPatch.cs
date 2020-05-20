@@ -68,11 +68,9 @@ namespace FarmAnimalVarietyRedux.Patches
                 Rectangle shopIconSourceRectangle = new Rectangle(i % 3 * 16 * 2, 448 + i / 3 * 16, 32, 16);
 
                 // check if it's a custom animal
-                foreach (var animal in ModEntry.Animals)
+                var animal = ModEntry.Instance.Api.GetAnimalByName(stock[i].Name);
+                if (animal != null)
                 {
-                    if (animal.Name != stock[i].name)
-                        continue;
-
                     shopIconTexture = animal.ShopIcon;
                     shopIconSourceRectangle = new Rectangle(
                         x: 0,
@@ -203,11 +201,11 @@ namespace FarmAnimalVarietyRedux.Patches
             if (__result != "")
                 return;
 
-            var animalData = ModEntry.Animals.Where(animal => animal.Name == name).Select(animal => animal.Data).FirstOrDefault();
-            if (animalData == null)
+            var animal = ModEntry.Instance.Api.GetAnimalByName(name);
+            if (animal == null)
                 return;
 
-            __result = animalData.AnimalShopInfo.Description;
+            __result = animal.Data.AnimalShopInfo.Description;
         }
 
         /// <summary>The prefix for the PerformHoverAction method.</summary>
@@ -266,18 +264,14 @@ namespace FarmAnimalVarietyRedux.Patches
                         else // animal is a custom animal
                         {
                             // get animal data
-                            foreach (var animal in ModEntry.Animals)
+                            var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                            if (animal != null)
                             {
-                                if (!animal.SubTypes.Where(subType => subType.Name == animalBeingPurchased.type).Any())
-                                    continue;
-
                                 foreach (var building in animal.Data.Buildings)
                                 {
                                     if (buildingAt.buildingType.Value.ToLower() == building.ToLower() && !(buildingAt.indoors.Value as AnimalHouse).isFull())
                                         highLightColor = Color.LightGreen * .8f;
                                 }
-
-                                break;
                             }
                         }
 
@@ -318,8 +312,8 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <returns>True meaning the original method will get ran.</returns>
         internal static bool ReceiveKeyPressPrefix(Keys key)
         {
-            if (key != Keys.Left && key != Keys.Right || 
-                (key == Keys.Left && Game1.oldKBState.IsKeyDown(Keys.Left)) || 
+            if (key != Keys.Left && key != Keys.Right ||
+                (key == Keys.Left && Game1.oldKBState.IsKeyDown(Keys.Left)) ||
                 (key == Keys.Right && Game1.oldKBState.IsKeyDown(Keys.Right))) // ensure either the left or right arrow has been pressed and that it's not being held
                 return true;
 
@@ -440,18 +434,14 @@ namespace FarmAnimalVarietyRedux.Patches
                     else // animal is a custom animal
                     {
                         // get animal data
-                        foreach (var animal in ModEntry.Animals)
+                        var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                        if (animal != null)
                         {
-                            if (!animal.SubTypes.Where(subType => subType.Name == animalBeingPurchased.type).Any())
-                                continue;
-
                             foreach (var building in animal.Data.Buildings)
                             {
                                 if (buildingAt.buildingType.Value.ToLower() == building.ToLower())
                                     buildingValid = true;
                             }
-
-                            break;
                         }
                     }
 
@@ -562,11 +552,9 @@ namespace FarmAnimalVarietyRedux.Patches
                                 else // animal is a custom animal
                                 {
                                     // get animal data
-                                    foreach (var animal in ModEntry.Animals)
+                                    var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                                    if (animal != null)
                                     {
-                                        if (!animal.SubTypes.Where(subType => subType.Name == animalBeingPurchased.type).Any())
-                                            continue;
-
                                         foreach (var animalBuilding in animal.Data.Buildings)
                                         {
                                             if (building.buildingType.Value.ToLower() == animalBuilding.ToLower())
@@ -658,23 +646,20 @@ namespace FarmAnimalVarietyRedux.Patches
                 string housingAnimalString = Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11355", animalBeingPurchased.displayHouse, animalBeingPurchased.displayType);
 
                 // if the animal is a custom animal construct a different string to accomodate more than 1 possible building
-                foreach (var animal in ModEntry.Animals)
+                var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                if (animal != null)
                 {
-                    if (animal.SubTypes.Where(subType => subType.Name == animalBeingPurchased.type).Any())
+                    var buildingsString = "";
+
+                    for (var i = 0; i < animal.Data.Buildings.Count; i++)
                     {
-                        var buildingsString = "";
-
-                        for (var i = 0; i < animal.Data.Buildings.Count; i++)
-                        {
-                            var building = animal.Data.Buildings[i];
-                            buildingsString += building;
-                            if (i != animal.Data.Buildings.Count - 1)
-                                buildingsString += ", ";
-                        }
-
-                        housingAnimalString = $"Choose a: {buildingsString} for your new {animalBeingPurchased.type}";
-                        break;
+                        var building = animal.Data.Buildings[i];
+                        buildingsString += building;
+                        if (i != animal.Data.Buildings.Count - 1)
+                            buildingsString += ", ";
                     }
+
+                    housingAnimalString = $"Choose a: {buildingsString} for your new {animalBeingPurchased.type}";
                 }
 
                 // draw housing animal string;
