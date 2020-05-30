@@ -1,4 +1,4 @@
-﻿namespace BetterMixedSeeds.Data
+﻿namespace BetterMixedSeeds.Models
 {
     /// <summary>Data about a seed.</summary>
     public class SeedData
