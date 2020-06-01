@@ -69,11 +69,10 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
         internal static void ConstructorPostFix(string type, FarmAnimal __instance)
         {
-            // check if the type is custom
             var animal = ModEntry.Instance.Api.GetAnimalByName(type);
             if (animal != null)
             {
-                var subType = animal.SubTypes[Game1.random.Next(animal.SubTypes.Count())];
+                var subType = animal.Data.Types[Game1.random.Next(animal.Data.Types.Count())];
                 __instance.type.Value = subType.Name;
             }
 
@@ -94,8 +93,9 @@ namespace FarmAnimalVarietyRedux.Patches
                 ModEntry.Instance.ContentPacksLoaded = true;
             }
 
-            string data;
-            Game1.content.Load<Dictionary<string, string>>("Data\\FarmAnimals").TryGetValue(__instance.type.Value, out data);
+            // TODO: merge
+            var test = Game1.content.Load<Dictionary<string, string>>(Path.Combine("Data", "FarmAnimals"));
+            test.TryGetValue(__instance.type.Value, out string data);
             if (data == null)
             {
                 ModEntry.ModMonitor.Log($"Couldn't find farm animal datastring for animal: {__instance.type.Value}", LogLevel.Error);
@@ -117,7 +117,7 @@ namespace FarmAnimalVarietyRedux.Patches
             else if (__instance.showDifferentTextureWhenReadyForHarvest && __instance.currentProduce <= 0)
                 animalType = "Sheared" + __instance.type.Value;
 
-            __instance.Sprite = new AnimatedSprite($"Animals\\{animalType}", 0, Convert.ToInt32(dataSplit[16]), Convert.ToInt32(dataSplit[17]));
+            __instance.Sprite = new AnimatedSprite(Path.Combine("Animals", animalType), 0, Convert.ToInt32(dataSplit[16]), Convert.ToInt32(dataSplit[17]));
             __instance.frontBackSourceRect.Value = new Microsoft.Xna.Framework.Rectangle(0, 0, Convert.ToInt32(dataSplit[16]), Convert.ToInt32(dataSplit[17]));
             __instance.sidewaysSourceRect.Value = new Microsoft.Xna.Framework.Rectangle(0, 0, Convert.ToInt32(dataSplit[18]), Convert.ToInt32(dataSplit[19]));
             __instance.fullnessDrain.Value = Convert.ToByte(dataSplit[20]);
@@ -678,15 +678,11 @@ namespace FarmAnimalVarietyRedux.Patches
             var producedItemId = -1;
             if (canProduceItem && !__instance.isBaby()) // check whether the animal can produce an item and which one
             {
-                producedItemId = __instance.defaultProduceIndex.Value;
-                if (producedItemId == -1) // animal is a custom animal
+                var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
+                if (subType != null)
                 {
-                    var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
-                    if (subType != null)
-                    {
-                        producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
-                        __instance.harvestType.Value = (byte)harvestType;
-                    }
+                    producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
+                    __instance.harvestType.Value = (byte)harvestType;
                 }
 
                 if (random.NextDouble() < __instance.happiness / 150.0)
@@ -724,18 +720,12 @@ namespace FarmAnimalVarietyRedux.Patches
                     {
                         if (random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 1200.0 && __instance.friendshipTowardFarmer >= 200)
                         {
-                            if (__instance.deluxeProduceIndex == -1) // animal is a custom animal
+                            var customSubType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
+                            var deluxeId = customSubType.Produce.GetRandomDeluxe(out var harvestType);
+                            if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
                             {
-                                var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
-                                if (subType != null)
-                                {
-                                    var deluxeId = subType.Produce.GetRandomDeluxe(out var harvestType);
-                                    if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
-                                    {
-                                        producedItemId = deluxeId;
-                                        __instance.harvestType.Value = (byte)harvestType;
-                                    }
-                                }
+                                producedItemId = deluxeId;
+                                __instance.harvestType.Value = (byte)harvestType;
                             }
                         }
                     }

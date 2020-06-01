@@ -41,7 +41,7 @@ namespace FarmAnimalVarietyRedux
         {
             foreach (var animal in ModEntry.Instance.Animals)
             {
-                if (animal.SubTypes.Where(subType => subType.Name.ToLower() == subTypeName.ToLower()).Any())
+                if (animal.Data.Types.Where(subType => subType.Name.ToLower() == subTypeName.ToLower()).Any())
                     return animal;
             }
 
@@ -55,7 +55,7 @@ namespace FarmAnimalVarietyRedux
         {
             foreach (var animal in ModEntry.Instance.Animals)
             {
-                var subType = animal.SubTypes.Where(subType => subType.Name.ToLower() == subTypeName.ToLower()).FirstOrDefault();
+                var subType = animal.Data.Types.Where(subType => subType.Name.ToLower() == subTypeName.ToLower()).FirstOrDefault();
                 if (subType != null)
                     return subType;
             }

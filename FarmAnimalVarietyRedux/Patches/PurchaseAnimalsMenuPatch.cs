@@ -7,6 +7,7 @@ using StardewValley.Buildings;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -64,23 +65,14 @@ namespace FarmAnimalVarietyRedux.Patches
             // add a clickable texture for each animal
             for (int i = 0; i < stock.Count; i++)
             {
-                Texture2D shopIconTexture = Game1.mouseCursors;
-                Rectangle shopIconSourceRectangle = new Rectangle(i % 3 * 16 * 2, 448 + i / 3 * 16, 32, 16);
-
-                // check if it's a custom animal
                 var animal = ModEntry.Instance.Api.GetAnimalByName(stock[i].Name);
-                if (animal != null)
-                {
-                    shopIconTexture = animal.ShopIcon;
-                    shopIconSourceRectangle = new Rectangle(
-                        x: 0,
-                        y: 0,
-                        width: 32,
-                        height: 16
-                    );
-
-                    break;
-                }
+                var shopIconTexture = animal.Data.AnimalShopInfo.ShopIcon;
+                var shopIconSourceRectangle = new Rectangle(
+                    x: 0,
+                    y: 0,
+                    width: 32,
+                    height: 16
+                );
 
                 // create animal button
                 var animalComponent = new ClickableTextureComponent(
@@ -255,23 +247,14 @@ namespace FarmAnimalVarietyRedux.Patches
                     {
                         var highLightColor = Color.Red * .8f; ;
 
-                        // if 'buildingTypeILiveIn' is used, it's a default game animal
-                        if (!string.IsNullOrEmpty(animalBeingPurchased.buildingTypeILiveIn.Value))
+                        // get animal data
+                        var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                        if (animal != null)
                         {
-                            if (buildingAt.buildingType.Value.Contains(animalBeingPurchased.buildingTypeILiveIn.Value) && !(buildingAt.indoors.Value as AnimalHouse).isFull())
-                                highLightColor = Color.LightGreen * .8f;
-                        }
-                        else // animal is a custom animal
-                        {
-                            // get animal data
-                            var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
-                            if (animal != null)
+                            foreach (var building in animal.Data.Buildings)
                             {
-                                foreach (var building in animal.Data.Buildings)
-                                {
-                                    if (buildingAt.buildingType.Value.ToLower() == building.ToLower() && !(buildingAt.indoors.Value as AnimalHouse).isFull())
-                                        highLightColor = Color.LightGreen * .8f;
-                                }
+                                if (buildingAt.buildingType.Value.ToLower() == building.ToLower() && !(buildingAt.indoors.Value as AnimalHouse).isFull())
+                                    highLightColor = Color.LightGreen * .8f;
                             }
                         }
 
@@ -423,35 +406,26 @@ namespace FarmAnimalVarietyRedux.Patches
 
                 if (buildingAt != null && !namingAnimal) // picking a house for the animal and a building has been clicked
                 {
-                    var buildingValid = false;
+                    var isBuildingValid = false;
 
-                    // determine if building is valid
-                    if (!string.IsNullOrEmpty(animalBeingPurchased.buildingTypeILiveIn.Value)) // if 'buildingTypeILiveIn' is used, it's a default game animal
+                    // get animal data
+                    var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                    if (animal != null)
                     {
-                        if (buildingAt.buildingType.Value.Contains(animalBeingPurchased.buildingTypeILiveIn.Value))
-                            buildingValid = true;
-                    }
-                    else // animal is a custom animal
-                    {
-                        // get animal data
-                        var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
-                        if (animal != null)
+                        foreach (var building in animal.Data.Buildings)
                         {
-                            foreach (var building in animal.Data.Buildings)
-                            {
-                                if (buildingAt.buildingType.Value.ToLower() == building.ToLower())
-                                    buildingValid = true;
-                            }
+                            if (buildingAt.buildingType.Value.ToLower() == building.ToLower())
+                                isBuildingValid = true;
                         }
                     }
 
-                    if (buildingValid)
+                    if (isBuildingValid)
                     {
                         // ensure building has space for animal
                         if ((buildingAt.indoors.Value as AnimalHouse).isFull())
                         {
                             // show 'That Building Is Full' message
-                            Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11321"));
+                            Game1.showRedMessage(Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11321")));
                         }
                         else if (animalBeingPurchased.harvestType.Value != 2) // animal 'lays' items
                         {
@@ -494,7 +468,7 @@ namespace FarmAnimalVarietyRedux.Patches
                             }
 
                             Game1.player.Money -= priceOfAnimal;
-                            Game1.addHUDMessage(new HUDMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11324", animalBeingPurchased.type), Color.LimeGreen, 3500f));
+                            Game1.addHUDMessage(new HUDMessage(Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11324"), animalBeingPurchased.type), Color.LimeGreen, 3500f));
                             animalBeingPurchased = new FarmAnimal(animalBeingPurchased.type, multiplayer.getNewID(), Game1.player.uniqueMultiplayerID);
                         }
                         else if (Game1.player.Money < priceOfAnimal)
@@ -503,7 +477,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     else
                     {
                         // show '{0}s Can't Live There.' 
-                        Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11326", animalBeingPurchased.type));
+                        Game1.showRedMessage(Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11326"), animalBeingPurchased.type));
                     }
                 }
                 if (!namingAnimal)
@@ -544,25 +518,17 @@ namespace FarmAnimalVarietyRedux.Patches
                             {
                                 // ensure the animal can live in the building
                                 var buildingValid = false;
-                                if (!string.IsNullOrEmpty(animalBeingPurchased.buildingTypeILiveIn.Value)) // if 'buildingTypeILiveIn' is used, it's a default game animal
+                                // get animal data
+                                var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
+                                if (animal != null)
                                 {
-                                    if (building.buildingType.Value.Contains(animalBeingPurchased.buildingTypeILiveIn.Value))
-                                        buildingValid = true;
-                                }
-                                else // animal is a custom animal
-                                {
-                                    // get animal data
-                                    var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
-                                    if (animal != null)
+                                    foreach (var animalBuilding in animal.Data.Buildings)
                                     {
-                                        foreach (var animalBuilding in animal.Data.Buildings)
-                                        {
-                                            if (building.buildingType.Value.ToLower() == animalBuilding.ToLower())
-                                                buildingValid = true;
-                                        }
-
-                                        break;
+                                        if (building.buildingType.Value.ToLower() == animalBuilding.ToLower())
+                                            buildingValid = true;
                                     }
+
+                                    break;
                                 }
 
                                 // ensure the animal can live in the building
@@ -578,7 +544,7 @@ namespace FarmAnimalVarietyRedux.Patches
                             }
                         }
                         else
-                            Game1.addHUDMessage(new HUDMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11325"), Color.Red, 3500f));
+                            Game1.addHUDMessage(new HUDMessage(Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11325")), Color.Red, 3500f));
                     }
                 }
             }
@@ -643,24 +609,19 @@ namespace FarmAnimalVarietyRedux.Patches
             }
             else if (!Game1.globalFade && onFarm) // the player is currently picking a house for the animal
             {
-                string housingAnimalString = Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11355", animalBeingPurchased.displayHouse, animalBeingPurchased.displayType);
-
-                // if the animal is a custom animal construct a different string to accomodate more than 1 possible building
+                // construct housing string
                 var animal = ModEntry.Instance.Api.GetAnimalBySubTypeName(animalBeingPurchased.type);
-                if (animal != null)
+                var buildingsString = "";
+
+                for (var i = 0; i < animal.Data.Buildings.Count; i++)
                 {
-                    var buildingsString = "";
-
-                    for (var i = 0; i < animal.Data.Buildings.Count; i++)
-                    {
-                        var building = animal.Data.Buildings[i];
-                        buildingsString += building;
-                        if (i != animal.Data.Buildings.Count - 1)
-                            buildingsString += ", ";
-                    }
-
-                    housingAnimalString = $"Choose a: {buildingsString} for your new {animalBeingPurchased.type}";
+                    var building = animal.Data.Buildings[i];
+                    buildingsString += building;
+                    if (i != animal.Data.Buildings.Count - 1)
+                        buildingsString += ", ";
                 }
+
+                var housingAnimalString = $"Choose a: {buildingsString} for your new {animalBeingPurchased.type}";
 
                 // draw housing animal string;
                 SpriteText.drawStringWithScrollBackground(
@@ -693,7 +654,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     // 'Name your new animal' label
                     Utility.drawTextWithShadow(
                         b: b,
-                        text: Game1.content.LoadString("Strings\\StringsFromCSFiles:PurchaseAnimalsMenu.cs.11357"),
+                        text: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11357")),
                         font: Game1.dialogueFont,
                         position: new Vector2((float)(Game1.viewport.Width / 2 - 256 + 32 + 8), (float)(Game1.viewport.Height / 2 - 128 + 8)),
                         color: Game1.textColor
@@ -737,7 +698,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     // draw the animal price label
                     SpriteText.drawStringWithScrollBackground(
                         b: b,
-                        s: "$" + Game1.content.LoadString("Strings\\StringsFromCSFiles:LoadGameMenu.cs.11020", (object)__instance.hovered.item.salePrice()),
+                        s: "$" + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:LoadGameMenu.cs.11020"), __instance.hovered.item.salePrice()),
                         x: __instance.xPositionOnScreen + 796,
                         y: __instance.yPositionOnScreen,
                         placeHolderWidthText: "$99999999g",
@@ -745,7 +706,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     );
 
                     // draw the animal description
-                    string animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
+                    var animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
                     IClickableMenu.drawHoverText(
                         b,
                         Game1.parseText(animalDescription, Game1.smallFont, 320),
