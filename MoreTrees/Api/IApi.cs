@@ -19,6 +19,11 @@ namespace MoreTrees
         /// <returns>The <see cref="CustomTree"/>.</returns>
         CustomTree GetTreeByType(int type);
 
+        /// <summary>Get tree data of a tree at a specific tile location.</summary>
+        /// <param name="tileLocation">The location of the tree data to get.</param>
+        /// <returns>The tree data of the tree at the given location.</returns>
+        SavePersistantTreeData GetTreeDataByLocation(Vector2 tileLocation);
+
         /// <summary>Get whether the tree at a location has been debarked.</summary>
         /// <param name="tileLocation">The location of the tree to check.</param>
         /// <returns>Whether the tree at the given location has been debarked.</returns>

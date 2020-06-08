@@ -62,6 +62,16 @@ namespace MoreTrees
                 .FirstOrDefault();
         }
 
+        /// <summary>Get tree data of a tree at a specific tile location.</summary>
+        /// <param name="tileLocation">The location of the tree data to get.</param>
+        /// <returns>The tree data of the tree at the given location.</returns>
+        public SavePersistantTreeData GetTreeDataByLocation(Vector2 tileLocation)
+        {
+            return ModEntry.Instance.SavedTreeData
+                .Where(treeData => treeData.TileLocation == tileLocation)
+                .FirstOrDefault();
+        }
+
         /// <summary>Get whether the tree at a location has been debarked.</summary>
         /// <param name="tileLocation">The location of the tree to check.</param>
         /// <returns>Whether the tree at the given location has been debarked.</returns>

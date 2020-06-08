@@ -58,10 +58,10 @@
     <Compile Include="ModEntry.cs" />
     <Compile Include="Patches\TreePatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tools\BarkRemover.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="pics\" />
+    <Folder Include="Tools\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="manifest.json" />

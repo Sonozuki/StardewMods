@@ -142,11 +142,11 @@ namespace MoreTrees
             }
 
             // remove newly cut down trees
-            foreach (var savedTreeData in SavedTreeData)
+            for (int i = SavedTreeData.Count - 1; i >= 0; i--)
             {
                 // check if the tree still exists, if not, delete it
-                if (!Game1.getFarm().terrainFeatures.ContainsKey(savedTreeData.TileLocation))
-                    SavedTreeData.Remove(savedTreeData);
+                if (!Game1.getFarm().terrainFeatures.ContainsKey(SavedTreeData[i].TileLocation))
+                    SavedTreeData.RemoveAt(i);
             }
 
             // save the custom save data

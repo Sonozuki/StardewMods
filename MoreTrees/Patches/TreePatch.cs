@@ -1,15 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MoreTrees.Tools;
 using Netcode;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Network;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+
 using SObject = StardewValley.Object;
 
 namespace MoreTrees.Patches
@@ -42,21 +40,48 @@ namespace MoreTrees.Patches
             return false;
         }
 
-        internal static bool ShakePrefix(Vector2 tileLocation, bool doEvenIfStillShaking, GameLocation location)
+        internal static bool ShakePrefix(Vector2 tileLocation, bool doEvenIfStillShaking, GameLocation location, Tree __instance)
         {
-            // TODO: handle hasSeed to drop the seed, and custom shakeProduce
+            if (__instance.treeType < 7) // ensure tree being shaken is a custom one
+                return true;
+
+            // get private member
+            var maxShake = (float)typeof(Tree).GetField("maxShake", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+
+            // create seed and shake produce debris
+            if (maxShake == 0 || doEvenIfStillShaking && __instance.growthStage >= 5 && !__instance.stump && !Game1.IsMultiplayer && Game1.player.ForagingLevel >= 1)
+            {
+                var currentTreeData = ModEntry.Instance.Api.GetTreeDataByLocation(tileLocation);
+                var treeData = ModEntry.Instance.Api.GetTreeByType(__instance.treeType);
+
+                // handle dropping seed
+                if (__instance.hasSeed)
+                    Game1.createObjectDebris(Convert.ToInt32(treeData.Data.Seed), (int)tileLocation.X, (int)tileLocation.Y - 3, location);
+
+                // handle dropping custom shake produce
+                for (int i = 0; i < currentTreeData.DaysTillNextShakeProduct.Count; i++)
+                {
+                    if (currentTreeData.DaysTillNextShakeProduct[i] > 0)
+                        continue;
+
+                    // add product to drop list and reset time till next drop
+                    Game1.createObjectDebris(Convert.ToInt32(treeData.Data.ShakingProducts[i].Product), (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location); // no need to try parse as it's already been validated
+                    currentTreeData.DaysTillNextShakeProduct[i] = treeData.Data.ShakingProducts[i].DaysBetweenProduce;
+                }
+            }
+
             return true;
         }
 
         internal static bool PerformToolActionPrefix(Tool t, Vector2 tileLocation, GameLocation location, ref bool __result)
         {
-            if (t is BarkRemover)
-            {
-                // TODO: ensure tree is grown and isn't already barkless
+            //if (t is BarkRemover)
+            //{
+            //    // TODO: ensure tree is grown, alive, and isn't already barkless
 
-                location.playSound("axchop", NetAudio.SoundContext.Default);
-                // TODO: mark tree as barkless
-            }
+            //    location.playSound("axchop", NetAudio.SoundContext.Default);
+            //    // TODO: mark tree as barkless
+            //}
 
             return true;
         }
