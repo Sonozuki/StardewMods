@@ -36,6 +36,9 @@
     <Reference Include="0Harmony, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Lib.Harmony.1.2.0.1\lib\net472\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,11 +49,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\ShakeProduce.cs" />
-    <Compile Include="Models\TappingProduct.cs" />
+    <Compile Include="Api\Api.cs" />
+    <Compile Include="Api\IApi.cs" />
+    <Compile Include="Models\CustomTree.cs" />
+    <Compile Include="Models\SavePersistanceTreeData.cs" />
+    <Compile Include="Models\TimedProduct.cs" />
     <Compile Include="Models\TreeData.cs" />
     <Compile Include="ModEntry.cs" />
+    <Compile Include="Patches\TreePatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\BarkRemover.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="pics\" />
