@@ -34,40 +34,45 @@
 
 #### Content.json example
     {
-        "Tapping": {
-            "NumberOfDays": 4,
+        "TappingProduct": {
+            "DaysBetweenProduce": 4,
             "Product": "id"
         },
         "WoodProduct": "id",
         "Seed": "id",
-        "IncludeIfModIsPresent": [ "uniqueModId", "uniqueModId" ],
-        "ExcludeIfModIsPresent": [ "uniqueModId", "uniqueModId" ],
-        "ShakingProduct": [
+        "ShakingProducts": [
             {
-                "DaysBetweenDropping": 1,
+                "DaysBetweenProduce": 1,
                 "Product": "id"
             },
             {
-                "DaysBetweenDropping": 3,
+                "DaysBetweenProduce": 3,
                 "Product": "id"
             }
         ],
+        "IncludeIfModIsPresent": [ "uniqueModId", "uniqueModId" ],
+        "ExcludeIfModIsPresent": [ "uniqueModId", "uniqueModId" ],
         "RequiresExtendedMode": true,
-        "BarkProduct": "id"
+        "BarkProduct": {
+            "DaysBetweenProduce": 4,
+            "Product": "id"
+        }
     }
 
 * **Tapping**: This is the product that the tree drops when using a [tapper](https://stardewvalleywiki.com/Tapper) on it.
-* **Tapping.NumberOfDays**: The number of days between each harvest.
+* **Tapping.DaysBetweenProduce**: The number of days between each harvest.
 * **Tapping.Product**: The product that gets harvested when using a tapper.
 * **WoodProduct**: This is the product that the tree drops when it gets cut down.
 * **Seed**: This is the item to plant for the tree to grow.
+* **ShakingProduct**: This is a list of products that drop when shaking the tree.
+* **ShakingProduct.DaysBetweenProduce**: The number of days between the product can be dropped again.
+* **ShakingProduct.Product**: The product that will get dropped.
 * **IncludeIfModIsPresent**: The tree will only get loaded if one of the listed mods (by uniqueId) is present.
 * **ExcludeIfModIsPresent**: The tree will only get loaded if none of the listed mods (by uniqueId) are present.
-* **ShakingProduct**: This is a list of products that drop when shaking the tree.
-* **ShakingProduct.DaysBetweenDropping**: The number of days between the product can be dropped again.
-* **ShakingProduct.Product**: The product that will get dropped.
 * **RequiredExtendedMode**: Whether the tree requires the user to have the extended mode of MoreTrees enables. (Extended mode adds the ability to harvest bark with the **Bark Remover**).
 * **BarkProduct**: This is the product that the tree drops when using the **Bark Remover**.
+* **BarkProduct.DaysBetweenProduce**: The number of days between each harvest.
+* **BarkProduct.Product**: The product that gets harvested when using a **Bark Remover**.
 
 **NOTE:** Ensure all ids are strings, this is because they also allow API tokens (The layout is: "UniqueModId:MethodName:Value"), and example of an API token is: **spacechase0.JsonAssets:GetObjectId:Maple Bark**, this will use an item from JA called **Maple Bark**.
 
