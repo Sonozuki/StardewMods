@@ -1,7 +1,10 @@
 ﻿using Harmony;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MoreTrees.Config;
 using MoreTrees.Models;
 using MoreTrees.Patches;
+using MoreTrees.Tools;
 using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -15,13 +18,23 @@ using System.Linq;
 namespace MoreTrees
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod
+    public class ModEntry : Mod, IAssetEditor
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The sprite for the <see cref="Tools.BarkRemover"/>.</summary>
+        private Texture2D BarkRemoverTexture;
+
+
         /*********
         ** Accessors
         *********/
         /// <summary>The singletong instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; set; }
+
+        /// <summary>The mod configuration.</summary>
+        public ModConfig Config { get; set; }
 
         /// <summary>Provides basic More Trees apis.</summary>
         public IApi Api { get; set; }
@@ -43,10 +56,49 @@ namespace MoreTrees
             Instance = this;
             Api = new Api();
 
+            Config = this.Helper.ReadConfig<ModConfig>();
+            BarkRemoverTexture = this.Helper.Content.Load<Texture2D>(Path.Combine("assets", "BarkRemover.png"));
+
+            if (Config.EnableExtendedMode && BarkRemoverTexture == null)
+            {
+                this.Monitor.Log("ExtendedMode is enabled but the BarkRemover texture couldn't be found. Try reinstalling More Trees. ExtendedMode disabled.", LogLevel.Error);
+                Config.EnableExtendedMode = false;
+            }
+
             ApplyHarmonyPatches();
 
             this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             this.Helper.Events.GameLoop.Saved += OnSaved;
+            this.Helper.Events.Input.ButtonPressed += OnButtonPressed;
+        }
+
+        // TODO: remove
+        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        {
+            if (e.Button == SButton.T)
+            {
+                Game1.player.addItemToInventory(new BarkRemover());
+            }
+        }
+
+        /// <summary>This will call when loading each asset, if the mail asset is being loaded, return true as we want to edit this.</summary>
+        /// <typeparam name="T">The type of the assets being loaded.</typeparam>
+        /// <param name="asset">The asset info being loaded.</param>
+        /// <returns>True if the assets being loaded needs to be edited.</returns>
+        public bool CanEdit<T>(IAssetInfo asset) => ModEntry.Instance.Config.EnableExtendedMode && asset.AssetNameEquals(Path.Combine("TileSheets", "tools"));
+
+        /// <summary>Edit the tools asset to add the the Bark Remover.</summary>
+        /// <typeparam name="T">The type of the assets being loaded.</typeparam>
+        /// <param name="asset">The asset data being loaded.</param>
+        public void Edit<T>(IAssetData asset)
+        {
+            var image = asset.AsImage();
+
+            // extend image
+            image.ExtendImage(336, 416);
+
+            // add custom tool sprites
+            image.PatchImage(ModEntry.Instance.BarkRemoverTexture, targetArea: new Rectangle(0, 400, 96, 16));
         }
 
 
