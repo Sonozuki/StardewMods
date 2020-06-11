@@ -15,6 +15,9 @@ namespace MoreTrees.Patches
     /// <summary>Contains patches for patching game code in the <see cref="Tree"/> class.</summary>
     internal static class TreePatch
     {
+        /*********
+        ** Internal Methods
+        *********/
         /// <summary>The prefix for the LoadTexture method.</summary>
         /// <param name="__instance">The <see cref="Tree"/> instance being patched.</param>
         /// <param name="__result">The return value of the LoadTexture method."/></param>
@@ -40,6 +43,12 @@ namespace MoreTrees.Patches
             return false;
         }
 
+        /// <summary>The prefix for the Shake method.</summary>
+        /// <param name="tileLocation">The location of the tree being shaken.</param>
+        /// <param name="doEvenIfStillShaking">Whether the shake action can be started if the tree is still shaking.</param>
+        /// <param name="location">The location of the tree.</param>
+        /// <param name="__instance">The current <see cref="Tree"/> instance being patched.</param>
+        /// <returns>Whether the original method should get ran.</returns>
         internal static bool ShakePrefix(Vector2 tileLocation, bool doEvenIfStillShaking, GameLocation location, Tree __instance)
         {
             if (__instance.treeType < 7) // ensure tree being shaken is a custom one
@@ -73,6 +82,12 @@ namespace MoreTrees.Patches
             return true;
         }
 
+        /// <summary>The prefix for the PerformToolAction method.</summary>
+        /// <param name="t">The tool being used.</param>
+        /// <param name="tileLocation">The tile action of the tree.</param>
+        /// <param name="location">The location the player is currently in.</param>
+        /// <param name="__result">Whether the tree gets cut down.</param>
+        /// <returns>True, meaning the original method will get ran.</returns>
         internal static bool PerformToolActionPrefix(Tool t, Vector2 tileLocation, GameLocation location, ref bool __result)
         {
             //if (t is BarkRemover)
@@ -86,6 +101,9 @@ namespace MoreTrees.Patches
             return true;
         }
 
+        /// <summary>The prefix for the UpdateTapperProduct method.</summary>
+        /// <param name="tapper_instance">The tapper object on the tree.</param>
+        /// <returns>True, meaning the original method will get ran.</returns>
         internal static bool UpdateTapperProductPrefix(SObject tapper_instance)
         {
             // TODO: determine how the minutesUntilReady should get calculated
@@ -93,6 +111,11 @@ namespace MoreTrees.Patches
             return true;
         }
 
+        /// <summary>The prefix for the Draw method.</summary>
+        /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to draw the tree to.</param>
+        /// <param name="tileLocation">The current location of the tree.</param>
+        /// <param name="__instance">THe current <see cref="Tree"/> instance being patched.</param>
+        /// <returns>Whether the original method will get ran.S</returns>
         internal static bool DrawPrefix(SpriteBatch spriteBatch, Vector2 tileLocation, Tree __instance)
         {
             // ensure tree trying to be drawn is custom
