@@ -58,7 +58,7 @@ namespace MoreTrees.Patches
             var maxShake = (float)typeof(Tree).GetField("maxShake", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
             // create seed and shake produce debris
-            if (maxShake == 0 || doEvenIfStillShaking && __instance.growthStage >= 5 && !__instance.stump && !Game1.IsMultiplayer && Game1.player.ForagingLevel >= 1)
+            if ((maxShake == 0 || doEvenIfStillShaking) && __instance.growthStage >= 5 && !__instance.stump.Value && !Game1.IsMultiplayer && Game1.player.ForagingLevel >= 1)
             {
                 var currentTreeData = ModEntry.Instance.Api.GetTreeDataByLocation(tileLocation);
                 var treeData = ModEntry.Instance.Api.GetTreeByType(__instance.treeType);

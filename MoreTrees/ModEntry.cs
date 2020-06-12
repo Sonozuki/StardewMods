@@ -158,6 +158,49 @@ namespace MoreTrees
 
             // load saved tree data
             SavedTreeData = GetSavePersistantTreeData();
+
+            // place trees on maps using tree tile data
+            foreach (var location in Game1.locations)
+            {
+                var map = location.Map;
+                var backLayer = map.GetLayer("Back");
+                if (backLayer == null)
+                    continue;
+
+                for (int x = 0; x < backLayer.LayerWidth; x++)
+                {
+                    for (int y = 0; y < backLayer.LayerHeight; y++)
+                    {
+                        // check if a tree property is on the tile
+                        var treeProperty = location.doesTileHaveProperty(x, y, "Tree", "Back");
+                        if (treeProperty == null)
+                            continue;
+
+                        // ensure the tree tile value is valid
+                        var treeType = ModEntry.Instance.Api.GetTreeType(treeProperty);
+                        if (treeType == -1)
+                        {
+                            ModEntry.Instance.Monitor.Log($"Tree property found at tile: (X:{x} Y:{y}) on map: {location.Name} but tree type: {treeProperty} couldn't be found.", LogLevel.Warn);
+                            continue;
+                        }
+
+                        // ensure a terrain feature isn't already in it's place
+                        if (!location.terrainFeatures.ContainsKey(new Vector2(x, y)))
+                        {
+                            location.terrainFeatures.Add(new Vector2(x, y), new Tree(treeType, 5));
+
+                            var customTree = ModEntry.Instance.Api.GetTreeByType(treeType);
+
+                            // set default shake produce values to 0 (so player doesn't need to wait for the required number of days straight away)
+                            List<int> daysTillNextShakeProduce = new List<int>();
+                            for (int i = 0; i < customTree.Data.ShakingProducts.Count; i++)
+                                daysTillNextShakeProduce.Add(0);
+
+                            SavedTreeData.Add(new SavePersistantTreeData(new Vector2(x, y), 0, daysTillNextShakeProduce));
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>Invoked when the player saves the game.</summary>
@@ -186,7 +229,7 @@ namespace MoreTrees
                     var customTree = Api.GetTreeByType(tree.treeType);
 
                     List<int> daysTillNextShakeProduce = new List<int>();
-                    foreach (var shakeProduce in customTree.Data.ShakingProducts)
+                    for (int i = 0; i < customTree.Data.ShakingProducts.Count; i++)
                         daysTillNextShakeProduce.Add(0);
 
                     SavedTreeData.Add(new SavePersistantTreeData(terrainFeature.currentTileLocation, 0, daysTillNextShakeProduce));
