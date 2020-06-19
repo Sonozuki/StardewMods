@@ -1,11 +1,10 @@
-﻿using FarmAnimalVarietyRedux.Models;
+﻿using FarmAnimalVarietyRedux.Enums;
 using Harmony;
 using Microsoft.Xna.Framework;
 using Netcode;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Buildings;
-using StardewValley.Network;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
@@ -585,7 +584,7 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="environtment">The current location of the animal.</param>
         /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
         /// <returns>False meaning the original method won't get ran.</returns>
-        internal static bool DayUpdatePrefix(GameLocation environtment, FarmAnimal __instance)
+        internal static bool DayUpdatePrefix(GameLocation environtment, FarmAnimal __instance) // TODO: check if I can correct the mispelling from the game code with Harmony still working
         {
             var random = new Random((int)(__instance.myID / 2 + Game1.stats.DaysPlayed));
             __instance.controller = null;
@@ -681,7 +680,8 @@ namespace FarmAnimalVarietyRedux.Patches
                 var subType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
                 if (subType != null)
                 {
-                    producedItemId = subType.Produce.GetRandomDefault(out var harvestType);
+                    var numberOfHearts = (int)(__instance.friendshipTowardFarmer / 195f);
+                    producedItemId = subType.Produce.GetRandomDefault(numberOfHearts, out var harvestType);
                     __instance.harvestType.Value = (byte)harvestType;
                 }
 

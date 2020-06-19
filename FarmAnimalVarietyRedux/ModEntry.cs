@@ -1,4 +1,5 @@
-﻿using FarmAnimalVarietyRedux.Models;
+﻿using FarmAnimalVarietyRedux.Enums;
+using FarmAnimalVarietyRedux.Models;
 using FarmAnimalVarietyRedux.Patches;
 using Harmony;
 using Microsoft.Xna.Framework;
@@ -369,14 +370,14 @@ namespace FarmAnimalVarietyRedux
             {
                 this.Monitor.Log("Products:");
                 foreach (var product in animalProduceSeason.Products)
-                    this.Monitor.Log($"Id: {product?.Id}\tHarvestType: {product?.HarvestType}\tToolName: {product?.ToolName}");
+                    this.Monitor.Log($"Id: {product?.Id}\tHarvestType: {product?.HarvestType}\tToolName: {product?.ToolName}\tHeartsRequired: {product?.HeartsRequired}");
             }
 
             if (animalProduceSeason.DeluxeProducts != null)
             {
                 this.Monitor.Log("DeluxeProducts:");
                 foreach (var deluxeProduct in animalProduceSeason.DeluxeProducts)
-                    this.Monitor.Log($"Id: {deluxeProduct?.Id}\tHarvestType: {deluxeProduct?.HarvestType}\tToolName: {deluxeProduct?.ToolName}");
+                    this.Monitor.Log($"Id: {deluxeProduct?.Id}\tHarvestType: {deluxeProduct?.HarvestType}\tToolName: {deluxeProduct?.ToolName}\tHeartsRequired: {deluxeProduct?.HeartsRequired}");
             }
         }
 

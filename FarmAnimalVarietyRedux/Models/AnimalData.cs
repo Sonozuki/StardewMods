@@ -1,4 +1,5 @@
-﻿using StardewModdingAPI;
+﻿using FarmAnimalVarietyRedux.Enums;
+using StardewModdingAPI;
 using System.Collections.Generic;
 
 namespace FarmAnimalVarietyRedux.Models

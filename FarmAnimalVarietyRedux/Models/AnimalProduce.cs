@@ -1,4 +1,5 @@
-﻿using StardewValley;
+﻿using FarmAnimalVarietyRedux.Enums;
+using StardewValley;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,30 +47,31 @@ namespace FarmAnimalVarietyRedux.Models
         }
 
         /// <summary>Get a random product id.</summary>
+        /// <param name="numberOfHearts">The number of hearts the player has with the animal (This is for the heart based produce).</param>
         /// <param name="harvestType">The harvest type of the item.</param>
         /// <returns>A random product id.</returns>
-        public int GetRandomDefault(out HarvestType harvestType)
+        public int GetRandomDefault(int numberOfHearts, out HarvestType harvestType)
         {
             var possibleProducts = AllSeasons?.Products?.ToList() ?? new List<AnimalProduct>();
             switch (Game1.currentSeason)
             {
                 case "spring":
-                    var springProducts = Spring?.Products?.ToList();
+                    var springProducts = Spring?.Products?.Where(product => product.HeartsRequired <= numberOfHearts).ToList();
                     if (springProducts != null && springProducts.Count > 0)
                         possibleProducts.AddRange(springProducts);
                     break;
                 case "summer":
-                    var summerProducts = Summer?.Products?.ToList();
+                    var summerProducts = Summer?.Products?.Where(product => product.HeartsRequired <= numberOfHearts).ToList();
                     if (summerProducts != null && summerProducts.Count > 0)
                         possibleProducts.AddRange(summerProducts);
                     break;
                 case "fall":
-                    var fallProducts = Fall?.Products?.ToList();
+                    var fallProducts = Fall?.Products?.Where(product => product.HeartsRequired <= numberOfHearts).ToList();
                     if (fallProducts != null && fallProducts.Count > 0)
                         possibleProducts.AddRange(fallProducts);
                     break;
                 case "winter":
-                    var winterProducts = Winter?.Products?.ToList();
+                    var winterProducts = Winter?.Products?.Where(product => product.HeartsRequired <= numberOfHearts).ToList();
                     if (winterProducts != null && winterProducts.Count > 0)
                         possibleProducts.AddRange(winterProducts);
                     break;

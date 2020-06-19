@@ -424,8 +424,8 @@ namespace FarmAnimalVarietyRedux.Patches
                     );
                 }
 
-                // get number of hearts
-                int numberOfHearts = loveLevel * 1000f % 200f >= 100.0
+                // get whether a partial heart should be drawn (and in what heart it should be drawn)
+                int partialHeartLocation = loveLevel * 1000f % 200f >= 100.0
                     ? (int)(loveLevel * 1000f / 200f)
                     : -100;
 
@@ -451,9 +451,9 @@ namespace FarmAnimalVarietyRedux.Patches
                         layerDepth: 0.89f
                     );
 
-                    if (numberOfHearts == i)
+                    if (partialHeartLocation == i)
                     {
-                        // draw filled heart
+                        // draw partially filled heart
                         b.Draw(
                             texture: Game1.mouseCursors,
                             position: new Vector2(

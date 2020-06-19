@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using FarmAnimalVarietyRedux.Enums;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FarmAnimalVarietyRedux.Models
 {
