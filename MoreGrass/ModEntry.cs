@@ -78,7 +78,7 @@ namespace MoreGrass
             // apply the patches
             harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.TerrainFeatures.Grass), nameof(StardewValley.TerrainFeatures.Grass.seasonUpdate)),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.SeasonUpdatePreFix)))
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.SeasonUpdatePrefix)))
             );
 
             harmony.Patch(
