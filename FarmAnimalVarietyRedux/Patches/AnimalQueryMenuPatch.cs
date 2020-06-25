@@ -5,7 +5,6 @@ using StardewValley.Buildings;
 using StardewValley.Menus;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace FarmAnimalVarietyRedux.Patches

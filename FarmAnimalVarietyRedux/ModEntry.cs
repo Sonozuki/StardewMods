@@ -10,6 +10,7 @@ using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace FarmAnimalVarietyRedux
@@ -112,78 +113,18 @@ namespace FarmAnimalVarietyRedux
                         continue;
                     }
 
-                    // set the shop display icon
-                    animalData.AnimalShopInfo.ShopIcon = GetSpriteByPath(Path.Combine(animalName, $"shopdisplay.png"), contentPack);
-
-                    // loop through each sub type to get sprites, resolve tokens, and validate
-                    var validTypes = new List<AnimalSubType>();
-                    foreach (var type in animalData.Types)
+                    if (animalData.UpdatePreviousAnimal)
                     {
-                        // get sprites
-                        var sprites = new AnimalSprites(
-                            adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{type.Name}.png"), contentPack),
-                            babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {type.Name}.png"), contentPack),
-                            harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {type.Name}.png"), contentPack),
-                            springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{type.Name}.png"), contentPack),
-                            springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {type.Name}.png"), contentPack),
-                            springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {type.Name}.png"), contentPack),
-                            summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{type.Name}.png"), contentPack),
-                            summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {type.Name}.png"), contentPack),
-                            summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {type.Name}.png"), contentPack),
-                            fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{type.Name}.png"), contentPack),
-                            fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {type.Name}.png"), contentPack),
-                            fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {type.Name}.png"), contentPack),
-                            winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{type.Name}.png"), contentPack),
-                            winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {type.Name}.png"), contentPack),
-                            winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {type.Name}.png"), contentPack)
-                        );
-
-                        // ensure sprites are valid
-                        if (!sprites.IsValid())
+                        if (ModEntry.Instance.Api.GetAnimalByName(animalName) == null)
                         {
-                            this.Monitor.Log($"Sprites are not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {type}", LogLevel.Error);
-                            continue;
-                        }
-                        type.Sprites = sprites;
-
-                        // resolve API tokens in data and validate it
-                        type.ResolveTokens();
-                        if (!type.IsValid())
-                        {
-                            this.Monitor.Log($"Data is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {type.Name}", LogLevel.Error);
+                            ModEntry.Instance.Monitor.Log($"Trying to update animal: {animalName} but the aniaml hasn't been added. Animal entry will be ignored.");
                             continue;
                         }
 
-                        validTypes.Add(type);
+                        UpdatePreviousAnimalEntry(animalData, contentPack, animalName);
                     }
-
-                    // set the data types to be the valid types
-                    animalData.Types = validTypes;
-
-                    // ensure there were valid sub types
-                    if (animalData.Types.Count == 0)
-                    {
-                        this.Monitor.Log($"No valid sub types for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}.\n Animal will not be added.", LogLevel.Error);
-                        continue;
-                    }
-
-                    // create, validate, and add the animal
-                    var animal = new Animal(
-                        name: animalName,
-                        data: animalData
-                    );
-
-                    if (!animal.IsValid())
-                    {
-                        this.Monitor.Log($"Animal is not valid at Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}", LogLevel.Error);
-                        continue;
-                    }
-
-                    Animals.Add(animal);
-
-                    // construct data string for game to use
-                    foreach (var subType in animal.Data.Types)
-                        DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}///{animal.Data.SoundId}//////////{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}//0/{animal.Data.AnimalShopInfo?.BuyPrice}/{subType.Name}/");
+                    else
+                        AddNewAnimalEntry(animalData, contentPack, animalName);
                 }
             }
 
@@ -198,6 +139,140 @@ namespace FarmAnimalVarietyRedux
         /*********
         ** Private Methods 
         *********/
+        /// <summary>Edits a previously added animal from a content pack.</summary>
+        /// <param name="animalData">The data of the animal.</param>
+        /// <param name="contentPack">The content pack of the animal.</param>
+        /// <param name="animalName">The name of the animal.</param>
+        private void UpdatePreviousAnimalEntry(AnimalData animalData, IContentPack contentPack, string animalName)
+        {
+            // ensure animal data exists to edit
+            var previousAnimalData = Api.GetAnimalByName(animalName);
+            if (previousAnimalData == null)
+            {
+                this.Monitor.Log("Tried to update an animal that doesn't exist. Skipping content pack", LogLevel.Error);
+                return;
+            }
+
+            // edit animal data
+            previousAnimalData.Data.Buyable = animalData.Buyable;
+            previousAnimalData.Data.AnimalShopInfo.BuyPrice = animalData.AnimalShopInfo.BuyPrice;
+            previousAnimalData.Data.AnimalShopInfo.Description = animalData.AnimalShopInfo.Description;
+            previousAnimalData.Data.DaysToProduce = animalData.DaysToProduce;
+            previousAnimalData.Data.DaysTillMature = animalData.DaysTillMature;
+            previousAnimalData.Data.SoundId = animalData.SoundId;
+            previousAnimalData.Data.FrontAndBackSpriteWidth = animalData.FrontAndBackSpriteWidth;
+            previousAnimalData.Data.FrontAndBackSpriteHeight = animalData.FrontAndBackSpriteHeight;
+            previousAnimalData.Data.SideSpriteWidth = animalData.SideSpriteWidth;
+            previousAnimalData.Data.SideSpriteHeight = animalData.SideSpriteHeight;
+            previousAnimalData.Data.FullnessDrain = animalData.FullnessDrain;
+            previousAnimalData.Data.HappinessDrain = animalData.HappinessDrain;
+            previousAnimalData.Data.Buildings = animalData.Buildings;
+            previousAnimalData.Data.WalkSpeed = animalData.WalkSpeed;
+            previousAnimalData.Data.BedTime = animalData.BedTime;
+            previousAnimalData.Data.SeasonsAllowedOutdoors = animalData.SeasonsAllowedOutdoors;
+
+            // update sub types data
+            foreach (var type in animalData.Types)
+            {
+                // check if the type has already been added (and should be edited instead)
+                var animalSubType = ModEntry.Instance.Api.GetAnimalSubTypeByName(type.Name);
+                if (animalSubType == null) // sub type should be added to animal
+                {
+                    var animal = ModEntry.Instance.Api.GetAnimalByName(animalName);
+                    if (LoadAnimalSubType(type, contentPack, animalName))
+                        animal.Data.Types.Add(type);
+                }
+                else // previous sub type should be edited
+                {
+                    animalSubType.Produce = type.Produce;
+                }
+            }
+        }
+
+        /// <summary>Loads a new animal from a content pack.</summary>
+        private void AddNewAnimalEntry(AnimalData animalData, IContentPack contentPack, string animalName)
+        {
+            // set the shop display icon
+            animalData.AnimalShopInfo.ShopIcon = GetSpriteByPath(Path.Combine(animalName, $"shopdisplay.png"), contentPack);
+
+            // loop through each sub type to get sprites, resolve tokens, and validate
+            var validTypes = new List<AnimalSubType>();
+            foreach (var type in animalData.Types)
+                if (LoadAnimalSubType(type, contentPack, animalName))
+                    validTypes.Add(type);
+
+            // set the data types to be the valid types
+            animalData.Types = validTypes;
+
+            // ensure there were valid sub types
+            if (animalData.Types.Count == 0)
+            {
+                this.Monitor.Log($"No valid sub types for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}.\n Animal will not be added.", LogLevel.Error);
+                return;
+            }
+
+            // create, validate, and add the animal
+            var animal = new Animal(
+                name: animalName,
+                data: animalData
+            );
+
+            if (!animal.IsValid())
+            {
+                this.Monitor.Log($"Animal is not valid at Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}", LogLevel.Error);
+                return;
+            }
+
+            Animals.Add(animal);
+
+            // construct data string for game to use
+            foreach (var subType in animal.Data.Types)
+                DataStrings.Add(subType.Name, $"{animal.Data.DaysToProduce}/{animal.Data.DaysTillMature}///{animal.Data.SoundId}//////////{subType.Sprites.HasDifferentSpriteSheetWhenHarvested()}//{animal.Data.FrontAndBackSpriteWidth}/{animal.Data.FrontAndBackSpriteHeight}/{animal.Data.SideSpriteWidth}/{animal.Data.SideSpriteHeight}/{animal.Data.FullnessDrain}/{animal.Data.HappinessDrain}//0/{animal.Data.AnimalShopInfo?.BuyPrice}/{subType.Name}/");
+        }
+
+        /// <summary>Loads an animal sub type's assets and validates.</summary>
+        /// <param name="subType">The sub type to load assets for and to validate.</param>
+        /// <returns>Whether the sub type was valid.</returns>
+        private bool LoadAnimalSubType(AnimalSubType subType, IContentPack contentPack, string animalName)
+        {
+            // get sprites
+            var sprites = new AnimalSprites(
+                adultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"{subType.Name}.png"), contentPack),
+                babySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Baby {subType.Name}.png"), contentPack),
+                harvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", $"Harvested {subType.Name}.png"), contentPack),
+                springAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"{subType.Name}.png"), contentPack),
+                springHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Harvested {subType.Name}.png"), contentPack),
+                springBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "spring", $"Baby {subType.Name}.png"), contentPack),
+                summerAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"{subType.Name}.png"), contentPack),
+                summerHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Harvested {subType.Name}.png"), contentPack),
+                summerBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "summer", $"Baby {subType.Name}.png"), contentPack),
+                fallAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"{subType.Name}.png"), contentPack),
+                fallHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Harvested {subType.Name}.png"), contentPack),
+                fallBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "fall", $"Baby {subType.Name}.png"), contentPack),
+                winterAdultSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"{subType.Name}.png"), contentPack),
+                winterHarvestedSpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Harvested {subType.Name}.png"), contentPack),
+                winterBabySpriteSheet: GetSpriteByPath(Path.Combine(animalName, "assets", "winter", $"Baby {subType.Name}.png"), contentPack)
+            );
+
+            // ensure sprites are valid
+            if (!sprites.IsValid())
+            {
+                this.Monitor.Log($"Sprites are not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {subType.Name}", LogLevel.Error);
+                return false;
+            }
+            subType.Sprites = sprites;
+
+            // resolve API tokens in data and validate it
+            subType.ResolveTokens();
+            if (!subType.IsValid())
+            {
+                this.Monitor.Log($"Data is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName} >> Subtype: {subType.Name}", LogLevel.Error);
+                return false;
+            }
+
+            return true;
+        }
+        
         /// <summary>Apply the harmony patches for patching game code.</summary>
         private void ApplyHarmonyPatches()
         {
@@ -415,7 +490,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11334")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 800,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 448, 32, 16)));
-            var chickenData = new AnimalData("chicken", true, chickenShopInfo, chickenTypes, 1, 3, "cluck", 16, 16, 16, 16, 4, 7, new List<string> { "Coop", "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var chickenData = new AnimalData("chicken", true, false, chickenShopInfo, chickenTypes, 1, 3, "cluck", 16, 16, 16, 16, 4, 7, new List<string> { "Coop", "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("chicken", chickenData));
 
             // construct data string for game to use
@@ -442,7 +517,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11337")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 4000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 464, 32, 16)));
-            var duckData = new AnimalData("duck", true, duckShopInfo, duckTypes, 2, 5, "Duck", 16, 16, 16, 16, 3, 8, new List<string> { "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var duckData = new AnimalData("duck", true, false, duckShopInfo, duckTypes, 2, 5, "Duck", 16, 16, 16, 16, 3, 8, new List<string> { "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("duck", duckData));
 
             // construct data string for game to use
@@ -469,7 +544,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11340")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 8000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(64, 464, 32, 16)));
-            var rabbitData = new AnimalData("rabbit", true, rabbitShopInfo, rabbitTypes, 4, 6, "rabbit", 16, 16, 16, 16, 10, 5, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var rabbitData = new AnimalData("rabbit", true, false, rabbitShopInfo, rabbitTypes, 4, 6, "rabbit", 16, 16, 16, 16, 10, 5, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("rabbit", rabbitData));
 
             // construct data string for game to use
@@ -491,7 +566,7 @@ namespace FarmAnimalVarietyRedux
             dinosaurTypes.Add(new AnimalSubType("Dinosaur", dinosaurProduce, dinosaurSprites));
 
             // create and add dinosaur object
-            var dinosaurData = new AnimalData("dinosaur", false, null, dinosaurTypes, 7, 0, "none", 16, 16, 16, 16, 1, 8, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var dinosaurData = new AnimalData("dinosaur", false, false, null, dinosaurTypes, 7, 0, "none", 16, 16, 16, 16, 1, 8, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("dinosaur", dinosaurData));
 
             // construct data string for game to use
@@ -520,7 +595,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11343")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 1500,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(32, 448, 32, 16)));
-            var cowData = new AnimalData("cow", false, cowShopInfo, cowTypes, 1, 5, "cow", 32, 32, 32, 32, 15, 5, new List<string> { "Barn", "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var cowData = new AnimalData("cow", false, false, cowShopInfo, cowTypes, 1, 5, "cow", 32, 32, 32, 32, 15, 5, new List<string> { "Barn", "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("cow", cowData));
 
             // construct data string for game to use
@@ -547,7 +622,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11349")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 4000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(64, 448, 32, 16)));
-            var goatData = new AnimalData("goat", false, goatShopInfo, goatTypes, 2, 5, "goat", 32, 32, 32, 32, 10, 5, new List<string> { "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var goatData = new AnimalData("goat", false, false, goatShopInfo, goatTypes, 2, 5, "goat", 32, 32, 32, 32, 10, 5, new List<string> { "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("goat", goatData));
 
             // construct data string for game to use
@@ -573,7 +648,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11346")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 16000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 480, 32, 16)));
-            var pigData = new AnimalData("pig", false, pigShopInfo, pigTypes, 2, 5, "pig", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var pigData = new AnimalData("pig", false, false, pigShopInfo, pigTypes, 2, 5, "pig", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("pig", pigData));
 
             // construct data string for game to use
@@ -599,7 +674,7 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11352")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 8000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(32, 464, 32, 16)));
-            var sheepData = new AnimalData("sheep", false, sheepShopInfo, sheepTypes, 2, 5, "sheep", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            var sheepData = new AnimalData("sheep", false, false, sheepShopInfo, sheepTypes, 2, 5, "sheep", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
             Animals.Add(new Animal("sheep", sheepData));
 
             // construct data string for game to use
