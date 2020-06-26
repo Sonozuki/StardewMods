@@ -725,6 +725,28 @@ namespace FarmAnimalVarietyRedux.Patches
             return false;
         }
 
+        /// <summary>The prefix for the SetUpForAnimalPlacement method.</summary>
+        /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
+        /// <returns>True meaning the original method will get ran.</returns>
+        internal static bool SetUpForAnimalPlacementPrefix(PurchaseAnimalsMenu __instance)
+        {
+            __instance.upperRightCloseButton.bounds.X = Game1.viewport.Width - 128;
+            __instance.upperRightCloseButton.bounds.Y = 64;
+
+            return true;
+        }
+
+        /// <summary>The prefix for the SetUpForReturnToShopMenu method.</summary>
+        /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
+        /// <returns>True meaning the original method will get ran.</returns>
+        internal static bool SetUpForReturnToShopMenuPrefix(PurchaseAnimalsMenu __instance)
+        {
+            __instance.upperRightCloseButton.bounds.X = __instance.xPositionOnScreen + __instance.width - 36;
+            __instance.upperRightCloseButton.bounds.Y = __instance.yPositionOnScreen + 56;
+
+            return true;
+        }
+
         /// <summary>The prefix for the Draw method.</summary>
         /// <param name="b">The spritebatch to draw the menu to.</param>
         /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
