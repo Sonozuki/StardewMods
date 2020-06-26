@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FarmAnimalVarietyRedux.Models;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewValley;
@@ -9,9 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+
+using SObject = StardewValley.Object;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
@@ -71,8 +72,7 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__instance">The current <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         internal static bool ConstructorPrefix(List<StardewValley.Object> stock, PurchaseAnimalsMenu __instance)
         {
-            CurrentRowIndex = 0;
-            __instance.initializeUpperRightCloseButton();
+            CurrentRowIndex = 0; 
 
             // determine the number of icons per row to use, this is to fill the screen as best as possible
             if (Game1.graphics.GraphicsDevice.Viewport.Width >= 1920)
@@ -92,7 +92,7 @@ namespace FarmAnimalVarietyRedux.Patches
             // get the top left position for the background asset
             Vector2 backgroundTopLeftPosition = Utility.getTopLeftPositionForCenteringOnScreen(__instance.width, __instance.height);
             __instance.xPositionOnScreen = (int)backgroundTopLeftPosition.X;
-            __instance.yPositionOnScreen = (int)backgroundTopLeftPosition.Y;
+            __instance.yPositionOnScreen = (int)backgroundTopLeftPosition.Y - 32;
 
             __instance.animalsToPurchase = new List<ClickableTextureComponent>();
             // add a clickable texture for each animal
@@ -137,12 +137,12 @@ namespace FarmAnimalVarietyRedux.Patches
             // TODO: only show buttons if they're actually needed
             UpArrow = new ClickableTextureComponent(
                 bounds: new Rectangle(
-                    x: __instance.xPositionOnScreen + __instance.width + 16, 
-                    y: __instance.yPositionOnScreen + 16, 
-                    width: 44, 
-                    height: 48), 
-                texture: Game1.mouseCursors, 
-                sourceRect: new Rectangle(421, 459, 11, 12), 
+                    x: __instance.xPositionOnScreen + __instance.width + 16,
+                    y: __instance.yPositionOnScreen + 16 + 64,
+                    width: 44,
+                    height: 48),
+                texture: Game1.mouseCursors,
+                sourceRect: new Rectangle(421, 459, 11, 12),
                 scale: 4
             );
 
@@ -164,14 +164,14 @@ namespace FarmAnimalVarietyRedux.Patches
                     width: 24,
                     height: 40),
                 texture: Game1.mouseCursors,
-                sourceRect: new Rectangle(435, 463, 6, 10),
+                sourceRect: new Rectangle(435, 463, 6, 2),
                 scale: 4
             );
 
             ScrollBarHandle = new Rectangle(
-                x: ScrollBar.bounds.X, 
-                y: UpArrow.bounds.Y + UpArrow.bounds.Height + 4, 
-                width: ScrollBar.bounds.Width, 
+                x: ScrollBar.bounds.X,
+                y: UpArrow.bounds.Y + UpArrow.bounds.Height + 4,
+                width: ScrollBar.bounds.Width,
                 height: __instance.height - 64 - UpArrow.bounds.Height - 28
             );
 
@@ -258,6 +258,18 @@ namespace FarmAnimalVarietyRedux.Patches
                 __instance.snapToDefaultClickableComponent();
             }
 
+            // exit button
+            __instance.upperRightCloseButton = new ClickableTextureComponent(
+                bounds: new Rectangle(
+                    x: __instance.xPositionOnScreen + __instance.width - 36, 
+                    y: __instance.yPositionOnScreen + 56, 
+                    width: 48, 
+                    height: 48), 
+                texture: Game1.mouseCursors, 
+                sourceRect: new Rectangle(337, 494, 12, 12), 
+                scale: 4
+            );
+
             return false;
         }
 
@@ -297,6 +309,7 @@ namespace FarmAnimalVarietyRedux.Patches
             catch { }
             // TODO: this method was getting called outside of the PurchaseAnimalsMenu and causing NullReferenceExceptions, have no idea why
             // silent catch is just temporary, however, it should have any noticable effect in game
+            // TODO: I think this is actually patching IClickableMenu as PurchaseAnimalsMenuPatch doesn't override it
 
             return true;
         }
@@ -405,6 +418,9 @@ namespace FarmAnimalVarietyRedux.Patches
                 }
             }
 
+            // exit menu button
+            __instance.upperRightCloseButton.tryHover(x, y);
+
             return false;
         }
 
@@ -501,20 +517,36 @@ namespace FarmAnimalVarietyRedux.Patches
             if (Game1.globalFade || freeze)
                 return false;
 
-            if (__instance.okButton != null && __instance.okButton.containsPoint(x, y) && __instance.readyToClose())
+            // exit menu button
+            if (__instance.upperRightCloseButton.containsPoint(x, y))
             {
                 if (onFarm)
                 {
-                    __instance.setUpForReturnToShopMenu();
                     Game1.playSound("smallSelect");
+                    __instance.setUpForReturnToShopMenu();
                 }
-                // TODO: check if this is wanted
-                //else
-                //{
-                //    Game1.exitActiveMenu();
-                //    Game1.playSound("bigDeSelect");
-                //}
+                else
+                {
+                    Game1.playSound("bigDeSelect");
+                    __instance.exitThisMenu(true);
+                }
             }
+
+            // TODO: replace with close button
+            //if (__instance.okButton != null && __instance.okButton.containsPoint(x, y) && __instance.readyToClose())
+            //{
+            //    if (onFarm)
+            //    {
+            //        __instance.setUpForReturnToShopMenu();
+            //        Game1.playSound("smallSelect");
+            //    }
+            //    // TODO: check if this is wanted
+            //    //else
+            //    //{
+            //    //    Game1.exitActiveMenu();
+            //    //    Game1.playSound("bigDeSelect");
+            //    //}
+            //}
 
             if (onFarm) // player is picking a house for the animal or naming the animal
             {
@@ -822,42 +854,118 @@ namespace FarmAnimalVarietyRedux.Patches
                 {
                     // display not available for purchase message
                     IClickableMenu.drawHoverText(
-                        b,
-                        Game1.parseText((__instance.hovered.item as StardewValley.Object).Type, Game1.dialogueFont, 320),
-                        Game1.dialogueFont
+                        b: b,
+                        text: Game1.parseText((__instance.hovered.item as StardewValley.Object).Type, Game1.dialogueFont, 320),
+                        font: Game1.dialogueFont
                     );
                 }
                 else
                 {
-                    // draw the animal type label
-                    SpriteText.drawStringWithScrollBackground(
+                    var animalData = ModEntry.Instance.Api.GetAnimalByName(__instance.hovered.hoverText);
+
+                    // building string height
+                    var buildingString = string.Join(", ", animalData.Data.Buildings);
+                    var parsedBuildingString = Game1.parseText($"Buildings: {buildingString}", Game1.smallFont, 325);
+                    var buildingStringHeight = Game1.smallFont.MeasureString(parsedBuildingString).Y;
+
+                    // description height
+                    var animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
+                    var descriptionString = Game1.parseText($"Description: {animalDescription}", Game1.smallFont, 325);
+
+                    // products height
+                    var products = GetAllAnimalProducts(animalData).Distinct().ToList();
+                    var productRows = (int)Math.Ceiling(products.Count / 5f);
+
+                    // panel height
+                    var descriptionHeight = Game1.smallFont.MeasureString(descriptionString).Y;
+                    var productsHeight = productRows * 64;
+                    var infoPanelHeight = 410 + buildingStringHeight + descriptionHeight + productsHeight;
+
+                    // info panel background position
+                    var infoPanelPosition = new Rectangle(
+                        x: __instance.xPositionOnScreen - 430,
+                        y: (int)((Game1.graphics.GraphicsDevice.Viewport.Height / 2) - (infoPanelHeight / 2) - 32),
+                        width: 450,
+                        height: (int)infoPanelHeight
+                    );
+
+                    // draw info panel background
+                    Game1.drawDialogueBox(
+                        x: infoPanelPosition.X,
+                        y: infoPanelPosition.Y,
+                        width: infoPanelPosition.Width,
+                        height: infoPanelPosition.Height,
+                        speaker: false,
+                        drawOnlyBox: true
+                    );
+
+                    // draw animal name
+                    SpriteText.drawString(
                         b: b,
                         s: __instance.hovered.hoverText,
-                        x: __instance.xPositionOnScreen + 436,
-                        y: __instance.yPositionOnScreen,
-                        placeHolderWidthText: "Truffle Pig"
+                        x: infoPanelPosition.X + 65,
+                        y: infoPanelPosition.Y + 115
                     );
 
-                    // draw the animal price label
-                    SpriteText.drawStringWithScrollBackground(
+                    // draw cost
+                    SpriteText.drawString(
                         b: b,
                         s: "$" + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:LoadGameMenu.cs.11020"), __instance.hovered.item.salePrice()),
-                        x: __instance.xPositionOnScreen + 796,
-                        y: __instance.yPositionOnScreen,
-                        placeHolderWidthText: "$999999g",
-                        alpha: Game1.player.Money >= __instance.hovered.item.salePrice() ? 1f : 0.5f
+                        x: infoPanelPosition.X + 65,
+                        y: infoPanelPosition.Y + 170
                     );
 
-                    // draw the animal description
-                    var animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
-                    IClickableMenu.drawHoverText(
-                        b,
-                        Game1.parseText(animalDescription, Game1.smallFont, 320),
-                        Game1.smallFont
+                    // TODO: number of varients
+                    b.DrawString(
+                        spriteFont: Game1.smallFont,
+                        text: $"Available in {animalData.Data.Types.Count} {(animalData.Data.Types.Count == 1 ? "variety" : "varieties")}",
+                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 235),
+                        color: Color.Black
                     );
+
+                    // mature age
+                    b.DrawString(
+                        spriteFont: Game1.smallFont,
+                        text: $"Matures in {animalData?.Data?.DaysTillMature ?? -1} days",
+                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 285),
+                        color: Color.Black
+                    );
+
+                    // buildings
+                    b.DrawString(
+                        spriteFont: Game1.smallFont,
+                        text: parsedBuildingString,
+                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 335),
+                        color: Color.Black
+                    );
+
+                    // description
+                    b.DrawString(
+                        spriteFont: Game1.smallFont,
+                        text: descriptionString,
+                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 350 + buildingStringHeight),
+                        color: Color.Black
+                    );
+
+                    // all product items (greyed out unless shipped)
+                    for (int i = 0; i < products.Count; i++)
+                    {
+                        var product = products[i];
+                        product.drawInMenu(
+                            spriteBatch: b,
+                            location: new Vector2((i % 5) * 64 + infoPanelPosition.X + 65, (i / 5) * 64 + infoPanelPosition.Y + 360 + buildingStringHeight + descriptionHeight),
+                            scaleSize: 1,
+                            transparency: 1,
+                            layerDepth: 1,
+                            drawStackNumber: StackDrawType.Draw,
+                            color: Game1.player.basicShipped.ContainsKey(product.ParentSheetIndex) ? Color.White : Color.Black * 0.2f,
+                            drawShadow: false
+                        );
+                    }
                 }
             }
-            Game1.mouseCursorTransparency = 1f;
+
+            __instance.upperRightCloseButton.draw(b);
             __instance.drawMouse(b);
 
             return false;
@@ -903,6 +1011,35 @@ namespace FarmAnimalVarietyRedux.Patches
                 animalComponent.bounds.Y -= 85;
 
             CurrentRowIndex++;
+        }
+
+        /// <summary>Gets A list of <see cref="StardewValley.Object"/> of objects an animal can drop.</summary>
+        /// <returns>A list of <see cref="StardewValley.Object"/> of objects an animal can drop.</returns>
+        private static List<SObject> GetAllAnimalProducts(Animal animal)
+        {
+            var products = new List<SObject>();
+
+            // each sub type
+            foreach (var subType in animal.Data.Types)
+            {
+                // each produce season
+                foreach (var produceSeasonInfo in subType.Produce.GetType().GetProperties())
+                {
+                    var produceSeason = (AnimalProduceSeason)produceSeasonInfo.GetValue(subType.Produce);
+
+                    if (produceSeason?.Products != null)
+                        foreach (var product in produceSeason.Products)
+                            if (!products.Where(p => p.ParentSheetIndex == Convert.ToInt32(product.Id)).Any())
+                                products.Add(new SObject(Convert.ToInt32(product.Id), 1));
+
+                    if (produceSeason?.DeluxeProducts != null)
+                        foreach (var product in produceSeason.DeluxeProducts)
+                            if (!products.Where(p => p.ParentSheetIndex == Convert.ToInt32(product.Id)).Any())
+                                products.Add(new SObject(Convert.ToInt32(product.Id), 1));
+                }
+            }
+
+            return products;
         }
     }
 }
