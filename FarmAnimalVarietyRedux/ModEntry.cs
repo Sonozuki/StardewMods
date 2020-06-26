@@ -5,6 +5,7 @@ using Harmony;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
@@ -59,6 +60,17 @@ namespace FarmAnimalVarietyRedux
 
             // add the default animals to the data strings
             LoadDefaultAnimals();
+
+            this.Helper.Events.Input.ButtonPressed += OnButtonPressed;
+        }
+
+        public void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        {
+            if (e.Button == SButton.K)
+            {
+                //Game1.activeClickableMenu = new ShopMenu(Utility.getTravelingMerchantStock((int)((long)Game1.uniqueIDForThisGame + (long)Game1.stats.DaysPlayed)), 0, "TravelerNightMarket", new Func<ISalable, Farmer, int, bool>(Utility.onTravelingMerchantShopPurchase), (Func<ISalable, bool>)null, (string)null);
+                Game1.activeClickableMenu = new PurchaseAnimalsMenu(Utility.getPurchaseAnimalStock());
+            }
         }
 
         /// <summary>Expose the Api to other mods.</summary>
@@ -321,6 +333,11 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveScrollWheelAction)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveScrollWheelActionPrefix)))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveKeyPress)),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveKeyPressPrefix)))
             );
@@ -490,8 +507,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11334")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 800,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 448, 32, 16)));
-            var chickenData = new AnimalData("chicken", true, false, chickenShopInfo, chickenTypes, 1, 3, "cluck", 16, 16, 16, 16, 4, 7, new List<string> { "Coop", "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("chicken", chickenData));
+            var chickenData = new AnimalData("Chicken", true, false, chickenShopInfo, chickenTypes, 1, 3, "cluck", 16, 16, 16, 16, 4, 7, new List<string> { "Coop", "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Chicken", chickenData));
 
             // construct data string for game to use
             foreach (var chickenSubType in chickenData.Types)
@@ -517,8 +534,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11337")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 4000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 464, 32, 16)));
-            var duckData = new AnimalData("duck", true, false, duckShopInfo, duckTypes, 2, 5, "Duck", 16, 16, 16, 16, 3, 8, new List<string> { "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("duck", duckData));
+            var duckData = new AnimalData("Duck", true, false, duckShopInfo, duckTypes, 2, 5, "Duck", 16, 16, 16, 16, 3, 8, new List<string> { "Big Coop", "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Duck", duckData));
 
             // construct data string for game to use
             foreach (var duckSubType in duckData.Types)
@@ -544,8 +561,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11340")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11335")),
                 buyPrice: 8000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(64, 464, 32, 16)));
-            var rabbitData = new AnimalData("rabbit", true, false, rabbitShopInfo, rabbitTypes, 4, 6, "rabbit", 16, 16, 16, 16, 10, 5, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("rabbit", rabbitData));
+            var rabbitData = new AnimalData("Rabbit", true, false, rabbitShopInfo, rabbitTypes, 4, 6, "rabbit", 16, 16, 16, 16, 10, 5, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Rabbit", rabbitData));
 
             // construct data string for game to use
             foreach (var rabbitSubType in rabbitData.Types)
@@ -566,8 +583,8 @@ namespace FarmAnimalVarietyRedux
             dinosaurTypes.Add(new AnimalSubType("Dinosaur", dinosaurProduce, dinosaurSprites));
 
             // create and add dinosaur object
-            var dinosaurData = new AnimalData("dinosaur", false, false, null, dinosaurTypes, 7, 0, "none", 16, 16, 16, 16, 1, 8, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("dinosaur", dinosaurData));
+            var dinosaurData = new AnimalData("Dinosaur", true, false, null, dinosaurTypes, 7, 0, "none", 16, 16, 16, 16, 1, 8, new List<string> { "Deluxe Coop" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Dinosaur", dinosaurData));
 
             // construct data string for game to use
             foreach (var dinosaurSubType in dinosaurData.Types)
@@ -595,8 +612,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11343")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 1500,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(32, 448, 32, 16)));
-            var cowData = new AnimalData("cow", false, false, cowShopInfo, cowTypes, 1, 5, "cow", 32, 32, 32, 32, 15, 5, new List<string> { "Barn", "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("cow", cowData));
+            var cowData = new AnimalData("Cow", true, false, cowShopInfo, cowTypes, 1, 5, "cow", 32, 32, 32, 32, 15, 5, new List<string> { "Barn", "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Cow", cowData));
 
             // construct data string for game to use
             foreach (var cowSubType in cowData.Types)
@@ -622,8 +639,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11349")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 4000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(64, 448, 32, 16)));
-            var goatData = new AnimalData("goat", false, false, goatShopInfo, goatTypes, 2, 5, "goat", 32, 32, 32, 32, 10, 5, new List<string> { "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("goat", goatData));
+            var goatData = new AnimalData("Goat", true, false, goatShopInfo, goatTypes, 2, 5, "goat", 32, 32, 32, 32, 10, 5, new List<string> { "Big Barn", "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Goat", goatData));
 
             // construct data string for game to use
             foreach (var goatSubType in goatData.Types)
@@ -648,8 +665,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11346")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 16000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(0, 480, 32, 16)));
-            var pigData = new AnimalData("pig", false, false, pigShopInfo, pigTypes, 2, 5, "pig", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("pig", pigData));
+            var pigData = new AnimalData("Pig", true, false, pigShopInfo, pigTypes, 2, 5, "pig", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Pig", pigData));
 
             // construct data string for game to use
             foreach (var pigSubType in pigData.Types)
@@ -674,8 +691,8 @@ namespace FarmAnimalVarietyRedux
                 description: Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11352")) + Environment.NewLine + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:PurchaseAnimalsMenu.cs.11344")),
                 buyPrice: 8000,
                 shopIcon: GetSubTexture(Game1.content.Load<Texture2D>(Path.Combine("LooseSprites", "Cursors")), new Rectangle(32, 464, 32, 16)));
-            var sheepData = new AnimalData("sheep", false, false, sheepShopInfo, sheepTypes, 2, 5, "sheep", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
-            Animals.Add(new Animal("sheep", sheepData));
+            var sheepData = new AnimalData("Sheep", true, false, sheepShopInfo, sheepTypes, 2, 5, "sheep", 32, 32, 32, 32, 20, 5, new List<string> { "Deluxe Barn" }, 2, 1900, new List<Season> { Season.Spring, Season.Summer, Season.Fall });
+            Animals.Add(new Animal("Sheep", sheepData));
 
             // construct data string for game to use
             foreach (var sheepSubType in sheepData.Types)
@@ -694,11 +711,13 @@ namespace FarmAnimalVarietyRedux
             texture.GetData(textureData);
 
             // loop through the sub texture section and copy over to hte subTextureData
-            for (int x = sourceRectangle.X; x < sourceRectangle.Width; x++)
-                for (int y = sourceRectangle.Y; y < sourceRectangle.Height; y++)
+            for (int x = sourceRectangle.X; x < sourceRectangle.X + sourceRectangle.Width; x++)
+                for (int y = sourceRectangle.Y; y < sourceRectangle.Y + sourceRectangle.Height; y++)
                     subTextureData[(y - sourceRectangle.Y) * sourceRectangle.Width + (x - sourceRectangle.X)] = textureData[y * texture.Width + x];
 
-            return new Texture2D(Game1.graphics.GraphicsDevice, sourceRectangle.Width, sourceRectangle.Height);
+            var subTexture = new Texture2D(Game1.graphics.GraphicsDevice, sourceRectangle.Width, sourceRectangle.Height);
+            subTexture.SetData(subTextureData);
+            return subTexture;
         }
     }
 }

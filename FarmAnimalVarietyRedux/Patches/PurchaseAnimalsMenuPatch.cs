@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace FarmAnimalVarietyRedux.Patches
 {
@@ -19,7 +21,7 @@ namespace FarmAnimalVarietyRedux.Patches
         /*********
         ** Fields
         *********/
-        /// <summary>The number of animal clickable components can fit on a row on a 720p -> 1080p resolution viewport</summary>
+        /// <summary>The number of animal clickable components can fit on a row on a 720p -> 1080p resolution viewport.</summary>
         private const int NumberOfIconsPerRow1280 = 5;
 
         /// <summary>The number of animal clickable components can fit on a row on a 1080p+ resolution viewport.</summary>
@@ -35,6 +37,31 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <summary>The current valid building the player is panned to.</summary>
         private static int CurrentValidBuildingIndex;
 
+        /// <summary>The number of rows that can be shown on the screen at a time.</summary>
+        private static int NumberOfVisibleRows;
+
+        /// <summary>The total number of rows.</summary>
+        private static int NumberOfTotalRows;
+
+        /// <summary>The number of icons in each row at the current resolution.</summary>
+        private static int NumberOfIconsPerRow;
+
+        /// <summary>The scroll bar up arrow component.</summary>
+        private static ClickableTextureComponent UpArrow;
+
+        /// <summary>The scroll bar down arrow component.</summary>
+        private static ClickableTextureComponent DownArrow;
+
+        /// <summary>The scroll bar component.</summary>
+        private static ClickableTextureComponent ScrollBar;
+
+        /// <summary>The scroll bar handle bounds.</summary>
+        private static Rectangle ScrollBarHandle;
+
+        /// <summary>The row that is at the top menu.</summary>
+        /// <remarks>Used from the scroll bar.</remarks>
+        private static int CurrentRowIndex;
+
 
         /*********
         ** Internal Methods
@@ -44,17 +71,23 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__instance">The current <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         internal static bool ConstructorPrefix(List<StardewValley.Object> stock, PurchaseAnimalsMenu __instance)
         {
+            CurrentRowIndex = 0;
+            __instance.initializeUpperRightCloseButton();
+
             // determine the number of icons per row to use, this is to fill the screen as best as possible
-            int numberOfIconsPerRow;
             if (Game1.graphics.GraphicsDevice.Viewport.Width >= 1920)
-                numberOfIconsPerRow = NumberOfIconsPerRow1920;
+                NumberOfIconsPerRow = NumberOfIconsPerRow1920;
             else
-                numberOfIconsPerRow = NumberOfIconsPerRow1280;
+                NumberOfIconsPerRow = NumberOfIconsPerRow1280;
+
+            // calculate current and max number of rows to display
+            // visible rows should take up no more than 60% of the screen
+            NumberOfVisibleRows = (int)Math.Floor((double)((Game1.graphics.GraphicsDevice.Viewport.Height / 100f * 60f) / 64)); // 64 is the pixel height of rows
+            NumberOfTotalRows = (int)Math.Ceiling(stock.Count / (double)NumberOfIconsPerRow);
 
             // calculate menu dimensions
-            __instance.width = IconWidth * Math.Min(numberOfIconsPerRow, stock.Count) * 4 + (IClickableMenu.borderWidth * 2); // 4 is sprite scale
-            int numberOfIconRows = (int)Math.Ceiling(stock.Count / (decimal)numberOfIconsPerRow);
-            __instance.height = numberOfIconRows * 85 + 64 + (IClickableMenu.borderWidth * 2);
+            __instance.width = IconWidth * Math.Min(NumberOfIconsPerRow, stock.Count) * 4 + (IClickableMenu.borderWidth * 2); // 4 is sprite scale
+            __instance.height = Math.Min(NumberOfVisibleRows, NumberOfTotalRows) * 85 + 64 + (IClickableMenu.borderWidth * 2);
 
             // get the top left position for the background asset
             Vector2 backgroundTopLeftPosition = Utility.getTopLeftPositionForCenteringOnScreen(__instance.width, __instance.height);
@@ -78,8 +111,8 @@ namespace FarmAnimalVarietyRedux.Patches
                 var animalComponent = new ClickableTextureComponent(
                     name: stock[i].salePrice().ToString(),
                     bounds: new Rectangle(
-                        x: __instance.xPositionOnScreen + IClickableMenu.borderWidth + i % numberOfIconsPerRow * IconWidth * 4, // 4 is the sprite scale
-                        y: __instance.yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth / 2 + i / numberOfIconsPerRow * 85,
+                        x: __instance.xPositionOnScreen + IClickableMenu.borderWidth + i % NumberOfIconsPerRow * IconWidth * 4, // 4 is the sprite scale
+                        y: __instance.yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth / 2 + i / NumberOfIconsPerRow * 85,
                         width: IconWidth * 4,
                         height: 16 * 4),
                     label: null,
@@ -91,13 +124,56 @@ namespace FarmAnimalVarietyRedux.Patches
                 );
                 animalComponent.item = stock[i];
                 animalComponent.myID = i;
-                animalComponent.upNeighborID = i - numberOfIconsPerRow;
-                animalComponent.leftNeighborID = i % numberOfIconsPerRow == 0 ? -1 : i - 1;
-                animalComponent.rightNeighborID = i % numberOfIconsPerRow == numberOfIconsPerRow - 1 ? -1 : i + 1;
-                animalComponent.downNeighborID = i + numberOfIconsPerRow;
+                animalComponent.upNeighborID = i - NumberOfIconsPerRow;
+                animalComponent.leftNeighborID = i % NumberOfIconsPerRow == 0 ? -1 : i - 1;
+                animalComponent.rightNeighborID = i % NumberOfIconsPerRow == NumberOfIconsPerRow - 1 ? -1 : i + 1;
+                animalComponent.downNeighborID = i + NumberOfIconsPerRow;
 
                 __instance.animalsToPurchase.Add(animalComponent);
             }
+
+            // scroll bar buttons
+            // TODO: controller support for buttons
+            // TODO: only show buttons if they're actually needed
+            UpArrow = new ClickableTextureComponent(
+                bounds: new Rectangle(
+                    x: __instance.xPositionOnScreen + __instance.width + 16, 
+                    y: __instance.yPositionOnScreen + 16, 
+                    width: 44, 
+                    height: 48), 
+                texture: Game1.mouseCursors, 
+                sourceRect: new Rectangle(421, 459, 11, 12), 
+                scale: 4
+            );
+
+            DownArrow = new ClickableTextureComponent(
+                bounds: new Rectangle(
+                    x: __instance.xPositionOnScreen + __instance.width + 16,
+                    y: __instance.yPositionOnScreen + __instance.height - 64,
+                    width: 44,
+                    height: 48),
+                texture: Game1.mouseCursors,
+                sourceRect: new Rectangle(421, 472, 11, 12),
+                scale: 4
+            );
+
+            ScrollBar = new ClickableTextureComponent(
+                bounds: new Rectangle(
+                    x: UpArrow.bounds.X + 12,
+                    y: UpArrow.bounds.Y + UpArrow.bounds.Height + 4,
+                    width: 24,
+                    height: 40),
+                texture: Game1.mouseCursors,
+                sourceRect: new Rectangle(435, 463, 6, 10),
+                scale: 4
+            );
+
+            ScrollBarHandle = new Rectangle(
+                x: ScrollBar.bounds.X, 
+                y: UpArrow.bounds.Y + UpArrow.bounds.Height + 4, 
+                width: ScrollBar.bounds.Width, 
+                height: __instance.height - 64 - UpArrow.bounds.Height - 28
+            );
 
             // ok button
             __instance.okButton = new ClickableTextureComponent(
@@ -200,6 +276,31 @@ namespace FarmAnimalVarietyRedux.Patches
             __result = animal.Data.AnimalShopInfo.Description;
         }
 
+        /// <summary>The prefix for the ReceiveScrollWheelAction method.</summary>
+        /// <param name="direction">The direction being scrolling in.</param>
+        /// <returns>True meaning the original method will get ran.</returns>
+        internal static bool ReceiveScrollWheelActionPrefix(int direction, PurchaseAnimalsMenu __instance)
+        {
+            try
+            {
+                if (direction > 0)
+                {
+                    PressUpArrow(__instance);
+                    Game1.playSound("shiny4");
+                }
+                else if (direction < 0)
+                {
+                    PressDownArrow(__instance);
+                    Game1.playSound("shiny4");
+                }
+            }
+            catch { }
+            // TODO: this method was getting called outside of the PurchaseAnimalsMenu and causing NullReferenceExceptions, have no idea why
+            // silent catch is just temporary, however, it should have any noticable effect in game
+
+            return true;
+        }
+
         /// <summary>The prefix for the PerformHoverAction method.</summary>
         /// <param name="x">The X position of the cursor.</param>
         /// <param name="y">The Y position of the cursor.</param>
@@ -274,9 +375,26 @@ namespace FarmAnimalVarietyRedux.Patches
             }
             else
             {
+                // increase scale of currently hovered scroll bar arrow
+                if (UpArrow.containsPoint(x, y))
+                    UpArrow.scale = Math.Min(4.4f, UpArrow.scale + 0.05f);
+                else
+                    UpArrow.scale = Math.Max(4, UpArrow.scale - 0.05f);
+
+                if (DownArrow.containsPoint(x, y))
+                    DownArrow.scale = Math.Min(4.4f, DownArrow.scale + 0.05f);
+                else
+                    DownArrow.scale = Math.Max(4, DownArrow.scale - 0.05f);
+
                 // increase scale of currently hovered animal component
-                foreach (var animalComponent in __instance.animalsToPurchase)
+                var initialComponentIndex = CurrentRowIndex * NumberOfIconsPerRow;
+                for (int i = initialComponentIndex; i < initialComponentIndex + NumberOfVisibleRows * NumberOfIconsPerRow; i++)
                 {
+                    // don't try to draw a component that doesn't exist (if the row isn't complete)
+                    if (i == __instance.animalsToPurchase.Count)
+                        break;
+
+                    var animalComponent = __instance.animalsToPurchase[i];
                     if (animalComponent.containsPoint(x, y))
                     {
                         animalComponent.scale = Math.Min(animalComponent.scale + 0.05f, 4.1f);
@@ -390,11 +508,12 @@ namespace FarmAnimalVarietyRedux.Patches
                     __instance.setUpForReturnToShopMenu();
                     Game1.playSound("smallSelect");
                 }
-                else
-                {
-                    Game1.exitActiveMenu();
-                    Game1.playSound("bigDeSelect");
-                }
+                // TODO: check if this is wanted
+                //else
+                //{
+                //    Game1.exitActiveMenu();
+                //    Game1.playSound("bigDeSelect");
+                //}
             }
 
             if (onFarm) // player is picking a house for the animal or naming the animal
@@ -499,6 +618,20 @@ namespace FarmAnimalVarietyRedux.Patches
             }
             else
             {
+                // checked if scroll bar buttons were clicked
+                if (UpArrow.containsPoint(x, y))
+                {
+                    PressUpArrow(__instance);
+                    Game1.playSound("shwip");
+                }
+
+                if (DownArrow.containsPoint(x, y))
+                {
+                    PressDownArrow(__instance);
+                    Game1.playSound("shwip");
+                }
+
+                // check if an animal component was clicked
                 foreach (ClickableTextureComponent textureComponent in __instance.animalsToPurchase)
                 {
                     if (textureComponent.containsPoint(x, y) && (textureComponent.item as StardewValley.Object).Type == null)
@@ -582,14 +715,6 @@ namespace FarmAnimalVarietyRedux.Patches
                     color: Color.Black * 0.75f
                 );
 
-                // 'livestock' label
-                SpriteText.drawStringWithScrollBackground(
-                    b: b,
-                    s: "Livestock:",
-                    x: __instance.xPositionOnScreen + 96,
-                    y: __instance.yPositionOnScreen
-                );
-
                 // menu background
                 Game1.drawDialogueBox(
                     x: __instance.xPositionOnScreen,
@@ -604,8 +729,25 @@ namespace FarmAnimalVarietyRedux.Patches
                 Game1.dayTimeMoneyBox.drawMoneyBox(b, -1, -1);
 
                 // animal icons
-                foreach (ClickableTextureComponent textureComponent in __instance.animalsToPurchase)
-                    textureComponent.draw(b, (textureComponent.item as StardewValley.Object).Type != null ? Color.Black * 0.4f : Color.White, 0.87f, 0);
+                var initialComponentIndex = CurrentRowIndex * NumberOfIconsPerRow;
+                for (int i = initialComponentIndex; i < initialComponentIndex + NumberOfVisibleRows * NumberOfIconsPerRow; i++)
+                {
+                    // don't try to draw a component that doesn't exist (if the row isn't complete)
+                    if (i == __instance.animalsToPurchase.Count)
+                        break;
+
+                    var animalComponent = __instance.animalsToPurchase[i];
+                    animalComponent.draw(b, (animalComponent.item as StardewValley.Object).Type != null ? Color.Black * 0.4f : Color.White, 0.87f, 0);
+                }
+
+                // ensure scroll bar is actually needed before drawing it
+                if (NumberOfTotalRows > NumberOfVisibleRows)
+                {
+                    UpArrow.draw(b);
+                    DownArrow.draw(b);
+                    ScrollBar.draw(b);
+                    IClickableMenu.drawTextureBox(b, Game1.mouseCursors, new Rectangle(403, 383, 6, 6), ScrollBarHandle.X, ScrollBarHandle.Y, ScrollBarHandle.Width, ScrollBarHandle.Height, Color.White, 4);
+                }
             }
             else if (!Game1.globalFade && onFarm) // the player is currently picking a house for the animal
             {
@@ -669,8 +811,9 @@ namespace FarmAnimalVarietyRedux.Patches
                 }
             }
 
-            if (!Game1.globalFade && __instance.okButton != null)
-                __instance.okButton.draw(b);
+            // TODO: check if this is wanted at all
+            //if (!Game1.globalFade && __instance.okButton != null)
+            //    __instance.okButton.draw(b);
 
             if (__instance.hovered != null)
             {
@@ -701,7 +844,7 @@ namespace FarmAnimalVarietyRedux.Patches
                         s: "$" + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:LoadGameMenu.cs.11020"), __instance.hovered.item.salePrice()),
                         x: __instance.xPositionOnScreen + 796,
                         y: __instance.yPositionOnScreen,
-                        placeHolderWidthText: "$99999999g",
+                        placeHolderWidthText: "$999999g",
                         alpha: Game1.player.Money >= __instance.hovered.item.salePrice() ? 1f : 0.5f
                     );
 
@@ -734,6 +877,32 @@ namespace FarmAnimalVarietyRedux.Patches
             ); // *64 is the tile width (16) * the game scale (4)
 
             Game1.panScreen(panAmount.X, panAmount.Y);
+        }
+
+        /// <summary>Performs the <see cref="UpArrow"/> click event.</summary>
+        private static void PressUpArrow(PurchaseAnimalsMenu __instance)
+        {
+            if (CurrentRowIndex < NumberOfTotalRows - NumberOfVisibleRows)
+                return;
+
+            // alter positions of each animal component
+            foreach (var animalComponent in __instance.animalsToPurchase)
+                animalComponent.bounds.Y += 85;
+
+            CurrentRowIndex--;
+        }
+
+        /// <summary>Performs the <see cref="DownArrow"/> click event.</summary>
+        private static void PressDownArrow(PurchaseAnimalsMenu __instance)
+        {
+            if (CurrentRowIndex > 0)
+                return;
+
+            // alter positions of each animal component
+            foreach (var animalComponent in __instance.animalsToPurchase)
+                animalComponent.bounds.Y -= 85;
+
+            CurrentRowIndex++;
         }
     }
 }

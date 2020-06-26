@@ -14,6 +14,8 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__result">The return value of the method.</param>
         internal static void GetPurchaseAnimalStockPostFix(List<StardewValley.Object> __result)
         {
+            __result.Clear();
+
             foreach (var animal in ModEntry.Instance.Api.GetAllBuyableAnimals())
             {
                 if (animal.Data.AnimalShopInfo == null)
