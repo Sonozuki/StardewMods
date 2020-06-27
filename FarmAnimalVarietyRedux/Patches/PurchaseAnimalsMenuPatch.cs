@@ -72,7 +72,7 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__instance">The current <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         internal static bool ConstructorPrefix(List<StardewValley.Object> stock, PurchaseAnimalsMenu __instance)
         {
-            CurrentRowIndex = 0; 
+            CurrentRowIndex = 0;
 
             // determine the number of icons per row to use, this is to fill the screen as best as possible
             if (Game1.graphics.GraphicsDevice.Viewport.Width >= 1920)
@@ -261,12 +261,12 @@ namespace FarmAnimalVarietyRedux.Patches
             // exit button
             __instance.upperRightCloseButton = new ClickableTextureComponent(
                 bounds: new Rectangle(
-                    x: __instance.xPositionOnScreen + __instance.width - 36, 
-                    y: __instance.yPositionOnScreen + 56, 
-                    width: 48, 
-                    height: 48), 
-                texture: Game1.mouseCursors, 
-                sourceRect: new Rectangle(337, 494, 12, 12), 
+                    x: __instance.xPositionOnScreen + __instance.width - 36,
+                    y: __instance.yPositionOnScreen + 56,
+                    width: 48,
+                    height: 48),
+                texture: Game1.mouseCursors,
+                sourceRect: new Rectangle(337, 494, 12, 12),
                 scale: 4
             );
 
@@ -291,25 +291,21 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <summary>The prefix for the ReceiveScrollWheelAction method.</summary>
         /// <param name="direction">The direction being scrolling in.</param>
         /// <returns>True meaning the original method will get ran.</returns>
-        internal static bool ReceiveScrollWheelActionPrefix(int direction, PurchaseAnimalsMenu __instance)
+        internal static bool ReceiveScrollWheelActionPrefix(int direction, IClickableMenu __instance)
         {
-            try
+            if (!(__instance is PurchaseAnimalsMenu menu))
+                return true;
+
+            if (direction > 0)
             {
-                if (direction > 0)
-                {
-                    PressUpArrow(__instance);
-                    Game1.playSound("shiny4");
-                }
-                else if (direction < 0)
-                {
-                    PressDownArrow(__instance);
-                    Game1.playSound("shiny4");
-                }
+                PressUpArrow(menu);
+                Game1.playSound("shiny4");
             }
-            catch { }
-            // TODO: this method was getting called outside of the PurchaseAnimalsMenu and causing NullReferenceExceptions, have no idea why
-            // silent catch is just temporary, however, it should have any noticable effect in game
-            // TODO: I think this is actually patching IClickableMenu as PurchaseAnimalsMenuPatch doesn't override it
+            else if (direction < 0)
+            {
+                PressDownArrow(menu);
+                Game1.playSound("shiny4");
+            }
 
             return true;
         }
@@ -531,22 +527,6 @@ namespace FarmAnimalVarietyRedux.Patches
                     __instance.exitThisMenu(true);
                 }
             }
-
-            // TODO: replace with close button
-            //if (__instance.okButton != null && __instance.okButton.containsPoint(x, y) && __instance.readyToClose())
-            //{
-            //    if (onFarm)
-            //    {
-            //        __instance.setUpForReturnToShopMenu();
-            //        Game1.playSound("smallSelect");
-            //    }
-            //    // TODO: check if this is wanted
-            //    //else
-            //    //{
-            //    //    Game1.exitActiveMenu();
-            //    //    Game1.playSound("bigDeSelect");
-            //    //}
-            //}
 
             if (onFarm) // player is picking a house for the animal or naming the animal
             {
