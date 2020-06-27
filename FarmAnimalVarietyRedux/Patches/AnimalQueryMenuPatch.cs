@@ -15,6 +15,13 @@ namespace FarmAnimalVarietyRedux.Patches
         /*********
         ** Internal Methods
         *********/
+        /// <summary>The post fix for the constructor.</summary>
+        /// <param name="animal">The animal whose query menu is being patched.</param>
+        internal static void ConstructorPostFix(FarmAnimal animal)
+        {
+            animal.makeSound();
+        }
+
         /// <summary>The prefix for the PerformHoverAction method.</summary>
         /// <param name="x">The X position of the cursor.</param>
         /// <param name="y">The Y position of the cursor.</param>

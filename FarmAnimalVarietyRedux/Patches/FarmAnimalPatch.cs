@@ -1,6 +1,7 @@
 ﻿using FarmAnimalVarietyRedux.Enums;
 using Harmony;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
 using Netcode;
 using StardewModdingAPI;
 using StardewValley;
@@ -442,12 +443,27 @@ namespace FarmAnimalVarietyRedux.Patches
             return false;
         }
 
+        /// <summary>The prefix for the MakeSound method.</summary>
+        /// <param name="__instance">The <see cref="FarmAnimal"/> instance being patched.</param>
+        /// <returns>True meaning the original method will get ran.</returns>
+        internal static bool MakeSoundPrefix(FarmAnimal __instance)
+        {
+            var animalData = ModEntry.Instance.Api.GetAnimalBySubTypeName(__instance.type);
+            if (animalData.Data.SoundEffect != null)
+            {
+                animalData.Data.SoundEffect.Play();
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>The prefix for the UpdateWhenNotCurrentLocation method.</summary>
         /// <param name="currentBuilding">The current building the animal is in.</param>
         /// <param name="time">The GameTime object that contains time data about the game's frame time.</param>
         /// <param name="environment">The <see cref="GameLocation"/> of the animal.</param>
         /// <returns>False meaning the original method won't get ran.</returns>
-        public static bool UpdateWhenNotCurrentLocationPrefix(Building currentBuilding, GameTime time, GameLocation environment, FarmAnimal __instance)
+        internal static bool UpdateWhenNotCurrentLocationPrefix(Building currentBuilding, GameTime time, GameLocation environment, FarmAnimal __instance)
         {
             var behaviors = typeof(FarmAnimal).GetMethod("behaviors", BindingFlags.NonPublic | BindingFlags.Instance);
             var doFarmerPushEvent = (NetEvent1Field<int, NetInt>)typeof(FarmAnimal).GetField("doFarmerPushEvent", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);

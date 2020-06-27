@@ -3,6 +3,7 @@ using FarmAnimalVarietyRedux.Models;
 using FarmAnimalVarietyRedux.Patches;
 using Harmony;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -123,6 +124,14 @@ namespace FarmAnimalVarietyRedux
                     {
                         this.Monitor.Log($"Content.json is not valid for Content pack: {contentPack.Manifest.Name} >> Animal: {animalName}", LogLevel.Error);
                         continue;
+                    }
+
+                    // check if a sound file exists
+                    var soundPath = Path.Combine(animalFolder, "sound.wav");
+                    if (File.Exists(soundPath))
+                    {
+                        using (var stream = File.OpenRead(soundPath))
+                            animalData.SoundEffect = SoundEffect.FromStream(stream);
                     }
 
                     if (animalData.UpdatePreviousAnimal)
@@ -319,6 +328,16 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.makeSound)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.MakeSoundPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.dayUpdate)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.DayUpdatePrefix)))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Constructor(typeof(StardewValley.Menus.PurchaseAnimalsMenu), new Type[] { typeof(List<StardewValley.Object>) }),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ConstructorPrefix)))
             );
@@ -379,6 +398,11 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Constructor(typeof(StardewValley.Menus.AnimalQueryMenu), new Type[] { typeof(FarmAnimal) }),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.ConstructorPostFix)))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.draw), new Type[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.DrawPrefix)))
             );
@@ -391,11 +415,6 @@ namespace FarmAnimalVarietyRedux
             harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Menus.AnimalQueryMenu), nameof(AnimalQueryMenu.receiveLeftClick)),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.ReceiveLeftClickPrefix)))
-            );
-
-            harmony.Patch(
-                original: AccessTools.Method(typeof(StardewValley.FarmAnimal), nameof(FarmAnimal.dayUpdate)),
-                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.DayUpdatePrefix)))
             );
         }
 
@@ -434,7 +453,7 @@ namespace FarmAnimalVarietyRedux
             // print animal objects
             foreach (var animal in Animals)
             {
-                this.Monitor.Log($"ANIMALDATA FOR: {animal.Name}\nBuyable: {animal.Data.Buyable}\tDaysToProduce: {animal.Data.DaysToProduce}\tDaysTillMature: {animal.Data.DaysTillMature}\tSoundId: {animal.Data.SoundId}\tFrontAndBackSpriteWidth: {animal.Data.FrontAndBackSpriteWidth}\tFrontAndBackSpriteHeight: {animal.Data.FrontAndBackSpriteHeight}\tSideSpriteWidth: {animal.Data.SideSpriteWidth}\tSideSpriteHeight: {animal.Data.SideSpriteHeight}\tFullnessDrain: {animal.Data.FullnessDrain}\tHappinessDrain: {animal.Data.HappinessDrain}\tWalkSpeed: {animal.Data.WalkSpeed}\tBedTime: {animal.Data.BedTime}\tBuildings: [{string.Join(",", animal.Data.Buildings ?? default)}]\tSeasonsAllowedOutdoors: [{string.Join(",", animal.Data.SeasonsAllowedOutdoors ?? default)}]\tShopDescription: {animal.Data.AnimalShopInfo?.Description}\tShopBuyPrice: {animal.Data.AnimalShopInfo?.BuyPrice}");
+                this.Monitor.Log($"ANIMALDATA FOR: {animal.Name}\nBuyable: {animal.Data.Buyable}\tDaysToProduce: {animal.Data.DaysToProduce}\tDaysTillMature: {animal.Data.DaysTillMature}\tSoundId: {animal.Data.SoundId}\tCustomSoundEffectLoaded: {animal.Data.SoundEffect != null}\tFrontAndBackSpriteWidth: {animal.Data.FrontAndBackSpriteWidth}\tFrontAndBackSpriteHeight: {animal.Data.FrontAndBackSpriteHeight}\tSideSpriteWidth: {animal.Data.SideSpriteWidth}\tSideSpriteHeight: {animal.Data.SideSpriteHeight}\tFullnessDrain: {animal.Data.FullnessDrain}\tHappinessDrain: {animal.Data.HappinessDrain}\tWalkSpeed: {animal.Data.WalkSpeed}\tBedTime: {animal.Data.BedTime}\tBuildings: [{string.Join(",", animal.Data.Buildings ?? default)}]\tSeasonsAllowedOutdoors: [{string.Join(",", animal.Data.SeasonsAllowedOutdoors ?? default)}]\tShopDescription: {animal.Data.AnimalShopInfo?.Description}\tShopBuyPrice: {animal.Data.AnimalShopInfo?.BuyPrice}");
                 this.Monitor.Log($"SUBTYPES FOR: {animal.Name}");
                 foreach (var subType in animal.Data.Types)
                 {

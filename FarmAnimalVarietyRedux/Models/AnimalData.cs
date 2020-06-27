@@ -1,4 +1,5 @@
 ﻿using FarmAnimalVarietyRedux.Enums;
+using Microsoft.Xna.Framework.Audio;
 using StardewModdingAPI;
 using System.Collections.Generic;
 
@@ -33,6 +34,10 @@ namespace FarmAnimalVarietyRedux.Models
 
         /// <summary>The id of the sound the animal will make.</summary>
         public string SoundId { get; set; }
+
+        /// <summary>The custom sound effect of the animal.</summary>
+        /// <remarks>NOTE: this is only used when loading a custom sound, using default sound doesn't use this.</remarks>
+        public SoundEffect SoundEffect { get; set; }
 
         /// <summary>The width of the animal sprite when it's looking toward / away from the camera.</summary>
         public int FrontAndBackSpriteWidth { get; set; }
