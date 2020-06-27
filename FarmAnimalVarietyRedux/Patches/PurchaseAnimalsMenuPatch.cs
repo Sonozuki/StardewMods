@@ -973,10 +973,10 @@ namespace FarmAnimalVarietyRedux.Patches
                     drawOnlyBox: true
                 );
 
-                // "Buildings Info" label
+                // "Buildings" label
                 SpriteText.drawString(
                     b: spriteBatch,
-                    s: "Buildings Info",
+                    s: "Buildings",
                     x: infoPanelPosition.X + 65,
                     y: infoPanelPosition.Y + 115
                 );
