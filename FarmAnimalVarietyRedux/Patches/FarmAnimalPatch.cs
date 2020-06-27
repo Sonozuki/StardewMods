@@ -720,8 +720,9 @@ namespace FarmAnimalVarietyRedux.Patches
                     {
                         if (random.NextDouble() < (__instance.friendshipTowardFarmer + frienshipModifier) / 1200.0 && __instance.friendshipTowardFarmer >= 200)
                         {
+                            var numberOfHearts = (int)(__instance.friendshipTowardFarmer / 195f);
                             var customSubType = ModEntry.Instance.Api.GetAnimalSubTypeByName(__instance.type.Value);
-                            var deluxeId = customSubType.Produce.GetRandomDeluxe(out var harvestType);
+                            var deluxeId = customSubType.Produce.GetRandomDeluxe(numberOfHearts, out var harvestType);
                             if (deluxeId != -1) // only change to a deluxe product if one could be found (not all animals have deluxe produce)
                             {
                                 producedItemId = deluxeId;
@@ -749,7 +750,7 @@ namespace FarmAnimalVarietyRedux.Patches
             }
 
             // setup harvest type with a tool - this is so it's produce doesn't spawn in the animal house, instead must be manually harvested
-            if (__instance.harvestType == 1 & canProduceItem)
+            if (__instance.harvestType == 1 && canProduceItem)
             {
                 __instance.currentProduce.Value = producedItemId;
                 producedItemId = -1;
