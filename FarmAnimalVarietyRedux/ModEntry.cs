@@ -358,6 +358,11 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.gamePadButtonHeld)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.GamePadButtonHeldPrefix)))
+            );
+            
+            harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Menus.PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.receiveGamePadButton)),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ReceiveGamePadButtonPrefix)))
             );

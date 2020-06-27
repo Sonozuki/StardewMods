@@ -457,39 +457,128 @@ namespace FarmAnimalVarietyRedux.Patches
             return true;
         }
 
+        /// <summary>The prefix for the GamePadButtonHeld method.</summary>
+        /// <param name="b">The button being held.</param>
+        /// <param name="__instance">The current <see cref="IClickableMenu"/> being patched.</param>
+        /// <returns>True if the original method should get ran (the patch isn't being done of the PurchaseAnimalsMenu); otherwise, false.</returns>
+        /// <remarks>Patch is done with <see cref="IClickableMenu"/> because <see cref="PurchaseAnimalsMenu"/> doesn't override the method.</remarks>
+        internal static bool GamePadButtonHeldPrefix(Buttons b, IClickableMenu __instance)
+        {
+            if (!(__instance is PurchaseAnimalsMenu))
+                return true;
+
+            __instance.receiveGamePadButton(b);
+            return false;
+        }
+
         /// <summary>The prefix for the ReceiveGamePadButton method.</summary>
         /// <param name="b">The button that has been pressed.</param>
-        /// <returns>True meaning the original method will get ran.</returns>
-        internal static bool ReceiveGamePadButtonPrefix(Buttons b)
+        /// <returns>False meaning the original method won't get ran.</returns>
+        internal static bool ReceiveGamePadButtonPrefix(Buttons b, PurchaseAnimalsMenu __instance)
         {
-            if (b != Buttons.LeftShoulder && b != Buttons.RightShoulder)
-                return true;
+            var onFarm = (bool)typeof(PurchaseAnimalsMenu).GetField("onFarm", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
-            // ensure there are valid buildings
-            if (ValidBuildings == null || ValidBuildings.Count == 0)
-                return true;
-
-            // get the new CurrentValidBuildingIndex
-            if (b == Buttons.LeftShoulder)
+            // handle selecting up and down scroll bar arrows with controller
+            if (!onFarm)
             {
-                // go to preveious valid buuilding in list
-                if (CurrentValidBuildingIndex - 1 < 0) // if we are at the beginnning of the list, loop back to the end
-                    CurrentValidBuildingIndex = ValidBuildings.Count - 1;
-                else
-                    CurrentValidBuildingIndex--;
-            }
-            else if (b == Buttons.RightShoulder)
-            {
-                // go to next valid building in list
-                if (CurrentValidBuildingIndex + 1 >= ValidBuildings.Count)
-                    CurrentValidBuildingIndex = 0;
-                else
-                    CurrentValidBuildingIndex++;
+                // snapp cursor to default item if non is currently hovered
+                if (__instance.hovered == null && __instance.currentlySnappedComponent == null)
+                {
+                    // press the up arrow enough to ensure the components get moved to the top
+                    for (int i = 0; i < NumberOfTotalRows; i++)
+                        PressUpArrow(__instance);
+
+                    __instance.snapToDefaultClickableComponent();
+                }
+
+                // calculte the current index of the currently selected item
+                var currentIndex = __instance.animalsToPurchase.IndexOf(__instance.hovered);
+
+                // handle moving onto the arrow buttons from the animal components
+                if (b == Buttons.DPadRight || b == Buttons.LeftThumbstickRight)
+                {
+                    // handle moving onto the up arrow button
+                    if ((currentIndex + 1) % NumberOfIconsPerRow == 0)
+                        __instance.currentlySnappedComponent = UpArrow;
+                }
+
+                // handle moving off of the up arrow button
+                if (__instance.currentlySnappedComponent == UpArrow)
+                {
+                    // handle moving back onto the animal components
+                    if (b == Buttons.DPadLeft || b == Buttons.LeftThumbstickLeft)
+                        __instance.currentlySnappedComponent = __instance.animalsToPurchase[Math.Min(__instance.animalsToPurchase.Count - 1, (CurrentRowIndex * NumberOfIconsPerRow) + (NumberOfIconsPerRow - 1))];
+
+                    // handle moving down to the down arrow button
+                    else if (b == Buttons.DPadDown || b == Buttons.LeftThumbstickDown)
+                        __instance.currentlySnappedComponent = DownArrow;
+                }
+
+                // handle moving off of the down arrow button
+                else if (__instance.currentlySnappedComponent == DownArrow)
+                {
+                    // handle moving back onto the animal components
+                    if (b == Buttons.DPadLeft || b == Buttons.LeftThumbstickLeft)
+                        __instance.currentlySnappedComponent = __instance.animalsToPurchase[Math.Min(__instance.animalsToPurchase.Count - 1, (CurrentRowIndex + NumberOfVisibleRows) * NumberOfIconsPerRow - 1)];
+
+                    // handle moving up to the up arrow
+                    else if (b == Buttons.DPadUp || b == Buttons.LeftThumbstickUp)
+                        __instance.currentlySnappedComponent = UpArrow;
+                }
+
+                // handle scrolling up if they are at the top and going up
+                if (b == Buttons.DPadUp || b == Buttons.LeftThumbstickUp)
+                {
+                    // get the row of the selected component
+                    var selectedItemRow = (int)(currentIndex / NumberOfIconsPerRow);
+
+                    // ensure the selected row is the top visible row
+                    if (CurrentRowIndex == selectedItemRow)
+                        PressUpArrow(__instance);
+                }
+
+                // handle scrolling down if they are at the button and going down
+                if (b == Buttons.DPadDown || b == Buttons.LeftThumbstickDown)
+                {
+                    // get the row of the selected component
+                    var selectedItemRow = (int)(currentIndex / NumberOfIconsPerRow) + 1;
+
+                    // ensure the selected row is the bottom visible row
+                    if (CurrentRowIndex + NumberOfVisibleRows == selectedItemRow)
+                        PressDownArrow(__instance);
+                }
             }
 
-            // pan the screen to the new building
-            PanCameraToBuilding(ValidBuildings[CurrentValidBuildingIndex]);
-            return true;
+            // handle building panning
+            if (onFarm && (b == Buttons.LeftShoulder || b == Buttons.RightShoulder))
+            {
+                // ensure there are valid buildings
+                if (ValidBuildings == null || ValidBuildings.Count == 0)
+                    return true;
+
+                // get the new CurrentValidBuildingIndex
+                if (b == Buttons.LeftShoulder)
+                {
+                    // go to preveious valid buuilding in list
+                    if (CurrentValidBuildingIndex - 1 < 0) // if we are at the beginnning of the list, loop back to the end
+                        CurrentValidBuildingIndex = ValidBuildings.Count - 1;
+                    else
+                        CurrentValidBuildingIndex--;
+                }
+                else if (b == Buttons.RightShoulder)
+                {
+                    // go to next valid building in list
+                    if (CurrentValidBuildingIndex + 1 >= ValidBuildings.Count)
+                        CurrentValidBuildingIndex = 0;
+                    else
+                        CurrentValidBuildingIndex++;
+                }
+
+                // pan the screen to the new building
+                PanCameraToBuilding(ValidBuildings[CurrentValidBuildingIndex]);
+            }
+
+            return false;
         }
 
         /// <summary>The prefix for the ReceiveLieftClick method.</summary>
