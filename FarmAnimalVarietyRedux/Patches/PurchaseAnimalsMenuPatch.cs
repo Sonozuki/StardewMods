@@ -865,127 +865,19 @@ namespace FarmAnimalVarietyRedux.Patches
                 }
             }
 
-            // TODO: check if this is wanted at all
-            //if (!Game1.globalFade && __instance.okButton != null)
-            //    __instance.okButton.draw(b);
-
-            if (__instance.hovered != null)
+            // check if hovered animal is buyable (to show hover text)
+            if (__instance.hovered != null && (__instance.hovered.item as SObject).Type != null)
             {
-                // check if the hovered item is available for purchase
-                if ((__instance.hovered.item as StardewValley.Object).Type != null)
-                {
-                    // display not available for purchase message
-                    IClickableMenu.drawHoverText(
-                        b: b,
-                        text: Game1.parseText((__instance.hovered.item as StardewValley.Object).Type, Game1.dialogueFont, 320),
-                        font: Game1.dialogueFont
-                    );
-                }
-                else
-                {
-                    var animalData = ModEntry.Instance.Api.GetAnimalByName(__instance.hovered.hoverText);
-
-                    // building string height
-                    var buildingString = string.Join(", ", animalData.Data.Buildings);
-                    var parsedBuildingString = Game1.parseText($"Buildings: {buildingString}", Game1.smallFont, 325);
-                    var buildingStringHeight = Game1.smallFont.MeasureString(parsedBuildingString).Y;
-
-                    // description height
-                    var animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
-                    var descriptionString = Game1.parseText($"Description: {animalDescription}", Game1.smallFont, 325);
-
-                    // products height
-                    var products = GetAllAnimalProducts(animalData).Distinct().ToList();
-                    var productRows = (int)Math.Ceiling(products.Count / 5f);
-
-                    // panel height
-                    var descriptionHeight = Game1.smallFont.MeasureString(descriptionString).Y;
-                    var productsHeight = productRows * 64;
-                    var infoPanelHeight = 410 + buildingStringHeight + descriptionHeight + productsHeight;
-
-                    // info panel background position
-                    var infoPanelPosition = new Rectangle(
-                        x: __instance.xPositionOnScreen - 430,
-                        y: (int)((Game1.graphics.GraphicsDevice.Viewport.Height / 2) - (infoPanelHeight / 2) - 32),
-                        width: 450,
-                        height: (int)infoPanelHeight
-                    );
-
-                    // draw info panel background
-                    Game1.drawDialogueBox(
-                        x: infoPanelPosition.X,
-                        y: infoPanelPosition.Y,
-                        width: infoPanelPosition.Width,
-                        height: infoPanelPosition.Height,
-                        speaker: false,
-                        drawOnlyBox: true
-                    );
-
-                    // draw animal name
-                    SpriteText.drawString(
-                        b: b,
-                        s: __instance.hovered.hoverText,
-                        x: infoPanelPosition.X + 65,
-                        y: infoPanelPosition.Y + 115
-                    );
-
-                    // draw cost
-                    SpriteText.drawString(
-                        b: b,
-                        s: "$" + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:LoadGameMenu.cs.11020"), __instance.hovered.item.salePrice()),
-                        x: infoPanelPosition.X + 65,
-                        y: infoPanelPosition.Y + 170
-                    );
-
-                    // TODO: number of varients
-                    b.DrawString(
-                        spriteFont: Game1.smallFont,
-                        text: $"Available in {animalData.Data.Types.Count} {(animalData.Data.Types.Count == 1 ? "variety" : "varieties")}",
-                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 235),
-                        color: Color.Black
-                    );
-
-                    // mature age
-                    b.DrawString(
-                        spriteFont: Game1.smallFont,
-                        text: $"Matures in {animalData?.Data?.DaysTillMature ?? -1} days",
-                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 285),
-                        color: Color.Black
-                    );
-
-                    // buildings
-                    b.DrawString(
-                        spriteFont: Game1.smallFont,
-                        text: parsedBuildingString,
-                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 335),
-                        color: Color.Black
-                    );
-
-                    // description
-                    b.DrawString(
-                        spriteFont: Game1.smallFont,
-                        text: descriptionString,
-                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 350 + buildingStringHeight),
-                        color: Color.Black
-                    );
-
-                    // all product items (greyed out unless shipped)
-                    for (int i = 0; i < products.Count; i++)
-                    {
-                        var product = products[i];
-                        product.drawInMenu(
-                            spriteBatch: b,
-                            location: new Vector2((i % 5) * 64 + infoPanelPosition.X + 65, (i / 5) * 64 + infoPanelPosition.Y + 360 + buildingStringHeight + descriptionHeight),
-                            scaleSize: 1,
-                            transparency: 1,
-                            layerDepth: 1,
-                            drawStackNumber: StackDrawType.Draw,
-                            color: Game1.player.basicShipped.ContainsKey(product.ParentSheetIndex) ? Color.White : Color.Black * 0.2f,
-                            drawShadow: false
-                        );
-                    }
-                }
+                // display not available for purchase message
+                IClickableMenu.drawHoverText(
+                    b: b,
+                    text: Game1.parseText((__instance.hovered.item as StardewValley.Object).Type, Game1.dialogueFont, 320),
+                    font: Game1.dialogueFont
+                );
             }
+
+            // draw left info panel
+            DrawInfoPanel(b, __instance);
 
             __instance.upperRightCloseButton.draw(b);
             __instance.drawMouse(b);
@@ -1010,6 +902,7 @@ namespace FarmAnimalVarietyRedux.Patches
         }
 
         /// <summary>Performs the <see cref="UpArrow"/> click event.</summary>
+        /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         private static void PressUpArrow(PurchaseAnimalsMenu __instance)
         {
             if (CurrentRowIndex < NumberOfTotalRows - NumberOfVisibleRows)
@@ -1023,6 +916,7 @@ namespace FarmAnimalVarietyRedux.Patches
         }
 
         /// <summary>Performs the <see cref="DownArrow"/> click event.</summary>
+        /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         private static void PressDownArrow(PurchaseAnimalsMenu __instance)
         {
             if (CurrentRowIndex > 0)
@@ -1062,6 +956,179 @@ namespace FarmAnimalVarietyRedux.Patches
             }
 
             return products;
+        }
+
+        /// <summary>Draws the info panel.</summary>
+        /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to draw the info panel to.</param>
+        /// <param name="__instance">The <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
+        private static void DrawInfoPanel(SpriteBatch spriteBatch, PurchaseAnimalsMenu __instance)
+        {
+            if (__instance.hovered == null || (__instance.hovered.item as SObject).Type != null) // draw Buildings info panel
+            {
+                var buildings = new List<Building>();
+                foreach (var building in Game1.getFarm().buildings)
+                    if (building.indoors.Value is AnimalHouse)
+                        buildings.Add(building);
+
+                // determine info manu height
+                var buildingsStringHeight = buildings.Count * 45;
+
+                var infoPanelHeight = 210 + buildingsStringHeight;
+
+                // info panel background position
+                var infoPanelPosition = new Rectangle(
+                    x: __instance.xPositionOnScreen - 430,
+                    y: (int)((Game1.graphics.GraphicsDevice.Viewport.Height / 2) - (infoPanelHeight / 2) - 32),
+                    width: 450,
+                    height: (int)infoPanelHeight
+                );
+
+                // draw info panel background
+                Game1.drawDialogueBox(
+                    x: infoPanelPosition.X,
+                    y: infoPanelPosition.Y,
+                    width: infoPanelPosition.Width,
+                    height: infoPanelPosition.Height,
+                    speaker: false,
+                    drawOnlyBox: true
+                );
+
+                // "Buildings Info" label
+                SpriteText.drawString(
+                    b: spriteBatch,
+                    s: "Buildings Info",
+                    x: infoPanelPosition.X + 65,
+                    y: infoPanelPosition.Y + 115
+                );
+
+                // draw each building
+                for (int i = 0; i < buildings.Count; i++)
+                {
+                    var building = buildings[i];
+
+                    // building type
+                    spriteBatch.DrawString(
+                        spriteFont: Game1.dialogueFont,
+                        text: building.buildingType.Value,
+                        position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 165 + i * 45),
+                        color: Color.Black
+                    );
+
+                    // space available
+                    var indoors = building.indoors.Value as AnimalHouse;
+                    spriteBatch.DrawString(
+                        spriteFont: Game1.dialogueFont,
+                        text: $"{indoors.Animals.Keys.Count()}/{indoors.animalLimit.Value}",
+                        position: new Vector2(infoPanelPosition.X + 305, infoPanelPosition.Y + 165 + i * 45),
+                        color: Color.Black
+                    );
+                }
+            }
+            else // Draw animal info panel
+            {
+                var animalData = ModEntry.Instance.Api.GetAnimalByName(__instance.hovered.hoverText);
+
+                // determine info menu height
+                // building string height
+                var buildingsString = string.Join(", ", animalData.Data.Buildings);
+                var parsedBuildingsString = Game1.parseText($"Buildings: {buildingsString}", Game1.smallFont, 325);
+                var buildingStringsHeight = Game1.smallFont.MeasureString(parsedBuildingsString).Y;
+
+                // description height
+                var animalDescription = PurchaseAnimalsMenu.getAnimalDescription(__instance.hovered.hoverText);
+                var descriptionString = Game1.parseText($"Description: {animalDescription}", Game1.smallFont, 325);
+
+                // products height
+                var products = GetAllAnimalProducts(animalData).Distinct().ToList();
+                var productRows = (int)Math.Ceiling(products.Count / 5f);
+
+                // panel height
+                var descriptionHeight = Game1.smallFont.MeasureString(descriptionString).Y;
+                var productsHeight = productRows * 64;
+                var infoPanelHeight = 410 + buildingStringsHeight + descriptionHeight + productsHeight;
+
+                // info panel background position
+                var infoPanelPosition = new Rectangle(
+                    x: __instance.xPositionOnScreen - 430,
+                    y: (int)((Game1.graphics.GraphicsDevice.Viewport.Height / 2) - (infoPanelHeight / 2) - 32),
+                    width: 450,
+                    height: (int)infoPanelHeight
+                );
+
+                // draw info panel background
+                Game1.drawDialogueBox(
+                    x: infoPanelPosition.X,
+                    y: infoPanelPosition.Y,
+                    width: infoPanelPosition.Width,
+                    height: infoPanelPosition.Height,
+                    speaker: false,
+                    drawOnlyBox: true
+                );
+
+                // draw animal name
+                SpriteText.drawString(
+                    b: spriteBatch,
+                    s: __instance.hovered.hoverText,
+                    x: infoPanelPosition.X + 65,
+                    y: infoPanelPosition.Y + 115
+                );
+
+                // draw cost
+                SpriteText.drawString(
+                    b: spriteBatch,
+                    s: "$" + Game1.content.LoadString(Path.Combine("Strings", "StringsFromCSFiles:LoadGameMenu.cs.11020"), __instance.hovered.item.salePrice()),
+                    x: infoPanelPosition.X + 65,
+                    y: infoPanelPosition.Y + 170
+                );
+
+                // number of varients
+                spriteBatch.DrawString(
+                    spriteFont: Game1.smallFont,
+                    text: $"Available in {animalData.Data.Types.Count} {(animalData.Data.Types.Count == 1 ? "variety" : "varieties")}",
+                    position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 235),
+                    color: Color.Black
+                );
+
+                // mature age
+                spriteBatch.DrawString(
+                    spriteFont: Game1.smallFont,
+                    text: $"Matures in {animalData?.Data?.DaysTillMature ?? -1} days",
+                    position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 285),
+                    color: Color.Black
+                );
+
+                // buildings
+                spriteBatch.DrawString(
+                    spriteFont: Game1.smallFont,
+                    text: parsedBuildingsString,
+                    position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 335),
+                    color: Color.Black
+                );
+
+                // description
+                spriteBatch.DrawString(
+                    spriteFont: Game1.smallFont,
+                    text: descriptionString,
+                    position: new Vector2(infoPanelPosition.X + 65, infoPanelPosition.Y + 350 + buildingStringsHeight),
+                    color: Color.Black
+                );
+
+                // all product items (greyed out unless shipped)
+                for (int i = 0; i < products.Count; i++)
+                {
+                    var product = products[i];
+                    product.drawInMenu(
+                        spriteBatch: spriteBatch,
+                        location: new Vector2((i % 5) * 64 + infoPanelPosition.X + 65, (i / 5) * 64 + infoPanelPosition.Y + 360 + buildingStringsHeight + descriptionHeight),
+                        scaleSize: 1,
+                        transparency: 1,
+                        layerDepth: 1,
+                        drawStackNumber: StackDrawType.Draw,
+                        color: Game1.player.basicShipped.ContainsKey(product.ParentSheetIndex) ? Color.White : Color.Black * 0.2f,
+                        drawShadow: false
+                    );
+                }
+            }
         }
     }
 }
