@@ -18,6 +18,9 @@
         /// <summary>The number of friendship hearts required for the animal to produce the product.</summary>
         public int HeartsRequired { get; set; }
 
+        /// <summary>The percent chance of the object being produced.</summary>
+        public int PercentChance { get; set; }
+
 
         /*********
         ** Public Methods
@@ -27,12 +30,14 @@
         /// <param name="harvestType">The harvest type of the product.</param>
         /// <param name="toolName">The name of the tool required to harvest to the product.</param>
         /// <param name="heartsRequired">The number of friendship hearts required for the animal to produce the product.</param>
-        public FavrAnimalProduct(string id, HarvestType harvestType, string toolName, int heartsRequired = 0)
+        /// <param name="percentChance">The percent chance of the object being produced.</param>
+        public FavrAnimalProduct(string id, HarvestType harvestType, string toolName, int heartsRequired = 0, int percentChance = 100)
         {
             Id = id;
             HarvestType = harvestType;
             ToolName = toolName;
             HeartsRequired = heartsRequired;
+            PercentChance = percentChance;
         }
     }
 }
