@@ -63,6 +63,9 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <remarks>Used from the scroll bar.</remarks>
         private static int CurrentRowIndex;
 
+        /// <summary>A blank black texture used for setting the animal icon when non exists (in the case an animal was passed that didn't have an icon).</summary>
+        private static Texture2D BlankTexture;
+
 
         /*********
         ** Internal Methods
@@ -72,6 +75,14 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="__instance">The current <see cref="PurchaseAnimalsMenu"/> instance being patched.</param>
         internal static bool ConstructorPrefix(List<StardewValley.Object> stock, PurchaseAnimalsMenu __instance)
         {
+            // generate and cache blank texture
+            if (BlankTexture == null)
+            {
+                var blankTexture = new Texture2D(Game1.graphics.GraphicsDevice, 1, 1);
+                blankTexture.SetData(new Color[] { Color.White });
+                BlankTexture = blankTexture;
+            }
+
             CurrentRowIndex = 0;
 
             // determine the number of icons per row to use, this is to fill the screen as best as possible
@@ -99,13 +110,7 @@ namespace FarmAnimalVarietyRedux.Patches
             for (int i = 0; i < stock.Count; i++)
             {
                 var animal = ModEntry.Instance.Api.GetAnimalByName(stock[i].Name);
-                var shopIconTexture = animal.Data.AnimalShopInfo.ShopIcon;
-                var shopIconSourceRectangle = new Rectangle(
-                    x: 0,
-                    y: 0,
-                    width: 32,
-                    height: 16
-                );
+                var shopIconTexture = animal.Data.AnimalShopInfo.ShopIcon ?? BlankTexture;
 
                 // create animal button
                 var animalComponent = new ClickableTextureComponent(
@@ -118,7 +123,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     label: null,
                     hoverText: stock[i].Name,
                     texture: shopIconTexture,
-                    sourceRect: shopIconSourceRectangle,
+                    sourceRect: new Rectangle(0, 0, 32, 16),
                     scale: 4,
                     drawShadow: stock[i].Type == null
                 );

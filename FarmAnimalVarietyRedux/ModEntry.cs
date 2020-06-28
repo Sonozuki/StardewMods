@@ -61,17 +61,6 @@ namespace FarmAnimalVarietyRedux
 
             // add the default animals to the data strings
             LoadDefaultAnimals();
-
-            this.Helper.Events.Input.ButtonPressed += OnButtonPressed;
-        }
-
-        public void OnButtonPressed(object sender, ButtonPressedEventArgs e)
-        {
-            if (e.Button == SButton.K)
-            {
-                //Game1.activeClickableMenu = new ShopMenu(Utility.getTravelingMerchantStock((int)((long)Game1.uniqueIDForThisGame + (long)Game1.stats.DaysPlayed)), 0, "TravelerNightMarket", new Func<ISalable, Farmer, int, bool>(Utility.onTravelingMerchantShopPurchase), (Func<ISalable, bool>)null, (string)null);
-                Game1.activeClickableMenu = new PurchaseAnimalsMenu(Utility.getPurchaseAnimalStock());
-            }
         }
 
         /// <summary>Expose the Api to other mods.</summary>
@@ -214,7 +203,8 @@ namespace FarmAnimalVarietyRedux
         private void AddNewAnimalEntry(AnimalData animalData, IContentPack contentPack, string animalName)
         {
             // set the shop display icon
-            animalData.AnimalShopInfo.ShopIcon = GetSpriteByPath(Path.Combine(animalName, $"shopdisplay.png"), contentPack);
+            if (animalData.AnimalShopInfo != null)
+                animalData.AnimalShopInfo.ShopIcon = GetSpriteByPath(Path.Combine(animalName, $"shopdisplay.png"), contentPack);
 
             // loop through each sub type to get sprites, resolve tokens, and validate
             var validTypes = new List<AnimalSubType>();
