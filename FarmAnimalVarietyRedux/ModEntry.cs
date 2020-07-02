@@ -6,13 +6,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace FarmAnimalVarietyRedux
@@ -164,9 +162,13 @@ namespace FarmAnimalVarietyRedux
             }
 
             // edit animal data
-            previousAnimalData.Data.Buyable = animalData.Buyable;
-            previousAnimalData.Data.AnimalShopInfo.BuyPrice = animalData.AnimalShopInfo.BuyPrice;
-            previousAnimalData.Data.AnimalShopInfo.Description = animalData.AnimalShopInfo.Description;
+            if (previousAnimalData.Data.AnimalShopInfo != null && animalData.AnimalShopInfo != null)
+            {
+                previousAnimalData.Data.Buyable = animalData.Buyable;
+                previousAnimalData.Data.AnimalShopInfo.BuyPrice = animalData.AnimalShopInfo.BuyPrice;
+                previousAnimalData.Data.AnimalShopInfo.Description = animalData.AnimalShopInfo.Description;
+            }
+
             previousAnimalData.Data.DaysToProduce = animalData.DaysToProduce;
             previousAnimalData.Data.DaysTillMature = animalData.DaysTillMature;
             previousAnimalData.Data.SoundId = animalData.SoundId;
