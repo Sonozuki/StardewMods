@@ -42,7 +42,8 @@ namespace MoreGrass.Patches
             }
 
             // recalculate the new textures for grass
-            __instance.loadSprite();
+            __instance.loadSprite(); 
+            __instance.setUpRandom(__instance.currentTileLocation);
 
             // return false so the base method doesn't get ran
             return false;
@@ -92,7 +93,7 @@ namespace MoreGrass.Patches
             FieldInfo whichWeed = typeof(Grass).GetField("whichWeed", BindingFlags.NonPublic | BindingFlags.Instance);
 
             int[] newWhichWeed = new int[4];
-            for (int i  = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 switch (Game1.currentSeason)
                 {
