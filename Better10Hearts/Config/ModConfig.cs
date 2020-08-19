@@ -11,5 +11,8 @@
 
         /// <summary>Determines if the player has to have atleast a 10heart friendship with the NPC to get the stamina gain.</summary>
         public bool OnlyGetStaminaAt10Hearts { get; set; } = true;
+
+        /// <summary>Whether the player should get max luck on NPC birthdays.</summary>
+        public bool MaxLuckOnNPCBirthdays = true;
     }
 }
