@@ -53,8 +53,6 @@ namespace MoreGrass.Patches
         /// <param name="__instance">The current grass instance that is being patched.</param>
         internal static void LoadSpritePostFix(Grass __instance)
         {
-            FieldInfo texture = typeof(Grass).GetField("texture", BindingFlags.NonPublic | BindingFlags.Instance);
-
             Texture2D grassTexture = null;
             switch (Game1.currentSeason)
             {
@@ -80,7 +78,7 @@ namespace MoreGrass.Patches
                     }
             }
 
-            texture.SetValue(__instance, new Lazy<Texture2D>(() => grassTexture));
+            __instance.texture = new Lazy<Texture2D>(() => grassTexture);
             __instance.grassSourceOffset.Value = 0;
         }
 
