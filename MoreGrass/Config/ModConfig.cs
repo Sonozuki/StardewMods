@@ -3,6 +3,9 @@
     /// <summary>The mod configuration.</summary>
     public class ModConfig
     {
+        /*********
+        ** Accessors
+        *********/
         /// <summary>Whether grass can live in spring.</summary>
         public bool CanGrassLiveInSpring { get; set; } = true;
 
