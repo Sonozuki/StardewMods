@@ -1,8 +1,11 @@
-﻿namespace BetterMixedSeedsConfigUpdater.ModConfigs
+﻿namespace BetterMixedSeedsConfigUpdater.Models.V2
 {
     /// <summary>Metadata about a crop.</summary>
-    public class Crop
+    public class Crop_V2
     {
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The crops name, this is the display name used in the configuration.</summary>
         public string Name { get; set; }
 
@@ -12,11 +15,15 @@
         /// <summary>The chance the crop will have at being picked.</summary>
         public int Chance { get; set; }
 
+
+        /*********
+        ** Public Methods
+        *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="name">Crop name.</param>
         /// <param name="enabled">Whether the crop is enabled.</param>
         /// <param name="chance">The crop chance.</param>
-        public Crop(string name, bool enabled, int chance)
+        public Crop_V2(string name, bool enabled, int chance)
         {
             Name = name;
             Enabled = enabled;

@@ -1,8 +1,11 @@
-﻿namespace BetterMixedSeedsConfigUpdater.ModConfigs
+﻿namespace BetterMixedSeedsConfigUpdater.Models.V1
 {
-    /// <summary>The old mod configuration.</summary>
-    public class OldModConfig
+    /// <summary>The V1 mod configuration.</summary>
+    public class ModConfig_V1
     {
+        /*********
+        ** Accessors
+        *********/
         /// <summary>The percent chance that a mixed seed is dropped, when fiber isn't dropped, when cutting weeds.</summary>
         public int PercentDropChanceForMixedSeedsWhenNotFiber { get; set; }
 
