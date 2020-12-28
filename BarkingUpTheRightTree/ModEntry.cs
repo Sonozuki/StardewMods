@@ -161,6 +161,8 @@ namespace BarkingUpTheRightTree
             ApplyHarmonyPatches();
             LoadContentPacks();
 
+            this.Helper.ConsoleCommands.Add("reset_custom_trees", "Resets the custom trees (using map tile data).", (string command, string[] args) => ResetCustomTreesCommand());
+
             this.Helper.Events.Multiplayer.PeerContextReceived += OnPeerContextReceived;
             this.Helper.Events.Multiplayer.ModMessageReceived += OnModMessageReceived;
             this.Helper.Events.GameLoop.SaveCreating += OnSaveCreating;
@@ -267,6 +269,42 @@ namespace BarkingUpTheRightTree
             var barkRemover = new BarkRemover();
             shopMenu.forSale.Add(barkRemover);
             shopMenu.itemPriceAndStock.Add(barkRemover, new[] { 1000, 1 });
+        }
+
+        /// <summary>Resets the custom tre using the map tile data.</summary>
+        private void ResetCustomTreesCommand()
+        {
+            // ensure a save has been loaded
+            if (!Context.IsWorldReady)
+                return;
+
+            // loop through each tile and look for tiles with tree properties
+            foreach (var location in Game1.locations)
+                for (int x = 0; x < location.Map.Layers[0].LayerWidth; x++)
+                    for (int y = 0; y < location.Map.Layers[0].LayerHeight; y++)
+                    {
+                        // check if the tile has the "Tree" property
+                        var treeName = location.doesTileHaveProperty(x, y, "Tree", "Back");
+                        if (treeName == null)
+                            continue;
+
+                        // ensure tree has been loaded and get required data
+                        if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
+                        {
+                            ModEntry.Instance.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
+                            continue;
+                        }
+
+                        // place tree
+                        var tileLocation = new Vector2(x, y);
+                        if (!location.terrainFeatures.ContainsKey(tileLocation) && !location.objects.ContainsKey(tileLocation))
+                        {
+                            var tree = new Tree(treeId, 5);
+                            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
+                            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[shakingProducts.Count]);
+                            location.terrainFeatures.Add(tileLocation, tree);
+                        }
+                    }
         }
 
         /// <summary>Converts the custom trees to default trees.</summary>
