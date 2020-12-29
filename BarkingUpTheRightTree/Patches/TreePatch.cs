@@ -82,6 +82,10 @@ namespace BarkingUpTheRightTree.Patches
                     if (daysTillNextShakeProducts[i] > 0)
                         continue;
 
+                    var seasons = shakingProducts[i].Seasons.Select(season => season?.ToLower()).ToArray();
+                    if (!shakingProducts[i].Seasons.Contains(Game1.currentSeason.ToLower()))
+                        continue;
+
                     Game1.createObjectDebris(shakingProducts[i].Product, (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location);
                     daysTillNextShakeProducts[i] = shakingProducts[i].DaysBetweenProduce;
                 }

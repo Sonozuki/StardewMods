@@ -26,7 +26,7 @@ namespace BarkingUpTheRightTree.Models.Parsed
         public string Seed { get; set; }
 
         /// <summary>The items the tree can drop whenever it's shaken.</summary>
-        public List<ParsedTimedProduct> ShakingProducts { get; set; }
+        public List<ParsedSeasonalTimedProduct> ShakingProducts { get; set; }
 
         /// <summary>The tree will only get loaded if atleast one of the listed mods are present.</summary>
         public List<string> IncludeIfModIsPresent { get; set; }
@@ -51,14 +51,14 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
-        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, List<ParsedTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct)
+        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             TappedProduct = tappedProduct;
             Wood = wood ?? "-1";
             DropsSap = dropsSap;
             Seed = seed ?? "-1";
-            ShakingProducts = shakingProducts ?? new List<ParsedTimedProduct>();
+            ShakingProducts = shakingProducts ?? new List<ParsedSeasonalTimedProduct>();
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();
             BarkProduct = barkProduct;

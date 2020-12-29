@@ -58,9 +58,11 @@
     <Compile Include="Api\Api.cs" />
     <Compile Include="Api\IApi.cs" />
     <Compile Include="Models\Converted\CustomTree.cs" />
+    <Compile Include="Models\Converted\SeasonalTimedProduct.cs" />
     <Compile Include="Models\Parsed\ParsedCustomTree.cs" />
     <Compile Include="Models\Converted\TapperTimedProduct.cs" />
     <Compile Include="Models\Converted\TimedProduct.cs" />
+    <Compile Include="Models\Parsed\ParsedSeasonalTimedProduct.cs" />
     <Compile Include="Models\Parsed\ParsedTapperTimedProduct.cs" />
     <Compile Include="Models\Parsed\ParsedTimedProduct.cs" />
     <Compile Include="ModEntry.cs" />

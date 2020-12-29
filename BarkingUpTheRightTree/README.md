@@ -46,7 +46,8 @@
             {
                 "DaysBetweenProduce": 1,
                 "Product": "id",
-                "Amount": 3
+                "Amount": 3,
+                "Seasons": [ "spring", "summer", "fall" ]
             },
             {
                 "DaysBetweenProduce": 3,
@@ -74,6 +75,7 @@
 * **ShakingProducts.DaysBetweenProduce**: The number of days between the product can be dropped again.
 * **ShakingProducts.Product**: The product that will get dropped.
 * **ShakingProducts.Amount**: The amount of the item that will get dropped.
+* **ShakingProducts.Seasons**: The seasons the item will get dropped (leaving this out means it can be dropped in all seasons).
 * **IncludeIfModIsPresent**: The tree will only get loaded if atleast one of the listed mods (by uniqueId) is present.
 * **ExcludeIfModIsPresent**: The tree will only get loaded if none of the listed mods (by uniqueId) are present.
 * **BarkProduct**: This is the product that the tree drops when using the **Bark Remover**.

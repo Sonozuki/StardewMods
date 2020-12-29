@@ -23,15 +23,15 @@ namespace BarkingUpTheRightTree
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
         /// <param name="modName">The name of the mod adding the trees (this is only used for logging the name of tree conflicts).</param>
         /// <returns><see langword="true"/> if the tree was successfully added; otherwise, <see langword="false"/>.<br/>Note: if the tree wasn't added because it didn't pass the check for <paramref name="includeIfModIsPresent"/> or <paramref name="excludeIfModIsPresent"/> then <see langword="false"/> will be returned.</returns>
-        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName);
+        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName);
 
         /// <summary>Gets all the raw trees.</summary>
         /// <returns>The raw trees.</returns>
-        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, string Product, int Amount) TappedProduct, string Wood, bool DropsSap, string Seed, List<(int DaysBetweenProduce, string Product, int Amount)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) BarkProduct)> GetAllRawTrees();
+        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, string Product, int Amount) TappedProduct, string Wood, bool DropsSap, string Seed, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) BarkProduct)> GetAllRawTrees();
 
         /// <summary>Gets all the trees.</summary>
         /// <returns>All the loaded trees.</returns>
-        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, int Product, int Amount) TappedProduct, int Wood, bool DropsSap, int Seed, List<(int DaysBetweenProduce, int Product, int Amount)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, int Product, int Amount) BarkProduct)> GetAllTrees();
+        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, int Product, int Amount) TappedProduct, int Wood, bool DropsSap, int Seed, List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, int Product, int Amount) BarkProduct)> GetAllTrees();
 
         /// <summary>Gets the tree id by tree name.</summary>
         /// <param name="name">The name of the tree.</param>
@@ -52,7 +52,7 @@ namespace BarkingUpTheRightTree
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
         /// <returns><see langword="true"/> if data was successfully retrieved; otherwise, <see langword="false"/>.</returns>
         /// <remarks>A 'raw' tree means that any tokens haven't been resolved (so ids are strings and not necessarily integers).<br/>A save doesn't need to be loaded to get a successful result.</remarks>
-        public bool GetRawTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct);
+        public bool GetRawTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct);
 
         /// <summary>Gets data of a raw tree by its name.</summary>
         /// <param name="name">The name of the tree to get the data of.</param>
@@ -68,7 +68,7 @@ namespace BarkingUpTheRightTree
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
         /// <returns><see langword="true"/> if data was successfully retrieved; otherwise, <see langword="false"/>.</returns>
         /// <remarks>A 'raw' tree means that any tokens haven't been resolved (so ids are strings and not necessarily integers).<br/>A save doesn't need to be loaded to get a successful result.</remarks>
-        public bool GetRawTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct);
+        public bool GetRawTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct);
 
         /// <summary>Gets data of a tree by its id.</summary>
         /// <param name="id">The id of the tree to get the data of.</param>
@@ -84,7 +84,7 @@ namespace BarkingUpTheRightTree
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
         /// <returns><see langword="true"/> if data was successfully retrieved; otherwise, <see langword="false"/>.</returns>
         /// <remarks>A save must be loaded to successfully get a result.</remarks>
-        public bool GetTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct);
+        public bool GetTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct);
 
         /// <summary>Gets data of a tree by its name.</summary>
         /// <param name="name">The name of the tree to get the data of.</param>
@@ -100,7 +100,7 @@ namespace BarkingUpTheRightTree
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
         /// <returns><see langword="true"/> if data was successfully retrieved; otherwise, <see langword="false"/>.</returns>
         /// <remarks>A save must be loaded to successfully get a result.</remarks>
-        public bool GetTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct);
+        public bool GetTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct);
 
         /// <summary>Gets the bark state of a tree.</summary>
         /// <param name="locationName">The name of the location that contains the tree.</param>

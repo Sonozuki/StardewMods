@@ -16,7 +16,7 @@ namespace BarkingUpTheRightTree
         ** Public Methods
         *********/
         /// <inheritdoc/>
-        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName)
+        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName)
         {
             // validate
             if (string.IsNullOrEmpty(name))
@@ -85,9 +85,9 @@ namespace BarkingUpTheRightTree
             // create objects
             var tappedProductObject = new ParsedTapperTimedProduct(tappedProduct.DaysBetweenProduce, tappedProduct.Product, tappedProduct.Amount);
             var barkProductObject = new ParsedTimedProduct(barkProduct.DaysBetweenProduce, barkProduct.Product, barkProduct.Amount);
-            var shakingProductObjects = new List<ParsedTimedProduct>();
-            foreach (var (DaysBetweenProduce, Product, Amount) in shakingProducts)
-                shakingProductObjects.Add(new ParsedTimedProduct(DaysBetweenProduce, Product, Amount));
+            var shakingProductObjects = new List<ParsedSeasonalTimedProduct>();
+            foreach (var (DaysBetweenProduce, Product, Amount, Seasons) in shakingProducts)
+                shakingProductObjects.Add(new ParsedSeasonalTimedProduct(DaysBetweenProduce, Product, Amount, Seasons));
 
             // add tree
             var id = ModEntry.Instance.GetPersitantId(name);
@@ -111,30 +111,30 @@ namespace BarkingUpTheRightTree
         }
 
         /// <inheritdoc/>
-        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, string Product, int Amount) TappedProduct, string Wood, bool DropsSap, string Seed, List<(int DaysBetweenProduce, string Product, int Amount)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) BarkProduct)> GetAllRawTrees()
+        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, string Product, int Amount) TappedProduct, string Wood, bool DropsSap, string Seed, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) BarkProduct)> GetAllRawTrees()
         {
             foreach (var rawTree in ModEntry.Instance.RawCustomTrees)
             {
                 var tappedProduct = (rawTree.Data.TappedProduct?.DaysBetweenProduce ?? 0, rawTree.Data.TappedProduct?.Product, rawTree.Data.TappedProduct?.Amount ?? 0);
                 var barkProduct = (rawTree.Data.BarkProduct?.DaysBetweenProduce ?? 0, rawTree.Data.BarkProduct?.Product, rawTree.Data.BarkProduct?.Amount ?? 0);
-                var shakingProducts = new List<(int DaysBetweenProduce, string Product, int Amount)>();
+                var shakingProducts = new List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)>();
                 foreach (var shakingProduct in rawTree.Data.ShakingProducts)
-                    shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount));
+                    shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
                 yield return (rawTree.Id, rawTree.Texture, tappedProduct, rawTree.Data.Wood, rawTree.Data.DropsSap, rawTree.Data.Seed, shakingProducts, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProduct);
             }
         }
 
         /// <inheritdoc/>
-        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, int Product, int Amount) TappedProduct, int Wood, bool DropsSap, int Seed, List<(int DaysBetweenProduce, int Product, int Amount)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, int Product, int Amount) BarkProduct)> GetAllTrees()
+        public IEnumerable<(int Id, Texture2D Texture, (float DaysBetweenProduce, int Product, int Amount) TappedProduct, int Wood, bool DropsSap, int Seed, List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> ShakingProducts, List<string> IncludeIfModIsPresent, List<string> ExcludeIfModIsPresent, (int DaysBetweenProduce, int Product, int Amount) BarkProduct)> GetAllTrees()
         {
             foreach (var tree in ModEntry.Instance.CustomTrees)
             {
                 var tappedProduct = (tree.TappedProduct?.DaysBetweenProduce ?? 0, tree.TappedProduct?.Product ?? -1, tree.TappedProduct?.Amount ?? 0);
                 var barkProduct = (tree.BarkProduct?.DaysBetweenProduce ?? 0, tree.BarkProduct?.Product ?? -1, tree.BarkProduct?.Amount ?? 0);
-                var shakingProducts = new List<(int DaysBetweenProduce, int Product, int Amount)>();
+                var shakingProducts = new List<(int DaysBetweenProduce, int Product, int Amount, string[])>();
                 foreach (var shakingProduct in tree.ShakingProducts)
-                    shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount));
+                    shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
                 yield return (tree.Id, tree.Texture, tappedProduct, tree.Wood, tree.DropsSap, tree.Seed, shakingProducts, tree.IncludeIfModIsPresent, tree.ExcludeIfModIsPresent, barkProduct);
             }
@@ -144,7 +144,7 @@ namespace BarkingUpTheRightTree
         public int GetIdByName(string name) => ModEntry.Instance.RawCustomTrees.FirstOrDefault(customTree => customTree.Data.Name == name).Id;
 
         /// <inheritdoc/>
-        public bool GetRawTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct)
+        public bool GetRawTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct)
         {
             // set default values
             name = default;
@@ -166,9 +166,9 @@ namespace BarkingUpTheRightTree
             // create tuples
             var tappedProductTuple = (customTree.Data.TappedProduct.DaysBetweenProduce, customTree.Data.TappedProduct.Product, customTree.Data.TappedProduct.Amount);
             var barkProductTuple = (customTree.Data.BarkProduct.DaysBetweenProduce, customTree.Data.BarkProduct.Product, customTree.Data.BarkProduct.Amount);
-            var shakingProductsTuples = new List<(int DaysBetweenProduce, string Product, int Amount)>();
+            var shakingProductsTuples = new List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)>();
             foreach (var shakingProduct in customTree.Data.ShakingProducts)
-                shakingProductsTuples.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount));
+                shakingProductsTuples.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
             // set values
             name = customTree.Data.Name;
@@ -185,14 +185,14 @@ namespace BarkingUpTheRightTree
         }
 
         /// <inheritdoc/>
-        public bool GetRawTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct)
+        public bool GetRawTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, string Product, int Amount) tappedProduct, out string wood, out bool dropsSap, out string seed, out List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, string Product, int Amount) barkProduct)
         {
             id = GetIdByName(name);
             return GetRawTreeById(id, out _, out texture, out tappedProduct, out wood, out dropsSap, out seed, out shakingProducts, out includeIfModIsPresent, out excludeIfModIsPresent, out barkProduct);
         }
 
         /// <inheritdoc/>
-        public bool GetTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct)
+        public bool GetTreeById(int id, out string name, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct)
         {
             // set default values
             name = default;
@@ -214,9 +214,9 @@ namespace BarkingUpTheRightTree
             // create tuples
             var tappedProductTuple = (customTree.TappedProduct.DaysBetweenProduce, customTree.TappedProduct.Product, customTree.TappedProduct.Amount);
             var barkProductTuple = (customTree.BarkProduct.DaysBetweenProduce, customTree.BarkProduct.Product, customTree.BarkProduct.Amount);
-            var shakingProductsTuples = new List<(int DaysBetweenProduce, int Product, int Amount)>();
+            var shakingProductsTuples = new List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)>();
             foreach (var shakingProduct in customTree.ShakingProducts)
-                shakingProductsTuples.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount));
+                shakingProductsTuples.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
             // set values
             name = customTree.Name;
@@ -233,7 +233,7 @@ namespace BarkingUpTheRightTree
         }
 
         /// <inheritdoc/>
-        public bool GetTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct)
+        public bool GetTreeByName(string name, out int id, out Texture2D texture, out (float DaysBetweenProduce, int Product, int Amount) tappedProduct, out int wood, out bool dropsSap, out int seed, out List<(int DaysBetweenProduce, int Product, int Amount, string[] Seasons)> shakingProducts, out List<string> includeIfModIsPresent, out List<string> excludeIfModIsPresent, out (int DaysBetweenProduce, int Product, int Amount) barkProduct)
         {
             id = GetIdByName(name);
             return GetTreeById(id, out _, out texture, out tappedProduct, out wood, out dropsSap, out seed, out shakingProducts, out includeIfModIsPresent, out excludeIfModIsPresent, out barkProduct);
