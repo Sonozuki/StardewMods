@@ -165,20 +165,23 @@ namespace BarkingUpTheRightTree.Patches
                     Game1.createObjectDebris(seed, (int)tileLocation.X, (int)tileLocation.Y - 3, location);
 
                 // handle dropping custom shake produce
-                var daysTillNextShakeProducts = JsonConvert.DeserializeObject<int[]>(__instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"]);
-                for (int i = 0; i < daysTillNextShakeProducts.Length; i++)
+                if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"))
                 {
-                    if (daysTillNextShakeProducts[i] > 0)
-                        continue;
+                    var daysTillNextShakeProducts = JsonConvert.DeserializeObject<int[]>(__instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"]);
+                    for (int i = 0; i < daysTillNextShakeProducts.Length; i++)
+                    {
+                        if (daysTillNextShakeProducts[i] > 0)
+                            continue;
 
-                    var seasons = shakingProducts[i].Seasons.Select(season => season?.ToLower()).ToArray();
-                    if (!shakingProducts[i].Seasons.Contains(Game1.currentSeason.ToLower()))
-                        continue;
+                        var seasons = shakingProducts[i].Seasons.Select(season => season?.ToLower()).ToArray();
+                        if (!shakingProducts[i].Seasons.Contains(Game1.currentSeason.ToLower()))
+                            continue;
 
-                    Game1.createObjectDebris(shakingProducts[i].Product, (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location);
-                    daysTillNextShakeProducts[i] = shakingProducts[i].DaysBetweenProduce;
+                        Game1.createObjectDebris(shakingProducts[i].Product, (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location);
+                        daysTillNextShakeProducts[i] = shakingProducts[i].DaysBetweenProduce;
+                    }
+                    __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(daysTillNextShakeProducts);
                 }
-                __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(daysTillNextShakeProducts);
             }
 
             return true;

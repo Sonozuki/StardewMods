@@ -468,6 +468,7 @@ namespace BarkingUpTheRightTree
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(StardewValley.Object), nameof(StardewValley.Object.placementAction)),
+                transpiler: new HarmonyMethod(AccessTools.Method(typeof(ObjectPatch), nameof(ObjectPatch.PlacementActionTranspile))),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(ObjectPatch), nameof(ObjectPatch.PlacementActionPrefix)))
             );
 

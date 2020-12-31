@@ -203,7 +203,7 @@ namespace BarkingUpTheRightTree
             // set default values
             name = default;
             texture = default;
-            tappedProduct = (default, default, default);
+            tappedProduct = (default, -1, default);
             wood = default;
             dropsSap = default;
             seed = default;

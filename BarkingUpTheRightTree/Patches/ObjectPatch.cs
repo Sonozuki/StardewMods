@@ -1,11 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Harmony;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace BarkingUpTheRightTree.Patches
 {
@@ -26,6 +29,46 @@ namespace BarkingUpTheRightTree.Patches
                 __result = true;
         }
 
+        /// <summary>The transpiler for the <see cref="StardewValley.Object.placementAction(StardewValley.GameLocation, int, int, StardewValley.Farmer)"/> method.</summary>
+        /// <param name="instructions">The IL instructions.</param>
+        /// <returns>The new IL instructions.</returns>
+        /// <remarks>This is used to stop the stop tappers being able to be placed on trees.<br/>This is to make it determine if tappers can be placed on tree in <see cref="BarkingUpTheRightTree.Patches.ObjectPatch.PlacementActionPrefix(GameLocation, int, int, Object, ref bool)"/> patch, this was done as a <see cref="StardewValley.Object"/> instance can't be retrieved in a transpile but can in a prefix (and as such can't get the tree whether the tree can be tapped).</remarks>
+        internal static IEnumerable<CodeInstruction> PlacementActionTranspile(IEnumerable<CodeInstruction> instructions)
+        {
+            for (int i = 0; i < instructions.Count(); i++)
+            {
+                var instruction = instructions.ElementAt(i);
+
+                // if the instruction is one of the last three, skip checking them for groups
+                if (i >= instructions.Count() - 3)
+                {
+                    yield return instruction;
+                    continue;
+                }
+
+                // check if the instruction being added is the start of the group of instructions to patch
+                var nextNextInstruction = instructions.ElementAt(i + 2);
+                if (instruction.opcode == OpCodes.Ldfld && instruction.operand == typeof(Tree).GetField("growthStage", BindingFlags.Public | BindingFlags.Instance)
+                    && nextNextInstruction.opcode == OpCodes.Ldc_I4_5)
+                {
+                    // this will change the code: tree.growthStage >= 5
+                    // to be                    : tree.growthStage >= 8
+                    // this will always return false so that it can be reimplemented in the prefix patch
+
+                    nextNextInstruction.opcode = OpCodes.Ldc_I4_8;
+
+                    yield return instruction;
+                    yield return instructions.ElementAt(i + 1);
+                    yield return nextNextInstruction;
+
+                    i += 2; // increment as the next instructions have been handled
+                    continue;
+                }
+
+                yield return instruction;
+            }
+        }
+
         /// <summary>The prefix for the <see cref="StardewValley.Object.placementAction(StardewValley.GameLocation, int, int, StardewValley.Farmer)"/> method.</summary>
         /// <param name="location">The current game location.</param>
         /// <param name="x">The X position of the cursor (screen space).</param>
@@ -36,9 +79,39 @@ namespace BarkingUpTheRightTree.Patches
         /// <remarks>This is used to allow custom tree seeds to be planted.</remarks>
         internal static bool PlacementActionPrefix(GameLocation location, int x, int y, StardewValley.Object __instance, ref bool __result)
         {
+            var placementTile = new Vector2(x / 64, y / 64); // 64 = 16 (tile size) * 4 (tile scale)
+
             // ensure object trying to be placed isn't a big craftable or furniture (the original method should handle those)
             if (__instance.bigCraftable || __instance is Furniture)
-                return true;
+            {
+                //// handle placement logic for if object being paces is a tapper
+                if (__instance.ParentSheetIndex != 105 && __instance.ParentSheetIndex != 264)
+                    return true;
+                
+                // ensure a tree exists at the placement location
+                if (!location.terrainFeatures.ContainsKey(placementTile) || !(location.terrainFeatures[placementTile] is Tree tree))
+                    return false;
+                
+                // ensure tree is valid to receive a tapper
+                if (tree.growthStage < 5 || tree.stump || location.Objects.ContainsKey(placementTile))
+                    return false;
+                
+                var isTreeCustom = ModEntry.Instance.Api.GetTreeById(tree.treeType, out _, out _, out var tappedProduct, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _);
+                if (isTreeCustom && tappedProduct.Product == -1) // ensure there is a valid tapped product if the tree is custom
+                    return false;
+                
+                // place tapper
+                var tapper = (Object)__instance.getOne();
+                tapper.heldObject.Value = null;
+                tapper.tileLocation.Value = placementTile;
+                location.Objects.Add(placementTile, tapper);
+                tree.tapped.Value = true;
+                tree.UpdateTapperProduct(tapper);
+                location.playSound("axe");
+                
+                __result = true;
+                return false;
+            }
 
             // try to get a tree whose seed is the object trying to be planted
             if (!ModEntry.Instance.Api.GetAllTrees().Any(tree => tree.Seed == __instance.ParentSheetIndex)) // object being placed either isn't a tree or is a base game tree
@@ -46,7 +119,6 @@ namespace BarkingUpTheRightTree.Patches
             var customTree = ModEntry.Instance.Api.GetAllTrees().FirstOrDefault(tree => tree.Seed == __instance.ParentSheetIndex);
 
             // ensure tree can be planted (checks tile data for NoSpawn spots etc)
-            var placementTile = new Vector2(x / 64, y / 64);
             var canPlaceWildTreeSeed = typeof(StardewValley.Object).GetMethod("canPlaceWildTreeSeed", BindingFlags.NonPublic | BindingFlags.Instance);
             if (!(bool)canPlaceWildTreeSeed.Invoke(__instance, new object[] { location, placementTile }))
             {
@@ -56,12 +128,12 @@ namespace BarkingUpTheRightTree.Patches
             }
 
             // plant tree
-            var tree = new Tree(customTree.Id);
-            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
-            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[customTree.ShakingProducts.Count]);
+            var newTree = new Tree(customTree.Id);
+            newTree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
+            newTree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[customTree.ShakingProducts.Count]);
 
             location.terrainFeatures.Remove(placementTile);
-            location.terrainFeatures.Add(placementTile, tree);
+            location.terrainFeatures.Add(placementTile, newTree);
             location.playSound("dirtyHit");
             __result = true;
             return false;
