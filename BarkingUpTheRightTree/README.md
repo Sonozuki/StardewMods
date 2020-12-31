@@ -110,7 +110,7 @@ To add a tree to a map, add a tile property on the **Back** object layer; the ke
 
 You can also specify a tree to be non choppable on a per tile basis. A non choppable tree can still have it's bark removed (if a bark product has been specified), have a tapper on it, be shaken etc. The put a tile property on the **Back** object layer with a key of **NonChoppable** (you don't need to specify any value).
 
-An example of these tile properties can be seen below
+An example of these tile properties can be seen below  
 ![](pics/tiledataexample.png)
 
 ## Install
