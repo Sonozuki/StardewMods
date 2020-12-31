@@ -40,6 +40,12 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <summary>The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</summary>
         public ParsedTimedProduct BarkProduct { get; set; }
 
+        /// <summary>The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</summary>
+        public float UnfertilisedGrowthChance { get; set; } = .2f;
+
+        /// <summary>The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</summary>
+        public float FertilisedGrowthChance { get; set; } = 1;
+
 
         /*********
         ** Public Methods
@@ -55,7 +61,9 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
-        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct)
+        /// <param name="unfertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</param>
+        /// <param name="fertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</param>
+        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct, float unfertilisedGrowthChance, float fertilisedGrowthChance)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             TappedProduct = tappedProduct;
@@ -67,6 +75,8 @@ namespace BarkingUpTheRightTree.Models.Parsed
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();
             BarkProduct = barkProduct;
+            UnfertilisedGrowthChance = unfertilisedGrowthChance;
+            FertilisedGrowthChance = fertilisedGrowthChance;
         }
     }
 }

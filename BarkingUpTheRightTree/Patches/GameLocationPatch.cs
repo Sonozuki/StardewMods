@@ -28,7 +28,7 @@ namespace BarkingUpTheRightTree.Patches
                         continue;
 
                     // ensure tree has been loaded and get required data
-                    if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
+                    if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _, out _, out _))
                     {
                         ModEntry.Instance.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
                         continue;

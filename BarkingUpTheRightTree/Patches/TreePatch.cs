@@ -14,6 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using xTile.Dimensions;
+
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace BarkingUpTheRightTree.Patches
 {
@@ -37,7 +40,7 @@ namespace BarkingUpTheRightTree.Patches
                 return true;
             }
 
-            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out var texture, out _, out _, out _, out _, out _, out _, out _, out _, out _))
+            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out var texture, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
             {
                 ModEntry.Instance.Monitor.Log($"A tree with the id: {__instance.treeType} couldn't be found.", LogLevel.Error);
                 __result = null;
@@ -48,10 +51,96 @@ namespace BarkingUpTheRightTree.Patches
             return false;
         }
 
+        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.dayUpdate(GameLocation, Vector2)"/> method.</summary>
+        /// <param name="environment">The location of the tree being patched.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
+        /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
+        /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
+        /// <remarks>This is used to </remarks>
+        internal static bool DayUpdatePrefix(GameLocation environment, Vector2 tileLocation, Tree __instance)
+        {
+            if (__instance.health <= -100)
+            {
+                var destroy = typeof(Tree).GetField("destroy", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+                typeof(NetBool).GetProperty("Value", BindingFlags.Public | BindingFlags.Instance).SetValue(destroy, true);
+            }
+
+            // ensure tree's tapper state is correct
+            if (__instance.tapped.Value)
+            {
+                var tileObject = environment.getObjectAtTile((int)tileLocation.X, (int)tileLocation.Y);
+                if (tileObject == null || !tileObject.bigCraftable || tileObject.ParentSheetIndex != 105)
+                    __instance.tapped.Value = false;
+            }
+
+            // try to grow the tree if it's fertilised, or a palm tree, or it's not in winter, or a tree can be planted there
+            if (__instance.fertilized.Value || __instance.treeType == Tree.palmTree || __instance.treeType == Tree.palmTree2 || Game1.GetSeasonForLocation(__instance.currentLocation) != "winter" || environment.CanPlantTreesHere(-1, (int)tileLocation.X, (int)tileLocation.Y))
+            {
+                // ensure there are no NoSpawn tile properties
+                var noSpawn = environment.doesTileHaveProperty((int)tileLocation.X, (int)tileLocation.Y, "NoSpawn", "Back");
+                if (noSpawn != null || (noSpawn == "Tree" || noSpawn == "All" || noSpawn == "All"))
+                    return false;
+
+                // ensure there is enough space for the tree to fully grow
+                if (__instance.growthStage == 4)
+                {
+                    // create a rectangle that encompasses the surrounding tiles, this will be used to determine if any fully grown trees surround this tree (as no two fully grown trees can be next to each other)
+                    var surroundingRectangle = new Rectangle((int)(tileLocation.X - 1) * 64, (int)(tileLocation.Y - 2) * 64, 192, 192); // 192 = 16 (tile size) * 3 (number of tiles) * 4 (pixel scale)
+                    foreach (var terrainFeaturePair in environment.terrainFeatures.Pairs)
+                        if (terrainFeaturePair.Value is Tree tree && terrainFeaturePair.Value != __instance && tree.growthStage >= 5 && tree.getBoundingBox(terrainFeaturePair.Key).Intersects(surroundingRectangle))
+                            return false; // this tree has a fully grown tree next to it, as such it can't be allowed to grow
+                }
+                else if (__instance.growthStage == 0 && environment.Objects.ContainsKey(tileLocation)) // don't let a seed grow if there's an object on it
+                    return false;
+
+                // grow tree
+                var unfertilisedGrowthChance = (__instance.treeType == Tree.mahoganyTree) ? .15f : .2f;
+                var fertilisedGrowthChance = (__instance.treeType == Tree.mahoganyTree) ? .6f : 1;
+                if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out var customUnfertilisedGrowthChance, out var customFertilisedGrowthChance))
+                {
+                    unfertilisedGrowthChance = customUnfertilisedGrowthChance;
+                    fertilisedGrowthChance = customFertilisedGrowthChance;
+                }
+
+                if (Game1.random.NextDouble() < unfertilisedGrowthChance || (__instance.fertilized && Game1.random.NextDouble() < fertilisedGrowthChance))
+                    __instance.growthStage.Value++;
+            }
+
+            // turn mushroom tree into stump in the winter and back into a regular tree in spring
+            if (__instance.treeType == Tree.mushroomTree)
+                if (Game1.GetSeasonForLocation(__instance.currentLocation) == "winter")
+                    __instance.stump.Value = true;
+                else if (Game1.dayOfMonth == 1 && Game1.currentSeason == "spring")
+                    __instance.stump.Value = false;
+
+            // spread tree seed
+            if (__instance.growthStage >= 5 && environment is Farm && Game1.random.NextDouble() < .15f)
+            {
+                var xTile = Game1.random.Next(-3, 4) + (int)tileLocation.X;
+                var yTile = Game1.random.Next(-3, 4) + (int)tileLocation.Y;
+                var newLocation = new Vector2(xTile, yTile);
+
+                var noSpawn = environment.doesTileHaveProperty(xTile, yTile, "NoSpawn", "Back");
+                if (noSpawn == null || (noSpawn != "Tree" && noSpawn != "All" && noSpawn != "All")) // ensure there are no NoSpawn tile properties
+                    if (environment.isTileLocationOpen(new Location(xTile, yTile)) && !environment.isTileOccupied(newLocation) && environment.doesTileHaveProperty(xTile, yTile, "Water", "Back") == null && environment.isTileOnMap(newLocation)) // ensure location is valid on the tile map
+                        environment.terrainFeatures.Add(newLocation, new Tree(__instance.treeType, 0));
+            }
+
+            // recalculate whether the tree has a seed (for some reason the game also resets this everyday, this is just the replicate the game functionality)
+            __instance.hasSeed.Value = false;
+            var seedChance = .05f;
+            if (__instance.treeType == Tree.palmTree2)
+                seedChance *= 3;
+            if (__instance.growthStage >= 5 && Game1.random.NextDouble() < seedChance)
+                __instance.hasSeed.Value = true;
+
+            return false;
+        }
+
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.shake(Microsoft.Xna.Framework.Vector3, bool, StardewValley.GameLocation)"/> method.</summary>
-        /// <param name="tileLocation">The location of the tree being shaken.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
         /// <param name="doEvenIfStillShaking">Whether the shake action can be started if the tree is still shaking.</param>
-        /// <param name="location">The location of the tree.</param>
+        /// <param name="location">The location of the tree being patched.</param>
         /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <returns><see langword="true"/>, meaning the original method will get ran.</returns>
         /// <remarks>This is used to drop custom debris when a custom tree is shaken.</remarks>
@@ -68,7 +157,7 @@ namespace BarkingUpTheRightTree.Patches
             if ((maxShake == 0 || doEvenIfStillShaking) && __instance.growthStage >= 5 && !__instance.stump.Value && (Game1.IsMultiplayer || Game1.player.ForagingLevel >= 1))
             {
                 // get seed and shake produce debris
-                if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out var shakingProducts, out _, out _, out _))
+                if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out var shakingProducts, out _, out _, out _, out _, out _))
                     return false;
 
                 // handle dropping seed
@@ -98,8 +187,8 @@ namespace BarkingUpTheRightTree.Patches
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performToolAction(StardewValley.Tool, int, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
         /// <param name="t">The tool being used.</param>
         /// <param name="explosion">The explosion damage the tree is receiving.</param>
-        /// <param name="tileLocation">The tile action of the tree.</param>
-        /// <param name="location">The location the player is currently in.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
+        /// <param name="location">The location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <param name="__result">The return value of the method being patched.</param>
         /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
@@ -121,7 +210,7 @@ namespace BarkingUpTheRightTree.Patches
                 return false;
             }
 
-            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var customWoodId, out _, out _, out var requiredToolLevel, out _, out _, out _, out var barkProduct);
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var customWoodId, out _, out _, out var requiredToolLevel, out _, out _, out _, out var barkProduct, out _, out _);
             var woodId = (treeFound) ? customWoodId : 388;
 
             // handle bark remover functionality first
@@ -413,7 +502,7 @@ namespace BarkingUpTheRightTree.Patches
             if (__instance.treeType == Tree.mushroomTree) // ensure not to spawn wood for mushroom trees
                 return true;
 
-            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out var seed, out _, out _, out _, out _, out _);
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out var seed, out _, out _, out _, out _, out _, out _, out _);
             var woodId = Debris.woodDebris;
             if (__instance.treeType >= 20 && treeFound)
                 woodId = wood;
@@ -503,7 +592,7 @@ namespace BarkingUpTheRightTree.Patches
             var cutDownTree = true;
             if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
                 cutDownTree = false;
-            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out _, out var requiredToolLevel, out _, out _, out _, out _);
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out _, out var requiredToolLevel, out _, out _, out _, out _, out _, out _);
             if (treeFound && requiredToolLevel > (t?.UpgradeLevel ?? 0))
                 cutDownTree = false;
             if (!cutDownTree)
@@ -533,8 +622,8 @@ namespace BarkingUpTheRightTree.Patches
         }
 
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performBushDestroyPrefix(Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
-        /// <param name="tileLocation">The location of the tree being destroyed.</param>
-        /// <param name="location">The location of the tree.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
+        /// <param name="location">The location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (depending on if the tree is custom).</returns>
         /// <remarks>This is used to spawn the custom wood debris when cutting down a tree bush.</remarks>
@@ -544,7 +633,7 @@ namespace BarkingUpTheRightTree.Patches
             if (__instance.treeType < 20)
                 return true;
 
-            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _))
+            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _, out _, out _))
             {
                 var lastPlayerToHit = (NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
                 Game1.createDebris(woodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25f : 1) * 4), location);
@@ -554,7 +643,7 @@ namespace BarkingUpTheRightTree.Patches
         }
 
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performBushDestroyPrefix(Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
-        /// <param name="tileLocation">The location of the tree being destroyed.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (depending on if the tree is custom).</returns>
         /// <remarks>This is used to spawn the custom wood debris when cutting down a tree sprout.</remarks>
@@ -564,7 +653,7 @@ namespace BarkingUpTheRightTree.Patches
             if (__instance.treeType < 20)
                 return true;
 
-            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _))
+            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _, out _, out _))
                 Game1.createDebris(woodId, (int)tileLocation.X, (int)tileLocation.Y, 1);
 
             return false;
@@ -603,7 +692,7 @@ namespace BarkingUpTheRightTree.Patches
                 seedId = 308 + __instance.treeType;
             else if (__instance.treeType == Tree.mahoganyTree)
                 seedId = 292;
-            else if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out _, out _, out _, out _))
+            else if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out _, out _, out _, out _, out _, out _))
                 seedId = seed;
             if (seedId == -1)
                 return false;
@@ -625,7 +714,7 @@ namespace BarkingUpTheRightTree.Patches
                 return true;
 
             // get tree by data
-            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out var tappedProduct, out _, out _, out _, out _, out _, out _, out _, out _))
+            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out var tappedProduct, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
                 return false;
 
             var timeMultiplier = 1f;
@@ -640,7 +729,7 @@ namespace BarkingUpTheRightTree.Patches
 
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.draw(Microsoft.Xna.Framework.Graphics.SpriteBatch, Microsoft.Xna.Framework.Vector2)"/> method.</summary>
         /// <param name="spriteBatch">The <see cref="Microsoft.Xna.Framework.Graphics.SpriteBatch"/> to draw the tree to.</param>
-        /// <param name="tileLocation">The current location of the tree.</param>
+        /// <param name="tileLocation">The tile location of the tree being patched.</param>
         /// <param name="__instance">THe current <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (this depends on if the tree is custom).</returns>
         /// <remarks>This is used to draw trees with the different tree sprite sheet layouts.</remarks>

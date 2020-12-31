@@ -96,7 +96,7 @@ namespace BarkingUpTheRightTree
                     shakingProductObjects.Add(new SeasonalTimedProduct(shakingProduct.DaysBetweenProduce, ResolveToken(shakingProduct.Product), shakingProduct.Amount, shakingProduct.Seasons));
 
                 // add tree
-                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.Wood), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.Seed), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject));
+                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.Wood), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.Seed), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject, rawTree.Data.UnfertilisedGrowthChance, rawTree.Data.FertilisedGrowthChance));
             }
         }
 
@@ -289,7 +289,7 @@ namespace BarkingUpTheRightTree
                             continue;
 
                         // ensure tree has been loaded and get required data
-                        if (!Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
+                        if (!Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _, out _, out _))
                         {
                             this.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
                             continue;
@@ -356,7 +356,7 @@ namespace BarkingUpTheRightTree
                         int.TryParse(tree.modData[$"{this.ModManifest.UniqueID}/treeId"], out var customId);
 
                         // ensure a tree with this id exists
-                        if (!Api.GetTreeById(customId, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
+                        if (!Api.GetTreeById(customId, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
                         {
                             // get tree name from id mapping file
                             var name = "[Unknown]";
@@ -382,6 +382,11 @@ namespace BarkingUpTheRightTree
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), "loadTexture"),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.LoadTexturePrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), nameof(Tree.dayUpdate)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.DayUpdatePrefix)))
             );
 
             harmony.Patch(
@@ -488,7 +493,6 @@ namespace BarkingUpTheRightTree
             RawCustomTrees.Clear();
 
             foreach (var contentPack in this.Helper.ContentPacks.GetOwned())
-            {
                 try
                 {
                     this.Monitor.Log($"Loading content pack: {contentPack.Manifest.Name}", LogLevel.Info);
@@ -528,14 +532,13 @@ namespace BarkingUpTheRightTree
                         foreach (var shakingProduct in treeData.ShakingProducts)
                             shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
-                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.Wood, treeData.DropsSap, treeData.Seed, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name);
+                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.Wood, treeData.DropsSap, treeData.Seed, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name, treeData.UnfertilisedGrowthChance, treeData.FertilisedGrowthChance);
                     }
                 }
                 catch (Exception ex)
                 {
                     this.Monitor.Log($"Failed to load content pack: {ex}", LogLevel.Error);
                 }
-            }
         }
 
         /// <summary>Converts a token into a numerical id.</summary>

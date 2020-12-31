@@ -46,6 +46,12 @@ namespace BarkingUpTheRightTree.Models.Converted
         /// <summary>The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</summary>
         public TimedProduct BarkProduct { get; }
 
+        /// <summary>The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</summary>
+        public float UnfertilisedGrowthChance { get; }
+
+        /// <summary>The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</summary>
+        public float FertilisedGrowthChance { get; }
+
 
         /*********
         ** Public Methods
@@ -63,7 +69,9 @@ namespace BarkingUpTheRightTree.Models.Converted
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
-        public CustomTree(int id, string name, Texture2D texture, TapperTimedProduct tappedProduct, int wood, bool dropsSap, int seed, int requiredToolLevel, List<SeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, TimedProduct barkProduct)
+        /// <param name="unfertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</param>
+        /// <param name="fertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</param>
+        public CustomTree(int id, string name, Texture2D texture, TapperTimedProduct tappedProduct, int wood, bool dropsSap, int seed, int requiredToolLevel, List<SeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, TimedProduct barkProduct, float unfertilisedGrowthChance, float fertilisedGrowthChance)
         {
             Id = id;
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -77,6 +85,8 @@ namespace BarkingUpTheRightTree.Models.Converted
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();
             BarkProduct = barkProduct;
+            UnfertilisedGrowthChance = unfertilisedGrowthChance;
+            FertilisedGrowthChance = fertilisedGrowthChance;
         }
     }
 }
