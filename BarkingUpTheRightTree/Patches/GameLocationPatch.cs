@@ -28,7 +28,7 @@ namespace BarkingUpTheRightTree.Patches
                         continue;
 
                     // ensure tree has been loaded and get required data
-                    if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
+                    if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
                     {
                         ModEntry.Instance.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
                         continue;
@@ -41,6 +41,8 @@ namespace BarkingUpTheRightTree.Patches
                         var tree = new Tree(treeId, 5);
                         tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
                         tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[shakingProducts.Count]);
+                        if (__instance.doesTileHaveProperty(x, y, "NonChoppable", "Back") != null)
+                            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable"] = string.Empty; // the value is unused as only the presence of the key is checked to see if the tree is choppable
                         __instance.terrainFeatures.Add(tileLocation, tree);
                     }
                 }

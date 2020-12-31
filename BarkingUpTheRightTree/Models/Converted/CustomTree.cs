@@ -31,6 +31,9 @@ namespace BarkingUpTheRightTree.Models.Converted
         /// <summary>The item to plant to grow the tree.</summary>
         public int Seed { get; }
 
+        /// <summary>The required tool level to cut down the tree.</summary>
+        public int RequiredToolLevel { get; }
+
         /// <summary>The items the tree can drop whenever it's shaken.</summary>
         public List<SeasonalTimedProduct> ShakingProducts { get; }
 
@@ -55,11 +58,12 @@ namespace BarkingUpTheRightTree.Models.Converted
         /// <param name="wood">The item the tree drops when it gets cut down.</param>
         /// <param name="dropsSap">Whether the tree drops sap when it gets cut down.</param>
         /// <param name="seed">The item to plant to grow the tree.</param>
+        /// <param name="requiredToolLevel">The required tool level to cut down the tree.</param>
         /// <param name="shakingProducts">The items the tree can drop whenever it's shaken.</param>
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
-        public CustomTree(int id, string name, Texture2D texture, TapperTimedProduct tappedProduct, int wood, bool dropsSap, int seed, List<SeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, TimedProduct barkProduct)
+        public CustomTree(int id, string name, Texture2D texture, TapperTimedProduct tappedProduct, int wood, bool dropsSap, int seed, int requiredToolLevel, List<SeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, TimedProduct barkProduct)
         {
             Id = id;
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -68,6 +72,7 @@ namespace BarkingUpTheRightTree.Models.Converted
             Wood = wood;
             DropsSap = dropsSap;
             Seed = seed;
+            RequiredToolLevel = requiredToolLevel;
             ShakingProducts = shakingProducts ?? new List<SeasonalTimedProduct>();
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();

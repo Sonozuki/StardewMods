@@ -96,7 +96,7 @@ namespace BarkingUpTheRightTree
                     shakingProductObjects.Add(new SeasonalTimedProduct(shakingProduct.DaysBetweenProduce, ResolveToken(shakingProduct.Product), shakingProduct.Amount, shakingProduct.Seasons));
 
                 // add tree
-                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.Wood), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.Seed), shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject));
+                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.Wood), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.Seed), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject));
             }
         }
 
@@ -289,9 +289,9 @@ namespace BarkingUpTheRightTree
                             continue;
 
                         // ensure tree has been loaded and get required data
-                        if (!ModEntry.Instance.Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
+                        if (!Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _))
                         {
-                            ModEntry.Instance.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
+                            this.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
                             continue;
                         }
 
@@ -300,8 +300,10 @@ namespace BarkingUpTheRightTree
                         if (!location.terrainFeatures.ContainsKey(tileLocation) && !location.objects.ContainsKey(tileLocation))
                         {
                             var tree = new Tree(treeId, 5);
-                            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
-                            tree.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[shakingProducts.Count]);
+                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
+                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[shakingProducts.Count]);
+                            if (location.doesTileHaveProperty(x, y, "NonChoppable", "Back") != null)
+                                tree.modData[$"{this.ModManifest.UniqueID}/nonChoppable"] = string.Empty; // the value is unused as only the presence of the key is checked to see if the tree is choppable
                             location.terrainFeatures.Add(tileLocation, tree);
                         }
                     }
@@ -354,7 +356,7 @@ namespace BarkingUpTheRightTree
                         int.TryParse(tree.modData[$"{this.ModManifest.UniqueID}/treeId"], out var customId);
 
                         // ensure a tree with this id exists
-                        if (!ModEntry.Instance.Api.GetTreeById(customId, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
+                        if (!Api.GetTreeById(customId, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
                         {
                             // get tree name from id mapping file
                             var name = "[Unknown]";
@@ -389,7 +391,6 @@ namespace BarkingUpTheRightTree
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tree), nameof(Tree.performToolAction)),
-                transpiler: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformToolActionTranspile))),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformToolActionPrefix)))
             );
 
@@ -408,6 +409,16 @@ namespace BarkingUpTheRightTree
                 original: AccessTools.Method(typeof(Tree), "performTreeFall"),
                 transpiler: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformTreeFallTranspile))),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformTreeFallPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), "performBushDestroy"),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformBushDestroyPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Tree), "performSproutDestroy"),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(TreePatch), nameof(TreePatch.PerformSproutDestroyPrefix)))
             );
 
             harmony.Patch(
@@ -517,7 +528,7 @@ namespace BarkingUpTheRightTree
                         foreach (var shakingProduct in treeData.ShakingProducts)
                             shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
 
-                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.Wood, treeData.DropsSap, treeData.Seed, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name);
+                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.Wood, treeData.DropsSap, treeData.Seed, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name);
                     }
                 }
                 catch (Exception ex)

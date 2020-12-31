@@ -37,7 +37,7 @@ namespace BarkingUpTheRightTree.Patches
                 return true;
             }
 
-            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out var texture, out _, out _, out _, out _, out _, out _, out _, out _))
+            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out var texture, out _, out _, out _, out _, out _, out _, out _, out _, out _))
             {
                 ModEntry.Instance.Monitor.Log($"A tree with the id: {__instance.treeType} couldn't be found.", LogLevel.Error);
                 __result = null;
@@ -68,7 +68,7 @@ namespace BarkingUpTheRightTree.Patches
             if ((maxShake == 0 || doEvenIfStillShaking) && __instance.growthStage >= 5 && !__instance.stump.Value && (Game1.IsMultiplayer || Game1.player.ForagingLevel >= 1))
             {
                 // get seed and shake produce debris
-                if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out var shakingProducts, out _, out _, out _))
+                if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out var shakingProducts, out _, out _, out _))
                     return false;
 
                 // handle dropping seed
@@ -95,109 +95,52 @@ namespace BarkingUpTheRightTree.Patches
             return true;
         }
 
-        /// <summary>The transpiler for the <see cref="StardewValley.TerrainFeatures.Tree.performToolAction(StardewValley.Tool, int, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
-        /// <param name="instructions">The IL instructions.</param>
-        /// <returns>The new IL instructions.</returns>
-        /// <remarks>This is used to stop the tree from dropping wood when hit with an axe with the <see cref="StardewValley.ShavingEnchantment"/>.<br/>This is to make it drop the custom wood debris in <see cref="BarkingUpTheRightTree.Patches.TreePatch.TickUpdatePrefix(Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation, StardewValley.TerrainFeatures.Tree)"/> patch, this was done as a <see cref="StardewValley.TerrainFeatures.Tree"/> instance can't be retrieved in a transpile but can in a prefix (and as such can't get the wood id for the tree being hit with the axe).</remarks>
-        internal static IEnumerable<CodeInstruction> PerformToolActionTranspile(IEnumerable<CodeInstruction> instructions)
-        {
-            var patchApplied = false;
-            for (int i = 0; i < instructions.Count(); i++)
-            {
-                var instruction = instructions.ElementAt(i);
-
-                // skip checking the instruction if the patch has already been applied
-                if (patchApplied)
-                {
-                    yield return instruction;
-                    continue;
-                }
-
-                // get the next two instructions (to check if it should be patched)
-                var nextInstruction = instructions.ElementAt(i + 1);
-                var nextNextInstruction = instructions.ElementAt(i + 2);
-                if (instruction.opcode == OpCodes.Ldloc_0
-                    && nextInstruction.opcode == OpCodes.Ldc_R4 && Convert.ToSingle(nextInstruction.operand) == 5
-                    && nextNextInstruction.opcode == OpCodes.Div)
-                {
-                    // this patch will change the code: Game1.random.NextDouble() <= (double)(damage / 5f)
-                    // into:                            Game1.random.NextDouble() <= (double)(1f - 5f)
-                    // this will always return false which is how the functionality will be disabled (so it can be reimplemented using the custom wood type in PerformToolActionPrefix)
-
-                    // in here, 'damage' is instruction, '5f' is nextInstruction, and the divide is 'nextNextInstruction'
-
-                    patchApplied = true;
-                    instruction.opcode = OpCodes.Ldc_R4;
-                    instruction.operand = 1;
-                    nextNextInstruction.opcode = OpCodes.Sub;
-
-                    yield return instruction;
-                    yield return nextInstruction;
-                    yield return nextNextInstruction;
-
-                    i += 2; // increment as the next 2 instructions have been handled
-                    continue;
-                }
-
-                yield return instruction;
-            }
-        }
-
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performToolAction(StardewValley.Tool, int, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
         /// <param name="t">The tool being used.</param>
+        /// <param name="explosion">The explosion damage the tree is receiving.</param>
         /// <param name="tileLocation">The tile action of the tree.</param>
         /// <param name="location">The location the player is currently in.</param>
-        /// <returns><see langword="true"/>, meaning the original method will get ran.</returns>
-        /// <remarks>This is used to add the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> functionality and to drop the custom wood when using an axe with the <see cref="StardewValley.ShavingEnchantment"/>.</remarks>
-        internal static bool PerformToolActionPrefix(Tool t, Vector2 tileLocation, GameLocation location, Tree __instance)
+        /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
+        /// <param name="__result">The return value of the method being patched.</param>
+        /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
+        /// <remarks>This reimplements the original method to add the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> functionality, to drop the custom wood when using an axe with the <see cref="StardewValley.ShavingEnchantment"/>, and to make sure trees can only be cut down when the are allowed (based on map tile data and tool level requirements).</remarks>
+        internal static bool PerformToolActionPrefix(Tool t, int explosion, Vector2 tileLocation, GameLocation location, Tree __instance, ref bool __result)
         {
-            if (t is Axe)
+            // validate
+            location ??= Game1.currentLocation;
+            if (explosion > 0) // any explosion damage knocks off tappers
+                __instance.tapped.Value = false;
+            if (__instance.tapped) // trees can't be destroyed with a tapper
             {
-                // ensure the axe has the shaving enchantment
-                if (!t.hasEnchantmentOfType<ShavingEnchantment>())
-                    return true;
-
-                // get the damage of the axe (this is used when calculating the chance to see if wood should be dropped)
-                var damage = 1f;
-                switch (t.UpgradeLevel)
-                {
-                    case 1: damage = 1.25f; break;
-                    case 2: damage = 1.67f; break;
-                    case 3: damage = 2.5f; break;
-                    case 4: damage = 5; break;
-                }
-
-                // determine if a piece of wood should be dropped
-                if (Game1.random.NextDouble() <= (damage / 5f))
-                {
-                    // get the id of the wood to drop
-                    var woodId = 388;
-                    if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var customWoodId, out _, out _, out _, out _, out _, out _))
-                        woodId = customWoodId;
-
-                    // spawn the debris (just copy over the game code so it functions the same)
-                    var debris = new Debris(woodId, new Vector2(tileLocation.X * 64f + 32f, (tileLocation.Y - 0.5f) * 64f + 32f), new Vector2(Game1.player.getStandingX(), Game1.player.getStandingY()));
-                    debris.Chunks[0].xVelocity.Value += Game1.random.Next(-10, 11) / 10f;
-                    debris.chunkFinalYLevel = (int)(tileLocation.Y * 64f + 64f);
-                    location.debris.Add(debris);
-                }
+                __result = false;
+                return false;
             }
-            else if (t is BarkRemover)
+            if (__instance.health <= -99)
+            {
+                __result = false;
+                return false;
+            }
+
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var customWoodId, out _, out _, out var requiredToolLevel, out _, out _, out _, out var barkProduct);
+            var woodId = (treeFound) ? customWoodId : 388;
+
+            // handle bark remover functionality first
+            if (t is BarkRemover)
             {
                 location.playSound("axchop", NetAudio.SoundContext.Default);
                 typeof(Tree).GetMethod("shake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { tileLocation, true, location });
 
                 // ensure tree is custom
                 if (__instance.treeType < 20)
-                    return true;
+                    return false;
 
                 // ensure tree is grown, alive (not a strump), and has bark
                 if (__instance.growthStage < 5 || __instance.stump || !ModEntry.Instance.Api.GetBarkState(location.Name, tileLocation))
-                    return true;
+                    return false;
 
                 // make sure tree has a bark product (meaning it can be debarked in the first place)
-                if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out _, out _, out _, out _, out var barkProduct) || barkProduct.Product == -1)
-                    return true;
+                if (!treeFound || barkProduct.Product == -1)
+                    return false;
 
                 // mark tree as barkless
                 ModEntry.Instance.Api.SetBarkState(location.Name, tileLocation, false);
@@ -205,9 +148,196 @@ namespace BarkingUpTheRightTree.Patches
                 // drop bark objects
                 var debris = new Debris(barkProduct.Product, barkProduct.Amount, t.getLastFarmerToUse().GetToolLocation() + new Vector2(16f, 0.0f), t.getLastFarmerToUse().Position);
                 location.debris.Add(debris);
+                __result = false;
+                return false;
             }
 
-            return true;
+            var isToolAxe = t != null && t is Axe;
+            // get the damage of the axe (this is used when chopping down the tree and calculating the chance for dropping wood with the shaving enchant)
+            float damage;
+            switch (t.UpgradeLevel)
+            {
+                case 0: damage = 1; break;
+                case 1: damage = 1.25f; break;
+                case 2: damage = 1.67f; break;
+                case 3: damage = 2.5f; break;
+                case 4: damage = 5; break;
+                default: damage = t.UpgradeLevel + 1; break;
+            }
+
+            // handle tool action on full grown trees
+            if (__instance.growthStage >= 5)
+            {
+                if (isToolAxe)
+                {
+                    var lastPlayerToHit = typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+                    typeof(NetLong).GetProperty("Value", BindingFlags.Public | BindingFlags.Instance).SetValue(lastPlayerToHit, t.getLastFarmerToUse().UniqueMultiplayerID);
+                    location.playSound("axchop");
+
+                    // try to spawn secret note
+                    if (!__instance.stump && location.HasUnlockedAreaSecretNotes(t.getLastFarmerToUse()) && Game1.random.NextDouble() < .005)
+                    {
+                        var secretNote = location.tryToCreateUnseenSecretNote(t.getLastFarmerToUse());
+                        if (secretNote != null)
+                            Game1.createItemDebris(secretNote, new Vector2(tileLocation.X, tileLocation.Y - 3) * 64, -1, location, Game1.player.getStandingY() - 32);
+                    }
+                }
+                else if (explosion <= 0) // exit early if the fully grown tree didn't get hit by and axe or explosion
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // shake the tree
+                typeof(Tree).GetMethod("shake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { tileLocation, true, location });
+
+                // if an explosion is happening, use that as the damage
+                if (explosion > 0)
+                    damage = explosion;
+
+                // determine if wood should be dropping (when using shaving enchanct on axe)
+                if (isToolAxe && t.hasEnchantmentOfType<ShavingEnchantment>() && Game1.random.NextDouble() <= damage / 5)
+                {
+                    var woodDebris = new Debris(woodId, new Vector2(tileLocation.X * 64 + 32, (tileLocation.Y - .5f) * 64 + 32), new Vector2(Game1.player.getStandingX(), Game1.player.getStandingY()));
+                    woodDebris.Chunks[0].xVelocity.Value += Game1.random.Next(-10, 11) / 10f;
+                    woodDebris.chunkFinalYLevel = (int)(tileLocation.Y * 64 + 64);
+                    location.debris.Add(woodDebris);
+                }
+
+                // ensure the tree can be damaged (based on map tile and tool level)
+                var cutDownTree = true;
+                if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
+                    cutDownTree = false;
+                if (treeFound && requiredToolLevel > (t?.UpgradeLevel ?? 0))
+                {
+                    // show message to say current tool is too weak
+                    if (__instance.stump)
+                        Game1.drawObjectDialogue("Your axe isn't strong enough to break this stump.");
+                    else
+                        Game1.drawObjectDialogue("Your axe isn't strong enough to break this tree.");
+                    cutDownTree = false;
+                }
+                if (!cutDownTree)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // cut down the tree
+                __instance.health.Value -= damage;
+                if (__instance.health <= 0)
+                    __result = (bool)typeof(Tree).GetMethod("performTreeFall", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { t, explosion, tileLocation, location }); ;
+
+                return false;
+            }
+
+            // handle tool action on bushes (partially grown trees)
+            else if (__instance.growthStage >= 3)
+            {
+                if (isToolAxe)
+                {
+                    location.playSound("axchop");
+                    if (__instance.treeType != Tree.mushroomTree)
+                        location.playSound("leafrustle");
+                }
+                else if (explosion <= 0) // exit early if the tree didn't get hit by and axe or explosion
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // shake the tree
+                typeof(Tree).GetMethod("shake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { tileLocation, true, location });
+
+                // if an explosion is happening, use that as the damage
+                if (explosion > 0)
+                    damage = explosion;
+
+                // ensure the tree can be damaged (based on map tile and tool level)
+                var cutDownTree = true;
+                if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
+                    cutDownTree = false;
+                if (treeFound && requiredToolLevel > (t?.UpgradeLevel ?? 0))
+                {
+                    // show message to say current tool is too weak
+                    Game1.drawObjectDialogue("Your axe isn't strong enough to break this tree.");
+                    cutDownTree = false;
+                }
+                if (!cutDownTree)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                // cut down the tree
+                __instance.health.Value -= damage;
+                if (__instance.health <= 0)
+                {
+                    typeof(Tree).GetMethod("performBushDestroy", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { tileLocation, location });
+                    __result = true;
+                }
+                return false;
+            }
+
+            // handle tool action on sprouts (partially grown trees)
+            else if (__instance.growthStage >= 1)
+            {
+                if (explosion > 0) // any amount of explosion can kill a sprout
+                {
+                    location.playSound("cut");
+                    __result = true;
+                    return false;
+                }
+
+                // ensure the tree can be damaged (based on map tile and tool level)
+                var cutDownTree = true;
+                if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
+                    cutDownTree = false;
+                if (treeFound && requiredToolLevel > (t?.UpgradeLevel ?? 0))
+                {
+                    // show message to say current tool is too weak
+                    if (t is Axe)
+                        Game1.drawObjectDialogue("Your axe isn't strong enough to break this sprout.");
+                    else if (t is Pickaxe)
+                        Game1.drawObjectDialogue("Your pickaxe isn't strong enough to break this sprout.");
+                    else if (t is Hoe)
+                        Game1.drawObjectDialogue("Your hoe isn't strong enough to break this sprout.");
+                    cutDownTree = false;
+                }
+                if (!cutDownTree)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                if (t != null && t is Axe || t is Pickaxe || t is Hoe || t is MeleeWeapon)
+                {
+                    location.playSound("cut");
+                    typeof(Tree).GetMethod("performSproutDestroy", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { t, tileLocation, location });
+                    __result = true;
+                    return false;
+                }
+            }
+
+            // handle tool action on seeds
+            else
+            {
+                if (explosion > 0) // any amount of explosion can kill a seed
+                {
+                    __result = true;
+                    return false;
+                }
+                if (t != null && t is Axe || t is Pickaxe || t is Hoe)
+                {
+                    location.playSound("woodyHit");
+                    location.playSound("axchop");
+                    typeof(Tree).GetMethod("performSeedDestroy", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { t, tileLocation, location });
+                    __result = true;
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>The transpiler for the <see cref="StardewValley.TerrainFeatures.Tree.tickUpdate(Microsoft.Xna.Framework.GameTime, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
@@ -283,7 +413,7 @@ namespace BarkingUpTheRightTree.Patches
             if (__instance.treeType == Tree.mushroomTree) // ensure not to spawn wood for mushroom trees
                 return true;
 
-            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out var seed, out _, out _, out _, out _);
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out var seed, out _, out _, out _, out _, out _);
             var woodId = Debris.woodDebris;
             if (__instance.treeType >= 20 && treeFound)
                 woodId = wood;
@@ -300,10 +430,11 @@ namespace BarkingUpTheRightTree.Patches
                 Game1.createRadialDebris(location, 92, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, 5, resource: true);
 
             // drop tree seed
+            var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed + (int)tileLocation.X * 7 + (int)tileLocation.Y * 11);
             if (Game1.getFarmer(lastPlayerToHit).getEffectiveSkillLevel(Farmer.foragingSkill) >= 1
                 && Game1.random.NextDouble() < 0.75
                 && treeFound)
-                Game1.createRadialDebris(location, seed, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, 5, resource: true);
+                Game1.createRadialDebris(location, seed, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, random.Next(1, 3), resource: true);
 
             return true;
         }
@@ -360,19 +491,32 @@ namespace BarkingUpTheRightTree.Patches
         }
 
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performTreeFall(StardewValley.Tool, int, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
+        /// <param name="t">The tool that was used to cut down the tree.</param>
         /// <param name="tileLocation">The tile location of the tree being patched.</param>
         /// <param name="location">The location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
-        /// <returns><see langword="true"/>, meaning the original method will get ran.</returns>
-        /// <remarks>This is used to spawn the custom wood debris when cutting down a tree (that's a stump).</remarks>
-        internal static bool PerformTreeFallPrefix(Vector2 tileLocation, GameLocation location, Tree __instance)
+        /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (depending on if the tree is allowed to be cut down based on tile data and tool level requirements).</returns>
+        /// <remarks>This is used to spawn the custom wood debris when cutting down a tree (that's a stump) and to make sure the tree can only be cut down if allowed (based on map tile data and tool level).</remarks>
+        internal static bool PerformTreeFallPrefix(Tool t, Vector2 tileLocation, GameLocation location, Tree __instance)
         {
+            // ensure tree is allowed to be cut down (based on tile property and tool requirments)
+            var cutDownTree = true;
+            if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
+                cutDownTree = false;
+            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out _, out var requiredToolLevel, out _, out _, out _, out _);
+            if (treeFound && requiredToolLevel > (t?.UpgradeLevel ?? 0))
+                cutDownTree = false;
+            if (!cutDownTree)
+            {
+                __instance.health.Value = 1;
+                return false;
+            }
+
             // run the same code as the game does to determine if the tree has fully fallen
             if (!__instance.stump)
                 return true;
 
             // stump has been cut down, spawn wood & sap debris
-            var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out _, out _, out _, out _, out _);
             var woodId = Debris.woodDebris;
             if (__instance.treeType >= 20 && treeFound)
                 woodId = wood;
@@ -381,11 +525,49 @@ namespace BarkingUpTheRightTree.Patches
 
             // drop wood
             if (woodId != -1)
-                Game1.createRadialDebris(location, woodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(12) ? 1.25 : 1.0) * 4.0), resource: true);
-            if (__instance.treeType < 20 || (treeFound && dropsSap)) // drop sap if the tree is either default or has it enabled in it's data
+                Game1.createRadialDebris(location, woodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25 : 1.0) * 4.0), resource: true);
+            if (__instance.treeType < 20 || (treeFound && dropsSap)) // drop sap if the tree is either default or has it enabled in it's custom data
                 Game1.createRadialDebris(location, 92, (int)tileLocation.X, (int)tileLocation.Y, 1, resource: true);
 
             return true;
+        }
+
+        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performBushDestroyPrefix(Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
+        /// <param name="tileLocation">The location of the tree being destroyed.</param>
+        /// <param name="location">The location of the tree.</param>
+        /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
+        /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (depending on if the tree is custom).</returns>
+        /// <remarks>This is used to spawn the custom wood debris when cutting down a tree bush.</remarks>
+        internal static bool PerformBushDestroyPrefix(Vector2 tileLocation, GameLocation location, Tree __instance)
+        {
+            // if the tree type is a default one, let the original method handle it
+            if (__instance.treeType < 20)
+                return true;
+
+            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _))
+            {
+                var lastPlayerToHit = (NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
+                Game1.createDebris(woodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25f : 1) * 4), location);
+            }
+
+            return false;
+        }
+
+        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performBushDestroyPrefix(Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
+        /// <param name="tileLocation">The location of the tree being destroyed.</param>
+        /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
+        /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (depending on if the tree is custom).</returns>
+        /// <remarks>This is used to spawn the custom wood debris when cutting down a tree sprout.</remarks>
+        internal static bool PerformSproutDestroyPrefix(Vector2 tileLocation, Tree __instance)
+        {
+            // if the tree type is a default one, let the original method handle it
+            if (__instance.treeType < 20)
+                return true;
+
+            if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _))
+                Game1.createDebris(woodId, (int)tileLocation.X, (int)tileLocation.Y, 1);
+
+            return false;
         }
 
         /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Tree.performSeedDestroy(StardewValley.Tool, Microsoft.Xna.Framework.Vector2, StardewValley.GameLocation)"/> method.</summary>
@@ -394,9 +576,16 @@ namespace BarkingUpTheRightTree.Patches
         /// <param name="location">The location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="StardewValley.TerrainFeatures.Tree"/> instance being patched.</param>
         /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
-        /// <remarks>This reimplements the original method so the custom tree seeds will drop the item when they are destroyed.</remarks>
+        /// <remarks>This reimplements the original method so the custom tree seeds will drop the item when they are destroyed and to make sure the seed can only be destroyed if allowed (based on map tile data and tool level).</remarks>
         internal static bool PerformSeedDestroyPrefix(Tool t, Vector2 tileLocation, GameLocation location, Tree __instance)
         {
+            // ensure seed is allowed to be destroyed (based on tile property and tool requirments)
+            if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/nonChoppable")) // no need to check the value as the presence of this key is enough
+            {
+                __instance.health.Value = 1;
+                return false;
+            }
+
             var multiplayer = (Multiplayer)typeof(Game1).GetField("multiplayer", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             multiplayer.broadcastSprites(location, new TemporaryAnimatedSprite(17, tileLocation * 64f, Color.White));
 
@@ -414,7 +603,7 @@ namespace BarkingUpTheRightTree.Patches
                 seedId = 308 + __instance.treeType;
             else if (__instance.treeType == Tree.mahoganyTree)
                 seedId = 292;
-            else if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out _, out _, out _))
+            else if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out _, out _, out var seed, out _, out _, out _, out _, out _))
                 seedId = seed;
             if (seedId == -1)
                 return false;
@@ -436,7 +625,7 @@ namespace BarkingUpTheRightTree.Patches
                 return true;
 
             // get tree by data
-            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out var tappedProduct, out _, out _, out _, out _, out _, out _, out _))
+            if (!ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out var tappedProduct, out _, out _, out _, out _, out _, out _, out _, out _))
                 return false;
 
             var timeMultiplier = 1f;

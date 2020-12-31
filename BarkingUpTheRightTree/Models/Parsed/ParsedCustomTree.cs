@@ -25,6 +25,9 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <summary>The item to plant to grow the tree.</summary>
         public string Seed { get; set; }
 
+        /// <summary>The required tool level to cut down the tree.</summary>
+        public int RequiredToolLevel { get; set; }
+
         /// <summary>The items the tree can drop whenever it's shaken.</summary>
         public List<ParsedSeasonalTimedProduct> ShakingProducts { get; set; }
 
@@ -47,17 +50,19 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <param name="wood">The item the tree drops when it gets cut down.</param>
         /// <param name="dropsSap">Whether the tree drops sap when it gets cut down.</param>
         /// <param name="seed">The item to plant to grow the tree.</param>
+        /// <param name="requiredToolLevel">The required tool level to cut down the tree.</param>
         /// <param name="shakingProducts">The items the tree can drop whenever it's shaken.</param>
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> tool on it.</param>
-        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct)
+        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             TappedProduct = tappedProduct;
             Wood = wood ?? "-1";
             DropsSap = dropsSap;
             Seed = seed ?? "-1";
+            RequiredToolLevel = requiredToolLevel;
             ShakingProducts = shakingProducts ?? new List<ParsedSeasonalTimedProduct>();
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();
