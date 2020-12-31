@@ -43,7 +43,7 @@
 	    "DropsSap": false,
         "Seed": "id",
         "RequiredToolLevel": 2,
-        "UnfertilisedGrowthChance": .2,
+        "UnfertilisedGrowthChance": 0.2,
         "FertilisedGrowthChance": 1,
         "ShakingProducts": [
             {
@@ -68,7 +68,7 @@
     }
 
 * **Name**: This is the name of the tree, this doesn't necessarily have to match the folder name but it's encouraged.
-* **TappedProduct**: This is the product that the tree drops when using a [tapper](https://stardewvalleywiki.com/Tapper) on it.
+* **TappedProduct**: This is the product that the tree drops when using a [tapper](https://stardewvalleywiki.com/Tapper) on it (If this is not specified, then a tapper will not be able to be placed on the tree).
 * **TappedProduct.DaysBetweenProduce**: The number of days between each harvest.
 * **TappedProduct.Product**: The product that gets harvested when using a tapper.
 * **TappedProduct.Amount**: The number of items you'll get from each harvest.
@@ -77,7 +77,7 @@
 * **RequiredToolLevel**: The required tool level to harvest this the tree (this also applies to all growth stages except the initial seed stage).
 * **UnfertilisedGrowthChance**: The 0 => 1 chance that the tree has to grow a stage at the beginning of each day when it's not fertilised.
 * **FertilisedGrowthChance**: The 0 => 1 chance that the tree has to grow a stage at the beginning of each day when it's fertilised.
-* **ShakingProducts**: This is a list of products that drop when the tree is shaken (If this is not specified, then a tapper will not be able to be placed on the tree)
+* **ShakingProducts**: This is a list of products that drop when the tree is shaken
 * **ShakingProducts.DaysBetweenProduce**: The number of days between the product can be dropped again.
 * **ShakingProducts.Product**: The product that will get dropped.
 * **ShakingProducts.Amount**: The amount of the item that will get dropped.
@@ -106,9 +106,9 @@
     }
 
 ## Tile data
-To add a tree to a map, add a tile property on the **Back** object layer; the key of the tile should be **Tree**"** and the value should be your **[unique mod id].[tree name]** such as **Satozaki.CustomTrees.Red Oak**
+To add a tree to a map, add a tile property on the **Back** object layer; the key of the tile should be **Tree** and the value should be your **[unique mod id].[tree name]** such as **Satozaki.CustomTrees.Red Oak**
 
-You can also specify a tree to be non choppable on a per tile basis. A non choppable tree can still have it's bark removed (if a bark product has been specified), have a tapper on it, be shaken etc. The put a tile property on the **Back** object layer with a key of **NonChoppable** (you don't need to specify any value).
+You can also specify a tree to be non choppable on a per tile basis. A non choppable tree can still have it's bark removed (if a bark product has been specified), have a tapper on it, be shaken etc. Just put a tile property on the **Back** object layer with a key of **NonChoppable** (you don't need to specify any value).
 
 An example of these tile properties can be seen below  
 ![](pics/tiledataexample.png)
