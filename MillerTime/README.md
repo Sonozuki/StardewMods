@@ -9,7 +9,7 @@
 
 #### Final Content Pack Layout
     [MT] mod name
-        config.json
+        content.json
         manifest.json
 
 #### Manifest.json example
