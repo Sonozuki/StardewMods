@@ -5,8 +5,8 @@
 ## Creating a Content Pack
 1. Create a new folder for the content pack. The convention is: **[FAVR] mod name**.
 2. Create a sub folder for each animal you plan to add/edit (see final result below for reference).
-3. Create a sub folder (inside each animal folder) called **assets** (see final result below for reference), if you're editing an animal and don't plan to edit it's sprite sheets, this can be ignored.
-4. Create a **shopdisplay.png** image (if the animal is going to able to be brought) and add to the respective animal folder (this should be **32px x 16px**), if the you're editing an animal and don't plan to edit the shop icon, this can be ignored.
+3. Create a sub folder (inside each animal folder) called **assets** (see final result below for reference), if you're editing an animal and don't plan to edit its sprite sheets, this can be ignored.
+4. Create a **shopdisplay.png** image (if the animal is going to able to be bought) and add to the respective animal folder (this should be **32px x 16px**), if you're editing an animal and don't plan to edit the shop icon, this can be ignored.
 5. (Optional) Create a **sound.wav** audio file (if the animal will make a custom sound) and add to the respective animal folder.
 6. Create a **content.json** for each animal folder (see below for reference).
 7. Create a **manifest.json** (see below for reference).
@@ -16,13 +16,13 @@
         manifest.json
         Tiger
             assets
-                Baby Bengai.png
+                Baby Bengal.png
                 Baby Siberian.png
                 Baby Sumatran.png
-                Bengai.png
+                Bengal.png
                 Siberian.png
                 Sumatran.png
-                Harvested Bengai.png
+                Harvested Bengal.png
                 Harvested Siberian.png
                 Harvested Sumatran.png
             content.json
@@ -56,10 +56,10 @@ The names for the images have to be exactly the same as in the **content.json** 
 
 The only required asset is an adult sheet (see Lion example above), the animal will still have a child phase (unless specified in **content.json**), however, they will look exactly the same to their adult versions.
 
-Also, a "default" adult sheet (the one that is in the root of the assets folder) isn't required if each season has a valid adult sheet in it's sub folder.
+Also, a "default" adult sheet (the one that is in the root of the assets folder) isn't required if each season has a valid adult sheet in its sub folder.
 
 ### Content.json example
-**Note: this contains all available properties and doesn't reflect what the Big Cats example above would look like, this is purely to show what a content file will look like with all it's properties, see the propert data below to see which are optional and their default values**
+**Note: this contains all available properties and doesn't reflect what the Big Cats example above would look like, this is purely to show what a content file will look like with all its properties, see the property data below to see which are optional and their default values**
 
     {
         "Action": "Add",
@@ -136,7 +136,7 @@ Property       | Default value | Description
 Action         | `"Add"`       | See [Special Properties](#special-properties) for details.
 InternalName   | `null`        | See [Special Properties](#special-properties) for details.
 Name           |               | The name of the animal.
-IsBuyable      | `true`        | Whether the animal can be brought at Marnie's shop.
+IsBuyable      | `true`        | Whether the animal can be bought at Marnie's shop.
 CanSwim        | `false`       | Whether the animal can swim.
 AnimalShopInfo | `null`        | See [Shop Info Properties](#shop-info-properties) for details.
 Subtypes       |               | See [Subtype Properties](#subtype-properties) for details.
@@ -158,7 +158,7 @@ IsBuyable                | `true`                           | Whether the subtyp
 IsIncubatable            | `true`                           | Whether the subtype can be picked when an incubator recipe has finished that has specified an animal name (and not a subtype name.) **Note:** this property will be ignored if an incubator recipe has specifically set this subtype as the result.
 Produce                  |                                  | See [Produce  Properties](#produce-properties) for details.
 DaysTillMature           | `3`                              | The number of days it takes the subtype to become an adult.
-SoundId                  | `null`                           | The sound bank id the subtype will play. **Note:** this won't get used if the animal this subtype belongs to have a custom `sound.wav` file in it's folder.
+SoundId                  | `null`                           | The sound bank id the subtype will play. **Note:** this won't get used if the animal this subtype belongs to has a custom `sound.wav` file in it's folder.
 FrontAndBackSpriteWidth  | `16`                             | The width of the subtype sprite when it's looking toward / away from the camera.
 FrontAndBackSpriteHeight | `16`                             | The height of the subtype sprite when it's looking toward / away from the camera.
 SideSpriteWidth          | `16`                             | The width of the subtype sprite when it's looking to the side.
@@ -166,7 +166,7 @@ SideSpriteHeight         | `16`                             | The height of the 
 MeatId                   | `"-1"`                           | The id of the meat of the subtype (also accepts api tokens, see: [Api Tokens](#api-tokens).)
 HappinessDrain           | `7`                              | A value between 0 and 255 that determines the amount of the subtype's happiness bar will drain each night, when they're not pet, or not fed.
 FullnessGain             | `255`                            | A value between 0 and 255 that determines the amount of the subtype's hunger bar will fill each time they eat something.
-HappinessGain            | `(40 - HappinessDrain)`          | The amount of extra happiness an animal will get when being pet when the player has either the Coop Master or Shepherd profession (which ever correlates the type of building an animal lives in). **Note:** when specifying the value you cannot use maths operations like in the default value.
+HappinessGain            | `(40 - HappinessDrain)`          | The amount of extra happiness an animal will get when being pet when the player has either the Coop Master or Shepherd profession (which ever correlates to the type of building an animal lives in). **Note:** when specifying the value you cannot use maths operations like in the default value.
 AutoPetterFriendshipGain | `7`                              | The amount of the subtype's friendship bar will fill up each time they get petted by an auto petter.
 HandPetFriendshipGain    | `15`                             | The amount of the subtype's friendship bar will full up each time they get petted by hand.
 WalkSpeed                | `2`                              | The walk speed of the subtype.
@@ -196,7 +196,7 @@ ToolHarvestSound                | `null`                                     | T
 Amount                          | `1`                                        | The amount of items that get produced at once.
 Seasons                         | `"["spring", "summer", "fall", "winter"]"` | The season the product can be produced.
 PercentChance                   | `100`                                      | The percent chance of the object being produced.
-PercentChanceForOneExtra        | `0`                                        | The percent chance of the object producing one extra in it's stack.
+PercentChanceForOneExtra        | `0`                                        | The percent chance of the object producing one extra in its stack.
 RequiresMale                    | `null`                                     | Whether the animal must be male to produce the item. **Note:** if `true` is specified then animal must be male, if `false` is specified the animal must be female, and if `null` is specified then either gender can produce the item.
 RequiresCoopMaster              | `null`                                     | Whether the player must have the Coop Master profession for the animal to produce the item. **Note:** if `true` is specified then the farmer must have the Coop Master profession for the animal to drop the item, if `false` is specified then the farmer must not have the Coop Master profession for the animal to drop the item, if `null` is specified then it doesn't matter whether the farmer has it or not.
 RequiresShepherd                | `null`                                     | Whether the player must have the Shepherd profession for the animal to produce the item. **Note:** if `true` is specified then the farmer must have the Shepherd profession for the animal to drop the item, if `false` is specified then the farmer must not have the Shepherd profession for the animal to drop the item, if `null` is specified then it doesn't matter whether the farmer has it or not.
