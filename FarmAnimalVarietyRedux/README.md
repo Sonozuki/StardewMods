@@ -187,7 +187,7 @@ UpgradedProductMinFriendship    | `200`                                      | T
 UpgradedProductMaxFriendship    | `1000`                                     | The maximum friendship allowed for the upgraded product to drop.
 PercentChanceForUpgradedProduct | `null`                                     | The percent chance of the updated product to drop. **Note:** if `null` is specified, then the chance is calculated using the base game calculation.
 UpgradedProductIsRare           | `false`                                    | Whether the upgraded product is a 'rare product' (like the Rabbit Foot or Duck Feather.)
-HarvestType                     | `"Lay"`                                    | The harvest type of the product.
+HarvestType                     | `"Lay"`                                    | The harvest type of the product. The allowed values are: `"Lay"`, `"Tool"`, and `"Forage"`.
 DaysToProduce                   | `1`                                        | The number of days between each time the item gets produced.
 ProduceFasterWithCoopMaster     | `false`                                    | Whether `DaysToProduce` should be reduced by one if the player has the Coop Master profession.
 ProduceFasterWithShepherd       | `false`                                    | Whether `DaysToProduce` should be reduced by one if the player has the Shepherd profession.
@@ -205,8 +205,8 @@ StandardQualityOnly             | `false`                                    | W
 #### Special properties
 Property     | Description
 ------------ | -----------
-Action       | Determines how the data should be interpreted. **Note:** if this is either `"Edit"` or `"Delete"` then the `InternalName` (or in the case of produce, the `DefaultProductId` and `UpgradedProductId`) *must* be specified in order to be valid.
-InternalName | The internal name of the subtype. **Note:** this is set to the `mod unique id.name` for example if the mod: `Satozaki.CustomAnimals` adds an animal: `Elephant` the internal name will be: `Satozaki.CustomAnimals.Elephant`. The internal name cannot be changed, so even if a pack edits the animal name the internal name won't be updated to reflect the name change, this is by design so multiple packs can edit the same animal without worrying about other packs changing the name of the animal. Finally, this is only required when the `Action` is either `"Edit"` or `"Delete"` as it gets automatically generated when the action is `"Add"`.
+Action       | Determines how the data should be interpreted. The allowed values are: `"Add"`, `"Edit"`, and `"Delete"`. **Note:** if this is either `"Edit"` or `"Delete"` then the `InternalName` (or in the case of produce, the `DefaultProductId` and `UpgradedProductId`) *must* be specified in order to be valid.
+InternalName | The internal name of the subtype. This is set to the `mod unique id.name` for example if the mod: `Satozaki.CustomAnimals` adds an animal: `Elephant` the internal name will be: `Satozaki.CustomAnimals.Elephant`. Any animals that are added by the game have a `unique id` of `game`, for example: `game.chicken`. **Note:** The internal name cannot be changed, so even if a pack edits the animal name the internal name won't be updated to reflect the name change, this is by design so multiple packs can edit the same animal without worrying about other packs changing the name of the animal. Finally, this is only required when the `Action` is either `"Edit"` or `"Delete"` as it gets automatically generated when the action is `"Add"`.
 
 #### Api Tokens
 An api token is a way for you to retrieve data from other mods using their api. The format of an api token is: `"UniqueModId:MethodName:Value"`, an example of an api token is: `spacechase0.JsonAssets:GetObjectId:Rainbow Egg`, this will use an item from Json Assets called `Rainbow Egg`. Not all properties support api tokens, the properties that support api tokens will mention it in their description.
