@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BfavToFavrModConverter": {
+      "commandName": "Project",
+      "commandLineArgs": "\"./BfavMods/\" \"./FavrMods/\""
+    }
+  }
+}
