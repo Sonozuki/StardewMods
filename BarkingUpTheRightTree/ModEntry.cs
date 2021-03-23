@@ -342,7 +342,7 @@ namespace BarkingUpTheRightTree
         }
 
         /// <summary>Converts the default trees to custom trees.</summary>
-        /// <remarks>This is so trees that have been saved can be converted back to their custom versions (if they were custom before being being saved).</remarks>
+        /// <remarks>This is so trees that have been saved can be converted back to their custom versions (if they were custom before being saved).</remarks>
         private void ConvertDefaultTreesToCustomTrees()
         {
             foreach (var location in Game1.locations)
@@ -557,7 +557,7 @@ namespace BarkingUpTheRightTree
                 }
                 else
                 {
-                    this.Monitor.Log($"The value: '{token}' isn't a valid token and isn't a number");
+                    this.Monitor.Log($"The value: '{token}' isn't a valid token and isn't a number", LogLevel.Error);
                     return -1;
                 }
             }
