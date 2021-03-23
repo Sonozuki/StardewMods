@@ -9,11 +9,13 @@
 4. Create a **shopdisplay.png** image (if the animal is going to able to be bought) and add to the respective animal folder (this should be **32px x 16px**), if you're editing an animal and don't plan to edit the shop icon, this can be ignored.
 5. (Optional) Create a **sound.wav** audio file (if the animal will make a custom sound) and add to the respective animal folder.
 6. Create a **content.json** for each animal folder (see below for reference).
-7. Create a **manifest.json** (see below for reference).
+7. (Optional) Create an **incubator.json** (see below for reference).
+8. Create a **manifest.json** (see below for reference).
 
 ### Final Content Pack Layout
     [FAVR] Big Cats
         manifest.json
+        incubator.json
         Tiger
             assets
                 Baby Bengal.png
@@ -163,7 +165,7 @@ FrontAndBackSpriteWidth  | `16`                             | The width of the s
 FrontAndBackSpriteHeight | `16`                             | The height of the subtype sprite when it's looking toward / away from the camera.
 SideSpriteWidth          | `16`                             | The width of the subtype sprite when it's looking to the side.
 SideSpriteHeight         | `16`                             | The height of the subtype sprite when it's looking to the side.
-MeatId                   | `"-1"`                           | The id of the meat of the subtype (also accepts api tokens, see: [Api Tokens](#api-tokens).)
+MeatId                   | `"-1"`                           | The id of the meat of the subtype (also accepts api tokens, see [Api Tokens](#api-tokens).)
 HappinessDrain           | `7`                              | A value between 0 and 255 that determines the amount of the subtype's happiness bar will drain each night, when they're not pet, or not fed.
 FullnessGain             | `255`                            | A value between 0 and 255 that determines the amount of the subtype's hunger bar will fill each time they eat something.
 HappinessGain            | `(40 - HappinessDrain)`          | The amount of extra happiness an animal will get when being pet when the player has either the Coop Master or Shepherd profession (which ever correlates to the type of building an animal lives in). **Note:** when specifying the value you cannot use maths operations like in the default value.
@@ -179,10 +181,10 @@ SeasonsAllowedOutdoors   | `"["spring", "summer", "fall"]"` | The seasons the su
 Property                        | Default value                              | Description
 ------------------------------- | :----------------------------------------: | -----------
 Action                          | `"Add"`                                    | See [Special Properties](#special-properties) for details.
-DefaultProductId                | `"-1"`                                     | The id of the default product (also accepts api tokens, see: [Api Tokens](#api-tokens).)
+DefaultProductId                | `"-1"`                                     | The id of the default product (also accepts api tokens, see [Api Tokens](#api-tokens).)
 DefaultProductMinFriendship     | `0`                                        | The minimum friendship required for the default product to drop.
 DefaultProductMaxFriendship     | `1000`                                     | The maximum friendship allowed for the default product to drop.
-UpgradedProductId               | `"-1"`                                     | The id of the upgraded product (also accepts api tokens, see: [Api Tokens](#api-tokens).)
+UpgradedProductId               | `"-1"`                                     | The id of the upgraded product (also accepts api tokens, see [Api Tokens](#api-tokens).)
 UpgradedProductMinFriendship    | `200`                                      | The minimum friendship required for the upgraded product to drop.
 UpgradedProductMaxFriendship    | `1000`                                     | The maximum friendship allowed for the upgraded product to drop.
 PercentChanceForUpgradedProduct | `null`                                     | The percent chance of the updated product to drop. **Note:** if `null` is specified, then the chance is calculated using the base game calculation.
@@ -206,10 +208,29 @@ StandardQualityOnly             | `false`                                    | W
 Property     | Description
 ------------ | -----------
 Action       | Determines how the data should be interpreted. The allowed values are: `"Add"`, `"Edit"`, and `"Delete"`. **Note:** if this is either `"Edit"` or `"Delete"` then the `InternalName` (or in the case of produce, the `DefaultProductId` and `UpgradedProductId`) *must* be specified in order to be valid.
-InternalName | The internal name of the subtype. This is set to the `mod unique id.name` for example if the mod: `Satozaki.CustomAnimals` adds an animal: `Elephant` the internal name will be: `Satozaki.CustomAnimals.Elephant`. Any animals that are added by the game have a `unique id` of `game`, for example: `game.chicken`. **Note:** The internal name cannot be changed, so even if a pack edits the animal name the internal name won't be updated to reflect the name change, this is by design so multiple packs can edit the same animal without worrying about other packs changing the name of the animal. Finally, this is only required when the `Action` is either `"Edit"` or `"Delete"` as it gets automatically generated when the action is `"Add"`.
+InternalName | The internal name of the animal or animal subtype (case insensitive). This is set to the `mod unique id.name` for example if the mod: `Satozaki.CustomAnimals` adds an animal: `Elephant` the internal name of the animal will be: `Satozaki.CustomAnimals.Elephant`, if the animal has a subtype called `Grey Elephant` then the subtype's internal name will be `Satozaki.CustomAnimals.Grey Elephant`. Any animals that are added by the game have a `unique id` of `game`, for example: `game.Chicken`. **Note:** The internal name cannot be changed, so even if a pack edits the animal name the internal name won't be updated to reflect the name change, this is by design so multiple packs can edit the same animal without worrying about other packs changing the name of the animal. Finally, this is only required when the `Action` is either `"Edit"` or `"Delete"` as it gets automatically generated when the action is `"Add"`.
 
 #### Api Tokens
 An api token is a way for you to retrieve data from other mods using their api. The format of an api token is: `"UniqueModId:MethodName:Value"`, an example of an api token is: `spacechase0.JsonAssets:GetObjectId:Rainbow Egg`, this will use an item from Json Assets called `Rainbow Egg`. Not all properties support api tokens, the properties that support api tokens will mention it in their description.
+
+### Incubator.json example
+The incubator file is used for specifying custom incubator recipes using either incubator type.
+
+    [
+        {
+            "IncubatorType": "Regular",
+            "InputId": 72,
+            "MinutesTillDone": 9000,
+            "InternalAnimalName": "game.Chicken"
+        }
+    ]
+
+Property           | Default value | Description
+------------------ | ------------- | -----------
+IncubatorType      | `"Regular"`   | The type of incubator the recipe will apply to. The allowed values are: `"Regular"`, `"Ostrich"`, and `"Both"`.
+InputId            | `"-1"`        | The id of the item to input into the incubator (also accepts api tokens, see [Api Tokens](#api-tokens).)
+MinutesTillDone    | `9000`        | The number of in-game minutes it takes for the incubator to finish. **Note:** as reference, in the base game the regular incubator takes 9000 minutes and the ostrich incubator takes 15000 minutes. FAVR will always have the default value of 9000 even if `IncubatorType` is `"Ostrich"`, if you want to emulate base game behavior using the ostrich incubator, you must specify `15000`.
+InternalAnimalName |               | The internal name of either the animal or animal subtype that will be produced. If the internal name of an animal is specified, then any subtype whose `IsIncubatable` property is set the `true` may be picked. If the internal name of an animal's subtype is specified, then only that subtype can be picked regardless of its `IsIncubatable` property. For more info about internal names, see [Special Properties](#special-properties).
 
 ### Manifest.json example
     {
@@ -240,8 +261,8 @@ A configuration file will get generated the first time the game is launched thro
         "BedTime": 1900
     }
 
-Property | Default value | Function
--------- | ------------- | --------
+Property | Default value | Description
+-------- | ------------- | -----------
 BedTime  | 1900          | The time that animals will go to bed at. The time format is the hours with the minutes contatenated on the end, for example `1900` is `19` hours (7pm) with 0 minutes.
 
 ## Compatibility
