@@ -159,6 +159,7 @@ Name                     |                                  | The name of the su
 IsBuyable                | `true`                           | Whether the subtype can be picked when buying the animal at Marnie's shop. **Note:** this property will be ignored if there are no subtypes that are buyable.
 IsIncubatable            | `true`                           | Whether the subtype can be picked when an incubator recipe has finished that has specified an animal name (and not a subtype name.) **Note:** this property will be ignored if an incubator recipe has specifically set this subtype as the result.
 Produce                  |                                  | See [Produce  Properties](#produce-properties) for details.
+AllowForageRepeats       | `true`                           | Whether the same forage product can be found multiple times in the same day. This uses the same calculation as the base game.
 DaysTillMature           | `3`                              | The number of days it takes the subtype to become an adult.
 SoundId                  | `null`                           | The sound bank id the subtype will play. **Note:** this won't get used if the animal this subtype belongs to has a custom `sound.wav` file in it's folder.
 FrontAndBackSpriteWidth  | `16`                             | The width of the subtype sprite when it's looking toward / away from the camera.
