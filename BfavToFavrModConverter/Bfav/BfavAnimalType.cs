@@ -1,6 +1,6 @@
-﻿namespace BFAVToFAVRModConverter.Models
+﻿namespace BfavToFavrModConverter.Bfav
 {
-    /// <summary>Represents an animal type in BFAV's 'content.json' file.</summary>
+    /// <summary>Represetns an animal subtype in BFAV's 'content.json' file.</summary>
     public class BfavAnimalType
     {
         /*********

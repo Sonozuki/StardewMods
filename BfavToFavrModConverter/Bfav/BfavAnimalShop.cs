@@ -1,6 +1,6 @@
-﻿namespace BFAVToFAVRModConverter.Models
+﻿namespace BfavToFavrModConverter.Bfav
 {
-    /// <summary>Represents the animal shop data in BFAV's 'content.json' file.</summary>
+    /// <summary>Represents the shop data for an animal in BFAV's 'content.json' file.</summary>
     public class BfavAnimalShop
     {
         /*********

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace BFAVToFAVRModConverter.Models
+namespace BfavToFavrModConverter.Bfav
 {
-    /// <summary>Represents BFAV's 'content.json' file for deserialization.</summary>
+    /// <summary>Represents BFAV's 'content.json' file.</summary>
     public class BfavContent
     {
         /*********

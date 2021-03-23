@@ -1,6 +1,6 @@
-﻿namespace BFAVToFAVRModConverter.Models
+﻿namespace BfavToFavrModConverter.Bfav
 {
-    /// <summary>Represents the sprites of an animal's sub type in BFAV's 'content.json' file.</summary>
+    /// <summary>Represents the sprite paths of an animal subtype in BFAV's 'content.json' file.</summary>
     public class BfavAnimalTypeSprites
     {
         /*********

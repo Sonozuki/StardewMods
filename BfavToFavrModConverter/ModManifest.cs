@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BFAVToFAVRModConverter.Models
+namespace BfavToFavrModConverter
 {
     /// <summary>Represents an mod's 'manifest.json' file.</summary>
     public class ModManifest

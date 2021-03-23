@@ -1,6 +1,6 @@
-﻿namespace BFAVToFAVRModConverter.Models
+﻿namespace BfavToFavrModConverter.Favr
 {
-    /// <summary>Metadata abount an animal related to the animal shop.</summary>
+    /// <summary>Represents the shop information of an FAVR animal.</summary>
     public class FavrAnimalShopInfo
     {
         /*********
@@ -9,16 +9,16 @@
         /// <summary>The description of the animal.</summary>
         public string Description { get; set; }
 
-        /// <summary>The amount the animal costs.</summary>
+        /// <summary>The cost of the animal.</summary>
         public int BuyPrice { get; set; }
 
 
         /*********
         ** Public Methods
         *********/
-        /// <summary>Construct an instance.</summary>
+        /// <summary>Constructs an instance.</summary>
         /// <param name="description">The description of the animal.</param>
-        /// <param name="buyPrice">The amount the animal costs.</param>
+        /// <param name="buyPrice">The cost of the animal.</param>
         public FavrAnimalShopInfo(string description, int buyPrice)
         {
             Description = description;

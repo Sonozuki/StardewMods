@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace BFAVToFAVRModConverter.Models
+namespace BfavToFavrModConverter.Bfav
 {
-    /// <summary>Represents the an animal in BFAV's 'content.json' file.</summary>
+    /// <summary>Represents an in animal in BFAV's 'content.json' file.</summary>
     public class BfavCategory
     {
         /*********
@@ -14,7 +14,7 @@ namespace BFAVToFAVRModConverter.Models
         /// <summary>The name of the animal.</summary>
         public string Category { get; set; }
 
-        /// <summary>The sub types of the animal.</summary>
+        /// <summary>The subtypes of the animal.</summary>
         public List<BfavAnimalType> Types { get; set; }
 
         /// <summary>The buildings the animal can live in.</summary>
