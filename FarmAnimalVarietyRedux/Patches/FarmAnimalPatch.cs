@@ -35,26 +35,30 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <summary>The transpiler for the <see cref="FarmAnimal(string, long, long)"/> constructor.</summary>
         /// <param name="instructions">The IL instructions.</param>
         /// <returns>The new IL instructions.</returns>
-        /// <remarks>This is used to remove the <see cref="FarmAnimal.reloadData()"/> call, this is so the subtype can be randomly picked if the animal being created is custom in the <see cref="ConstructorPostFix(string, FarmAnimal)"/>.</remarks>
+        /// <remarks>This is used to remove the base game subtype handling for default animals as well as removing the <see cref="FarmAnimal.reloadData()"/> call, this is so the subtype can be randomly picked if the animal being created is custom in the <see cref="ConstructorPostFix(string, FarmAnimal)"/>.</remarks>
         internal static IEnumerable<CodeInstruction> ConstructorTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            var patchApplied = false;
             for (int i = 0; i < instructions.Count(); i++)
             {
                 var instruction = instructions.ElementAt(i);
-                if (patchApplied)
+
+                // don't try to search for the instruction group to skip
+                if (i == instructions.Count() - 1)
                 {
                     yield return instruction;
                     continue;
                 }
 
-                // check if the next two instructions are the group that need skipping
+                // check if the instruction is loading a string ready to handle base game subtypes
+                if ((instruction.opcode == OpCodes.Ldstr && instruction.operand.ToString() == "Chicken")
+                    || (instruction.opcode == OpCodes.Ldstr && instruction.operand.ToString() == "Cow"))
+                    instruction.operand = "asdfijabndvp;aj"; // change the string to compare to a random string that won't ever be true, meaning we can handle the subtypes ourselves
+
+                // check if the next two instructions are the group that need skipping to disable the reloadData call
                 var nextInstruction = instructions.ElementAt(i + 1);
                 if (instruction.opcode == OpCodes.Ldarg_0
                     && nextInstruction.opcode == OpCodes.Callvirt && nextInstruction.operand == typeof(FarmAnimal).GetMethod("reloadData", BindingFlags.Public | BindingFlags.Instance))
                 {
-                    patchApplied = true;
-
                     // skip loading both these instructions
                     i += 2;
                     continue;
@@ -83,22 +87,22 @@ namespace FarmAnimalVarietyRedux.Patches
             {
                 isTypeASubtype = true;
                 animal = ModEntry.Instance.Api.GetAnimalByInternalSubtypeName(type); // this is just used to ensure an animal exists with the passed type as a subtype
+                if (animal == null)
+                {
+                    // this should be an exceptionally rare circumstance if it occures at all and it'll most likely only occur when players delete / add packs mid play through
+                    ModEntry.Instance.Monitor.Log($"Cannot find animal or animal type with an internal name of: {type}", LogLevel.Error);
+                    ModEntry.Instance.Monitor.Log("This most likely means you've either uninstalled an animal pack, or you've added an animal pack that removes a previous animal, half way through a play through", LogLevel.Info);
+                    return;
+
+                    // this is far from ideal as no data will get loaded for the animal, but the player will hopefully notice something is wrong and not save
+                    // it's not really avoidable though as we can't fall back on base game animals as they can be removed in packs, and falling back on the first 
+                    // available animals doesn't help if there are literally no loaded animals, not to mention that could be exploited to get powerful animals easily
+
+                    // as stated before, this is a very rare case when the animal some how got through the checks in the incubator / purchase animals menu code and 
+                    // most likely means the user has butchered their mod list so it's kinda on them anyway
+                }
             }
-            if (animal == null)
-            {
-                // this should be an exceptionally rare circumstance if it occures at all and it'll most likely only occur when players delete / add packs mid play through
-                ModEntry.Instance.Monitor.Log($"Cannot find animal or animal type with an internal name of: {type}", LogLevel.Error);
-                ModEntry.Instance.Monitor.Log("This most likely means you've either uninstalled an animal pack, or you've added an animal pack that removes a previous animal, half way through a play through", LogLevel.Info);
-                return;
-
-                // this is far from ideal as no data will get loaded for the animal, but the player will hopefully notice something is wrong and not save
-                // it's not really avoidable though as we can't fall back on base game animals as they can be removed in packs, and falling back on the first 
-                // available animals doesn't help if there are literally no loaded animals, not to mention that could be exploited to get powerful animals easily
-
-                // as stated before, this is a very rare case when the animal some how got through the checks in the incubator / purchase animals menu code and 
-                // most likely means the user has butchered their mod list so it's kinda on them anyway
-            }
-
+            
             // set the animal type
             if (isTypeASubtype)
                 __instance.type.Value = type;

@@ -15,30 +15,13 @@ namespace FarmAnimalVarietyRedux.Models.Parsed
         /// <summary>The id of the input item.</summary>
         public string InputId { get; set; } = "-1";
 
+        /// <summary>The chance this recipe will get picked compared to others that have the same <see cref="InputId"/>.</summary>
+        public float Chance { get; set; } = 1;
+
         /// <summary>The number of minutes it takes for the incubator to finish.</summary>
         public int MinutesTillDone { get; set; } = 9000;
 
         /// <summary>The internal name of the animal that will get created.</summary>
         public string InternalAnimalName { get; set; }
-
-
-        /*********
-        ** Public Methods
-        *********/
-        /// <summary>Constructs an instance.</summary>
-        public ParsedIncubatorRecipe() { }
-
-        /// <summary>Constructs an instance.</summary>
-        /// <param name="incubatorType">The type of incubator the recipe will apply to.</param>
-        /// <param name="inputId">The id of the input item.</param>
-        /// <param name="minutesTillDone">The number of minutes it takes for the incubator to finish.</param>
-        /// <param name="internalAnimalName">The internal name of the animal that will get created.</param>
-        public ParsedIncubatorRecipe(IncubatorType incubatorType, string inputId, int minutesTillDone, string internalAnimalName)
-        {
-            IncubatorType = incubatorType;
-            InputId = inputId;
-            MinutesTillDone = minutesTillDone;
-            InternalAnimalName = internalAnimalName;
-        }
     }
 }

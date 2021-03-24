@@ -1,4 +1,5 @@
 ﻿using FarmAnimalVarietyRedux.Models;
+using FarmAnimalVarietyRedux.Models.Converted;
 using Harmony;
 using StardewValley;
 using StardewValley.Locations;
@@ -116,70 +117,51 @@ namespace FarmAnimalVarietyRedux.Patches
                 return;
             var dropInObject = dropInItem.getOne() as Object;
 
-            // do logic for regular incubator
-            if (__instance.Name == "Incubator")
-            {
-                // ensure the object is an incubator recipe
-                var recipe = ModEntry.Instance.CustomIncubatorRecipes.FirstOrDefault(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(IncubatorType.Regular) && incubatorRecipe.InputId == dropInObject.ParentSheetIndex);
-                if (recipe == null)
-                    return;
-
-                // add the item to the incubator
-                if (!probe)
-                {
-                    __instance.heldObject.Value = dropInObject;
-                    who.currentLocation.playSound("coin");
-                    __instance.MinutesUntilReady = recipe.MinutesTillDone;
-
-                    // half production time if the player has the coop master profession
-                    if (who.professions.Contains(Farmer.butcher)) // for some reason the CoopMaster profession constant is called Butcher
-                        __instance.MinutesUntilReady /= 2;
-
-                    // change the incubator sprite based on if the dropped in item is a chicken egg
-                    if (dropInObject.ParentSheetIndex == 180 || dropInObject.ParentSheetIndex == 182 || dropInObject.ParentSheetIndex == 305)
-                        __instance.ParentSheetIndex += 2;
-                    else
-                        __instance.ParentSheetIndex++;
-
-                    // reset the building full message flag
-                    if (who?.currentLocation != null && who.currentLocation is AnimalHouse animalHouse)
-                        animalHouse.hasShownIncubatorBuildingFullMessage = false;
-                }
-
-                __result = true;
+            // ensure the object is an incubator recipe
+            var incubatorType = __instance.Name == "Incubator" ? IncubatorType.Regular : IncubatorType.Ostrich;
+            var recipes = ModEntry.Instance.CustomIncubatorRecipes.Where(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(incubatorType) && incubatorRecipe.InputId == dropInObject.ParentSheetIndex);
+            if (!recipes.Any())
                 return;
+
+            // randomly pick a recipe based off it's chance
+            IncubatorRecipe recipeToUse = null;
+            var totalChance = recipes.Select(recipe => recipe.Chance).Sum();
+            var randomChance = (float)(Game1.random.NextDouble() * totalChance);
+            foreach (var recipe in recipes)
+            {
+                randomChance -= recipe.Chance;
+                if (randomChance <= 0)
+                {
+                    recipeToUse = recipe;
+                    break;
+                }
             }
 
-            // do logic for ostrich incubator
-            else if (__instance.Name == "Ostrich Incubator")
+            // add the item to the incubator
+            if (!probe)
             {
-                // ensure the object is an incubator recipe
-                var recipe = ModEntry.Instance.CustomIncubatorRecipes.FirstOrDefault(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(IncubatorType.Ostrich) && incubatorRecipe.InputId == dropInObject.ParentSheetIndex);
-                if (recipe == null)
-                    return;
+                __instance.heldObject.Value = dropInObject;
+                who.currentLocation.playSound("coin");
+                __instance.MinutesUntilReady = recipeToUse.MinutesTillDone;
+                __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/recipeInternalAnimalName"] = recipeToUse.InternalAnimalName; // used to spawn the correct animal for this recipe (incase there are multiple recipes with the same input id)
 
-                // add the item to the incubator
-                if (!probe)
-                {
-                    __instance.heldObject.Value = dropInObject;
-                    who.currentLocation.playSound("coin");
-                    __instance.MinutesUntilReady = recipe.MinutesTillDone;
+                // half production time if the player has the coop master profession
+                if (who.professions.Contains(Farmer.butcher)) // for some reason the CoopMaster profession constant is called Butcher
+                    __instance.MinutesUntilReady /= 2;
 
-                    // half production time if the player has the coop master profession (as the game applies the effect the this incubator too, even though it doesn't go in the coop)
-                    if (who.professions.Contains(Farmer.butcher)) // for some reason the CoopMaster profession constant is called Butcher
-                        __instance.MinutesUntilReady /= 2;
-
-                    // change the incubator sprite
+                // change the incubator sprite based on if the dropped in item is a chicken egg
+                if (incubatorType == IncubatorType.Regular && (dropInObject.ParentSheetIndex == 180 || dropInObject.ParentSheetIndex == 182 || dropInObject.ParentSheetIndex == 305))
+                    __instance.ParentSheetIndex += 2;
+                else
                     __instance.ParentSheetIndex++;
 
-                    // reset the building full message flag
-                    if (who?.currentLocation != null && who.currentLocation is AnimalHouse animalHouse)
-                        animalHouse.hasShownIncubatorBuildingFullMessage = false;
-                }
-
-                __result = true;
-                return;
+                // reset the building full message flag
+                if (who?.currentLocation != null && who.currentLocation is AnimalHouse animalHouse)
+                    animalHouse.hasShownIncubatorBuildingFullMessage = false;
             }
+
+            __result = true;
+            return;
         }
     }
 }

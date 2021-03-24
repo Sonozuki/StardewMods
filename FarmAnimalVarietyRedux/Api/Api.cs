@@ -185,7 +185,7 @@ namespace FarmAnimalVarietyRedux
                 return;
             }
 
-            ModEntry.Instance.CustomIncubatorRecipes.Add(new IncubatorRecipe(recipe.IncubatorType, ResolveToken(recipe.InputId), recipe.MinutesTillDone, recipe.InternalAnimalName));
+            ModEntry.Instance.CustomIncubatorRecipes.Add(new IncubatorRecipe(recipe.IncubatorType, ResolveToken(recipe.InputId), recipe.Chance, recipe.MinutesTillDone, recipe.InternalAnimalName));
         }
 
         /// <inheritdoc/>

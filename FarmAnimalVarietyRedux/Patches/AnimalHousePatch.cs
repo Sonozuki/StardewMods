@@ -34,15 +34,40 @@ namespace FarmAnimalVarietyRedux.Patches
                 if (!__instance.isFull())
                 {
                     var whatHatched = "??";
-                    foreach (var incubatorRecipe in ModEntry.Instance.CustomIncubatorRecipes)
-                        if (incubatorRecipe.InputId == @object.heldObject.Value.ParentSheetIndex)
-                        {
-                            var animalName = ModEntry.Instance.Api.GetAnimalByInternalName(incubatorRecipe.InternalAnimalName)?.Name
-                                ?? ModEntry.Instance.Api.GetAnimalSubtypeByInternalName(incubatorRecipe.InternalAnimalName)?.Name;
 
-                            if (animalName != null)
-                                whatHatched = $"A new baby {animalName.ToLower()} hatched!";
+                    string internalName = null;
+                    if (@object.modData.TryGetValue($"{ModEntry.Instance.ModManifest.UniqueID}/recipeInternalAnimalName", out var recipeInternalAnimalNameString))
+                        internalName = recipeInternalAnimalNameString;
+
+                    if (internalName == null) // the only time the above property won't be present on an incubator is if it was populated before FAVR was installed
+                    {
+                        var incubatorType = __instance.Name == "Incubator" ? IncubatorType.Regular : IncubatorType.Ostrich;
+                        var incubatorRecipes = ModEntry.Instance.CustomIncubatorRecipes.Where(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(incubatorType)).ToList();
+
+                        // try to find the recipe that has the corresponding item
+                        var recipes = incubatorRecipes.Where(IncubatorRecipe => IncubatorRecipe.InputId == @object.heldObject.Value.ParentSheetIndex);
+                        if (recipes.Any())
+                        {
+                            var totalChance = recipes.Select(recipe => recipe.Chance).Sum();
+                            var randomChance = (float)(Game1.random.NextDouble() * totalChance);
+                            foreach (var recipe in recipes)
+                            {
+                                randomChance -= recipe.Chance;
+                                if (randomChance <= 0)
+                                {
+                                    internalName = recipe.InternalAnimalName;
+                                    break;
+                                }
+                            }
                         }
+                    }
+
+                    var animalName = ModEntry.Instance.Api.GetAnimalByInternalName(internalName)?.Name
+                        ?? ModEntry.Instance.Api.GetAnimalSubtypeByInternalName(internalName)?.Name;
+
+                    if (animalName != null)
+                        whatHatched = $"A new baby {animalName.ToLower()} hatched!";
+
                     if (whatHatched == "??")
                     {
                         // if there was no valid recipe, then just remove the object from the incubator (this is the case when the player puts an egg in the incubator then removes the mod that adds that recipe)
@@ -88,36 +113,53 @@ namespace FarmAnimalVarietyRedux.Patches
                 if (!@object.bigCraftable || !@object.Name.Contains("Incubator") || @object.heldObject.Value == null || @object.minutesUntilReady > 0 || __instance.isFull())
                     continue;
 
-                var incubatorRecipes = new List<IncubatorRecipe>();
-                if (@object.Name == "Incubator")
-                    incubatorRecipes = ModEntry.Instance.CustomIncubatorRecipes.Where(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(IncubatorType.Regular)).ToList();
-                else if (@object.Name == "Ostrich Incubator")
-                    incubatorRecipes = ModEntry.Instance.CustomIncubatorRecipes.Where(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(IncubatorType.Ostrich)).ToList();
-
-                // try to find the recipe that has the corresponding item
-                var recipe = incubatorRecipes.FirstOrDefault(IncubatorRecipe => IncubatorRecipe.InputId == @object.heldObject.Value.ParentSheetIndex);
-                if (recipe == null)
+                // get the animal to spawn
+                string internalName = null;
+                if (@object.modData.TryGetValue($"{ModEntry.Instance.ModManifest.UniqueID}/recipeInternalAnimalName", out var recipeInternalAnimalNameString))
                 {
-                    ModEntry.Instance.Monitor.Log($"Couldn't find a recipe for the {@object.Name} that has an input id item of {@object.heldObject.Value.ParentSheetIndex}, emptying incubator");
-                    @object.heldObject.Value = null;
-                    @object.ParentSheetIndex = 101;
-                    continue;
+                    internalName = recipeInternalAnimalNameString;
+                    @object.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/recipeInternalAnimalName");
+                }
+
+                if (internalName == null) // the only time the above property won't be present on an incubator is if it was populated before FAVR was installed
+                {
+                    var incubatorType = __instance.Name == "Incubator" ? IncubatorType.Regular : IncubatorType.Ostrich;
+                    var incubatorRecipes = ModEntry.Instance.CustomIncubatorRecipes.Where(incubatorRecipe => incubatorRecipe.IncubatorType.HasFlag(incubatorType)).ToList();
+
+                    // try to find the recipe that has the corresponding item
+                    var recipes = incubatorRecipes.Where(IncubatorRecipe => IncubatorRecipe.InputId == @object.heldObject.Value.ParentSheetIndex);
+                    if (!recipes.Any())
+                    {
+                        ModEntry.Instance.Monitor.Log($"Couldn't find a recipe for the {@object.Name} that has an input id item of {@object.heldObject.Value.ParentSheetIndex}, emptying incubator");
+                        ClearIncubator(@object);
+                        continue;
+                    }
+
+                    var totalChance = recipes.Select(recipe => recipe.Chance).Sum();
+                    var randomChance = (float)(Game1.random.NextDouble() * totalChance);
+                    foreach (var recipe in recipes)
+                    {
+                        randomChance -= recipe.Chance;
+                        if (randomChance <= 0)
+                        {
+                            internalName = recipe.InternalAnimalName;
+                            break;
+                        }
+                    }
                 }
 
                 // ensure animal exists
                 var isSubtype = false;
-                var type = recipe.InternalAnimalName;
-                var animal = ModEntry.Instance.Api.GetAnimalByInternalName(type);
+                var animal = ModEntry.Instance.Api.GetAnimalByInternalName(internalName);
                 if (animal == null)
                 {
                     isSubtype = true;
-                    animal = ModEntry.Instance.Api.GetAnimalByInternalSubtypeName(type);
+                    animal = ModEntry.Instance.Api.GetAnimalByInternalSubtypeName(internalName);
                 }
                 if (animal == null)
                 {
-                    ModEntry.Instance.Monitor.Log($"Couldn't find an animal or animal type with the name of {type}, emptying incubator");
-                    @object.heldObject.Value = null;
-                    @object.ParentSheetIndex = 101;
+                    ModEntry.Instance.Monitor.Log($"Couldn't find an animal or animal type with the name of {internalName}, emptying incubator");
+                    ClearIncubator(@object);
                     continue;
                 }
 
@@ -128,17 +170,12 @@ namespace FarmAnimalVarietyRedux.Patches
                     if (validSubtypes.Count() == 0) // ensure there was atleast one incububatable subtype, otherwise, just drop any subtype
                         validSubtypes = animal.Subtypes;
 
-                    type = validSubtypes.ElementAt(Game1.random.Next(validSubtypes.Count())).InternalName;
+                    internalName = validSubtypes.ElementAt(Game1.random.Next(validSubtypes.Count())).InternalName;
                 }
 
-                var farmAnimal = CreateAnimal(name, type, __instance);
-                
-                // reset the incubator sprite
-                @object.heldObject.Value = null;
-                @object.ParentSheetIndex = 101;
+                var farmAnimal = CreateAnimal(name, internalName, __instance);
 
-                if (@object.Name == "Ostrich Incubator")
-                    @object.ParentSheetIndex = 254;
+                ClearIncubator(@object);
 
                 foundIncubator = true;
                 break;
@@ -160,6 +197,17 @@ namespace FarmAnimalVarietyRedux.Patches
         /*********
         ** Private Methods
         *********/
+        /// <summary>Removes the held object and resets the sprite of an incubator.</summary>
+        /// <param name="incubator">The incubator to remove the held object and reset the sprite of.</param>
+        private static void ClearIncubator(StardewValley.Object incubator)
+        {
+            incubator.heldObject.Value = null;
+
+            incubator.ParentSheetIndex = 101;
+            if (incubator.Name == "Ostrich Incubator")
+                incubator.ParentSheetIndex = 254;
+        }
+
         /// <summary>Creates an animal.</summary>
         /// <param name="name">The name of the animal.</param>
         /// <param name="type">The type of the animal.</param>

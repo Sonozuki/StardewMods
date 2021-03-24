@@ -221,6 +221,7 @@ The incubator file is used for specifying custom incubator recipes using either 
         {
             "IncubatorType": "Regular",
             "InputId": 72,
+            "Chance": 1.0,
             "MinutesTillDone": 9000,
             "InternalAnimalName": "game.Chicken"
         }
@@ -229,7 +230,8 @@ The incubator file is used for specifying custom incubator recipes using either 
 Property           | Default value | Description
 ------------------ | ------------- | -----------
 IncubatorType      | `"Regular"`   | The type of incubator the recipe will apply to. The allowed values are: `"Regular"`, `"Ostrich"`, and `"Both"`.
-InputId            | `"-1"`        | The id of the item to input into the incubator (also accepts api tokens, see [Api Tokens](#api-tokens).)
+InputId            | `"-1"`        | The id of the item to input into the incubator (also accepts api tokens, see [Api Tokens](#api-tokens).) **Note:** this doesn't need to be unique, if there are multiple recipes with the same input id the below property is used to determine which should be picked.
+Chance             | `1.0`         | The chance of this recipe being picked when there are multiple recipes with the same input id. For example, a recipe with a chance of `4` will have 4x more of a chance of being picked over a recipe with a chance of `1`.
 MinutesTillDone    | `9000`        | The number of in-game minutes it takes for the incubator to finish. **Note:** as reference, in the base game the regular incubator takes 9000 minutes and the ostrich incubator takes 15000 minutes. FAVR will always have the default value of 9000 even if `IncubatorType` is `"Ostrich"`, if you want to emulate base game behavior using the ostrich incubator, you must specify `15000`.
 InternalAnimalName |               | The internal name of either the animal or animal subtype that will be produced. If the internal name of an animal is specified, then any subtype whose `IsIncubatable` property is set the `true` may be picked. If the internal name of an animal's subtype is specified, then only that subtype can be picked regardless of its `IsIncubatable` property. For more info about internal names, see [Special Properties](#special-properties).
 
