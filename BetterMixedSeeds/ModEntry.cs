@@ -52,7 +52,7 @@ namespace BetterMixedSeeds
         /// <summary>The mod configuration.</summary>
         public ModConfig Config { get; private set; }
 
-        /// <summary>The singleton instance for <see cref="BetterMixedSeeds.ModEntry"/>.</summary>
+        /// <summary>The singleton instance for <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
 
 
@@ -273,9 +273,9 @@ namespace BetterMixedSeeds
             }
         }
 
-        /// <summary>Creates a <see cref="BetterMixedSeeds.Models.Config.CropMod"/> from a collection of <see cref="BetterMixedSeeds.Models.Seed"/>s.</summary>
+        /// <summary>Creates a <see cref="CropMod"/> from a collection of <see cref="Seed"/>s.</summary>
         /// <param name="seeds">The seeds to convert.</param>
-        /// <param name="oldCropMod">The old <see cref="BetterMixedSeeds.Models.Config.CropMod"/> object to copy config options from.</param>
+        /// <param name="oldCropMod">The old <see cref="CropMod"/> object to copy config options from.</param>
         /// <returns>The created crop mod object.</returns>
         private CropMod CreateCropModFromSeeds(IEnumerable<Seed> seeds, CropMod oldCropMod = null)
         {
@@ -313,7 +313,7 @@ namespace BetterMixedSeeds
             return new CropMod(new Season(springCrops), new Season(summerCrops), new Season(fallCrops), new Season(winterCrops), oldCropMod?.Enabled ?? true); ;
         }
 
-        /// <summary>Gets the existing crop config values from a specified <see cref="BetterMixedSeeds.Models.Config.CropMod"/>, <paramref name="season"/>, and <paramref name="cropName"/>.</summary>
+        /// <summary>Gets the existing crop config values from a specified <see cref="CropMod"/>, <paramref name="season"/>, and <paramref name="cropName"/>.</summary>
         /// <param name="cropMod">The crop mod to get the config values from.</param>
         /// <param name="season">The season to get the values from.</param>
         /// <param name="cropName">The name of the crop.</param>
