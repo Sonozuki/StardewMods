@@ -25,7 +25,7 @@ namespace BarkingUpTheRightTree
         /*********
         ** Fields
         *********/
-        /// <summary>The sprite for the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/>.</summary>
+        /// <summary>The sprite for the <see cref="BarkRemover"/>.</summary>
         private Texture2D BarkRemoverTexture;
 
         /// <summary>The id map for the trees.</summary>
@@ -39,8 +39,8 @@ namespace BarkingUpTheRightTree
         /// <summary>Provides basic tree apis.</summary>
         public IApi Api { get; private set; }
 
-        /// <summary>The custom trees before they get converted to <see cref="BarkingUpTheRightTree.Models.Converted.CustomTree"/>s.</summary>
-        /// <remarks>This is needed because trees need to be able to be added before a save gets loaded. <br/>This is because <see cref="StardewValley.GameLocation.loadObjects"/> gets called before the save gets loaded if the player is creating a new save.</remarks>
+        /// <summary>The custom trees before they get converted to <see cref="CustomTree"/>s.</summary>
+        /// <remarks>This is needed because trees need to be able to be added before a save gets loaded. <br/>This is because <see cref="GameLocation.loadObjects"/> gets called before the save gets loaded if the player is creating a new save.</remarks>
         internal List<(int Id, ParsedCustomTree Data, Texture2D Texture)> RawCustomTrees { get; } = new List<(int Id, ParsedCustomTree ParsedCustomTree, Texture2D TreeTexture)>();
 
         /// <summary>All the custom trees.</summary>
@@ -50,7 +50,7 @@ namespace BarkingUpTheRightTree
         /// <remarks>Key: mod name, Value: tree names.</remarks>
         internal Dictionary<string, List<string>> TreesByMod { get; } = new Dictionary<string, List<string>>();
 
-        /// <summary>The singleton instance of <see cref="BarkingUpTheRightTree.ModEntry"/>.</summary>
+        /// <summary>The singleton instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
 
 
@@ -146,7 +146,7 @@ namespace BarkingUpTheRightTree
         /// <summary>Invoked when the game is launched.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        /// <remarks>Used so there is access to the SpaceCore API (you can't get an API instance from the <see cref="BarkingUpTheRightTree.ModEntry.Entry(IModHelper)"/> method).</remarks>
+        /// <remarks>Used so there is access to the SpaceCore API (you can't get an API instance from the <see cref="ModEntry.Entry(IModHelper)"/> method).</remarks>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             // register bark remover for serialisation
@@ -243,10 +243,10 @@ namespace BarkingUpTheRightTree
             ConvertRawTrees();
         }
 
-        /// <summary>Invoked when the <see cref="StardewValley.Game1.activeClickableMenu"/> changes.</summary>
+        /// <summary>Invoked when the <see cref="Game1.activeClickableMenu"/> changes.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        /// <remarks>Used to add the <see cref="BarkingUpTheRightTree.Tools.BarkRemover"/> to Robin's shop.</remarks>
+        /// <remarks>Used to add the <see cref="BarkRemover"/> to Robin's shop.</remarks>
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             // ensure menu is a shop menu

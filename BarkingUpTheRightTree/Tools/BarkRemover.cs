@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 namespace BarkingUpTheRightTree.Tools
 {
     /// <summary>Represents the bark remover tool.</summary>
-    [XmlType("Mods_BURT_BarkRemover")]
+    [XmlType("Mods_BURT_BarkRemover")] // this is required for SpaceCore to be able to serialise the tool
     public class BarkRemover : Tool
     {
         /*********
