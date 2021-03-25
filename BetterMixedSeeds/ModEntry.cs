@@ -332,7 +332,7 @@ namespace BetterMixedSeeds
                 if (cropName.ToLower() == "cactus fruit")
                     enabled = false;
 
-                // set the default enabled value for qu fruit to be false, this is a quest item so it's rather unbalanced to have this enabled by default
+                // set the default enabled value for qi fruit to be false, this is a quest item so it's rather unbalanced to have this enabled by default
                 if (cropName.ToLower() == "qi fruit")
                     enabled = false;
 
@@ -377,20 +377,33 @@ namespace BetterMixedSeeds
 
                     foreach (var crop in crops)
                     {
-                        // get crop id from name
+                        // get seed id from the crop name
+                        var seedId = 0;
                         var cropId = objectInfoData
                             .Where(objectInfo => objectInfo.Value.Split('/')[0].ToLower() == crop.Name.ToLower())
                             .Select(objectInfo => objectInfo.Key)
                             .FirstOrDefault();
 
-                        // get seed id from crop id
-                        var seedId = cropData
-                            .Where(cropInfo => cropInfo.Value.Split('/')[3] == cropId.ToString())
-                            .Select(cropInfo => cropInfo.Key)
-                            .FirstOrDefault();
+                        // if the crop doesn't exist in the data file, try to get it from JA directly
+                        var jaApi = this.Helper.ModRegistry.GetApi("SpaceChase0.JsonAssets");
+                        if (cropId <= 0 && jaApi != null)
+                        {
+                            cropId = (int)jaApi.GetType().GetMethod("GetCropId", BindingFlags.Public | BindingFlags.Instance).Invoke(jaApi, new object[] { crop.Name });
+                            seedId = cropData
+                                .Where(cropInfo => cropInfo.Value.Split('/')[2] == cropId.ToString())
+                                .Select(cropInfo => cropInfo.Key)
+                                .FirstOrDefault();
+                        }
+                        else
+                        {
+                            seedId = cropData
+                                .Where(cropInfo => cropInfo.Value.Split('/')[3] == cropId.ToString())
+                                .Select(cropInfo => cropInfo.Key)
+                                .FirstOrDefault();
+                        }
 
                         // ensure the crop and it's seed could be found
-                        if (seedId == 0)
+                        if (seedId <= 0)
                         {
                             this.Monitor.Log($"Crop: {crop.Name} (CropId: {cropId}) couldn't be found", LogLevel.Warn);
                             continue;

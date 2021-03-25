@@ -60,17 +60,13 @@ namespace BetterMixedSeeds.Patches
             if (!possibleSeeds.Any())
                 return true;
 
-            // get the total drop chance of all crops
-            var totalDropChance = 0f;
-            foreach (var possibleSeed in possibleSeeds)
-                totalDropChance += possibleSeed.DropChance;
-
             // pick a random seed
-            var randomValue = (float)(Game1.random.NextDouble() * totalDropChance);
+            var totalDropChance = possibleSeeds.Select(seed => seed.DropChance).Sum();
+            var randomChance = (float)(Game1.random.NextDouble() * totalDropChance);
             foreach (var possibleSeed in possibleSeeds)
             {
-                randomValue -= possibleSeed.DropChance;
-                if (randomValue <= 0)
+                randomChance -= possibleSeed.DropChance;
+                if (randomChance <= 0)
                 {
                     __result = possibleSeed.Id;
                     return false;
