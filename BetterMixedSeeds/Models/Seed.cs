@@ -45,5 +45,8 @@
             YearRequirement = yearRequirement;
             Season = season;
         }
+
+        /// <inheritdoc/>
+        public override string ToString() => $"Id: {Id}, CropName: {CropName}, DropChance: {DropChance}, Season: {Season}, IsTrellis: {IsTrellis}, YearRequirement: {YearRequirement}";
     }
 }
