@@ -843,7 +843,7 @@ namespace FarmAnimalVarietyRedux.Menus
                 var animal = ModEntry.Instance.Api.GetAnimalByInternalSubtypeName(AnimalBeingPurchased.type);
                 if (animal != null)
                     buildings = Utilities.ConstructBuildingString(animal.Buildings);
-                var housingString = $"Choose a {buildings} for your new {animal.Name}";
+                var housingString = $"Choose a {buildings} for your new {AnimalBeingPurchased.type.Value.Split('.').Last()}";
 
                 SpriteText.drawStringWithScrollBackground(
                     b: b,
