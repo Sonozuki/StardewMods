@@ -98,6 +98,7 @@ namespace FarmAnimalVarietyRedux.Menus
         public CustomAnimalQueryMenu(FarmAnimal animal)
         {
             Animal = animal;
+            Animal.makeSound();
 
             Game1.player.Halt();
             Game1.player.faceGeneralDirection(Animal.Position, 0, false, false);

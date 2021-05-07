@@ -698,7 +698,7 @@ namespace FarmAnimalVarietyRedux.Patches
         internal static bool MakeSoundPrefix(FarmAnimal __instance)
         {
             // ensure sounds should be played
-            if (__instance.currentLocation == Game1.currentLocation)
+            if (__instance.currentLocation != Game1.currentLocation || Game1.options.muteAnimalSounds)
                 return false;
 
             var animal = ModEntry.Instance.Api.GetAnimalByInternalSubtypeName(__instance.type);
