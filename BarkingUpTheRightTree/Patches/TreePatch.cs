@@ -34,7 +34,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool LoadTexturePrefix(Tree __instance, ref Texture2D __result)
         {
             // if the tree type is a default one, let the original method handle it
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
             {
                 __result = null;
                 return true;
@@ -147,7 +147,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool ShakePrefix(Vector2 tileLocation, bool doEvenIfStillShaking, GameLocation location, Tree __instance)
         {
             // ensure tree being shaken is a custom one
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
                 return true;
 
             // get private member
@@ -223,7 +223,7 @@ namespace BarkingUpTheRightTree.Patches
                 typeof(Tree).GetMethod("shake", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(__instance, new object[] { tileLocation, true, location });
 
                 // ensure tree is custom
-                if (__instance.treeType < 20)
+                if (__instance.treeType < ModEntry.CustomTreesStartId)
                     return false;
 
                 // ensure tree is grown, alive (not a strump), and has bark
@@ -507,7 +507,7 @@ namespace BarkingUpTheRightTree.Patches
 
             var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var wood, out var dropsSap, out var seed, out _, out _, out _, out _, out _, out _, out _);
             var woodId = Debris.woodDebris;
-            if (__instance.treeType >= 20 && treeFound)
+            if (__instance.treeType >= ModEntry.CustomTreesStartId && treeFound)
                 woodId = wood;
 
             var lastPlayerToHit = ((NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance)).Value;
@@ -518,7 +518,7 @@ namespace BarkingUpTheRightTree.Patches
                 Game1.createRadialDebris(location, woodId, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(12) ? 1.25 : 1.0) * (12 + (int)extraWoodCalculator.Invoke(__instance, new object[] { tileLocation }))), resource: true);
 
             // drop sap if the tree is either default or has it enabled in it's data
-            if (__instance.treeType < 20 || dropsSap)
+            if (__instance.treeType < ModEntry.CustomTreesStartId || dropsSap)
                 Game1.createRadialDebris(location, 92, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, 5, resource: true);
 
             // drop tree seed
@@ -610,7 +610,7 @@ namespace BarkingUpTheRightTree.Patches
 
             // stump has been cut down, spawn wood & sap debris
             var woodId = Debris.woodDebris;
-            if (__instance.treeType >= 20 && treeFound)
+            if (__instance.treeType >= ModEntry.CustomTreesStartId && treeFound)
                 woodId = wood;
 
             var lastPlayerToHit = ((NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance)).Value;
@@ -618,7 +618,7 @@ namespace BarkingUpTheRightTree.Patches
             // drop wood
             if (woodId != -1)
                 Game1.createRadialDebris(location, woodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25 : 1.0) * 4.0), resource: true);
-            if (__instance.treeType < 20 || (treeFound && dropsSap)) // drop sap if the tree is either default or has it enabled in it's custom data
+            if (__instance.treeType < ModEntry.CustomTreesStartId || (treeFound && dropsSap)) // drop sap if the tree is either default or has it enabled in it's custom data
                 Game1.createRadialDebris(location, 92, (int)tileLocation.X, (int)tileLocation.Y, 1, resource: true);
 
             return true;
@@ -633,7 +633,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool PerformBushDestroyPrefix(Vector2 tileLocation, GameLocation location, Tree __instance)
         {
             // if the tree type is a default one, let the original method handle it
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
                 return true;
 
             if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _, out _, out _))
@@ -653,7 +653,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool PerformSproutDestroyPrefix(Vector2 tileLocation, Tree __instance)
         {
             // if the tree type is a default one, let the original method handle it
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
                 return true;
 
             if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out _, out _, out _, out var woodId, out _, out _, out _, out _, out _, out _, out _, out _, out _))
@@ -713,7 +713,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool UpdateTapperProductPrefix(StardewValley.Object tapper_instance, Tree __instance)
         {
             // ensure tree is custom
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
                 return true;
 
             // get tree by data
@@ -739,7 +739,7 @@ namespace BarkingUpTheRightTree.Patches
         internal static bool DrawPrefix(SpriteBatch spriteBatch, Vector2 tileLocation, Tree __instance)
         {
             // ensure tree trying to be drawn is custom
-            if (__instance.treeType < 20)
+            if (__instance.treeType < ModEntry.CustomTreesStartId)
                 return true;
 
             // get private members

@@ -23,6 +23,13 @@ namespace BarkingUpTheRightTree
     public class ModEntry : Mod, IAssetEditor
     {
         /*********
+        ** Constants
+        *********/
+        /// <summary>The start id of custom trees.</summary>
+        public const int CustomTreesStartId = 50;
+
+
+        /*********
         ** Fields
         *********/
         /// <summary>The sprite for the <see cref="BarkRemover"/>.</summary>
@@ -124,7 +131,7 @@ namespace BarkingUpTheRightTree
 
             // the tree name wasn't present, generate a new id and save it to the tree types file
             var typeId = -1;
-            for (int i = 20; typeId == -1; i++) // start i at 20 to accomodate for base game trees
+            for (int i = ModEntry.CustomTreesStartId; typeId == -1; i++)
             {
                 // ensure the id isn't already used by a different tree
                 if (IdMap.Any(typeMap => typeMap.Value == i))
@@ -316,7 +323,7 @@ namespace BarkingUpTheRightTree
             foreach (var location in Game1.locations)
                 foreach (var terrainFeature in location.terrainFeatures.Values)
                 {
-                    if (!(terrainFeature is Tree tree) || tree.treeType < 20)
+                    if (!(terrainFeature is Tree tree) || tree.treeType < ModEntry.CustomTreesStartId)
                         continue;
 
                     // save the current id and change the id to be a default tree (this is so if the mod is uninstalled it doesn't ruin the save)
