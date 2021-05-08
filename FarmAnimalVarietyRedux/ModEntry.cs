@@ -107,6 +107,7 @@ namespace FarmAnimalVarietyRedux
             CustomIncubatorRecipes.Clear();
 
             LoadDefaultAnimals();
+            LoadDefaultRecipes();
 
             LoadJAEarly(); // loading Json Assets early is only required on connecting clients. Game1.IsClient can't be used as that hasn't been set yet. even though this is ran on the host, it shouldn't have any affect
 
@@ -858,6 +859,20 @@ namespace FarmAnimalVarietyRedux
                 AssetManager.RegisterAsset(internalAnimalName, Path.Combine("LooseSprites", "Cursors"), animalShopIconRectangles[animal.Name]);
                 Api.AddAnimal("game", animal, null);
             }
+        }
+
+        /// <summary>Loads all the default incubator recipes.</summary>
+        private void LoadDefaultRecipes()
+        {
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "176", 1, 9000, "game.White Chicken")); // white egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "174", 1, 9000, "game.White Chicken")); // large white egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "180", 1, 9000, "game.Brown Chicken")); // brown egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "182", 1, 9000, "game.Brown Chicken")); // large brown egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "305", 1, 9000, "game.Void Chicken")); // void egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "928", 1, 9000, "game.Golden Chicken")); // golden egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "442", 1, 9000, "game.Duck")); // duck egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "107", 1, 18000, "game.Dinosaur")); // dinosaur egg
+            ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Ostrich, "289", 1, 15000, "game.Ostrich")); // ostrich egg
         }
     }
 }
