@@ -265,7 +265,7 @@ namespace BarkingUpTheRightTree
                 return;
 
             // ensure there is atleast one custom tree that has bark to be harvested
-            if (Api.GetAllTrees().All(tree => tree.BarkProduct.Product == -1))
+            if (CustomTrees.All(tree => tree.BarkProduct.Product == -1))
             {
                 this.Monitor.Log("BarkRemover wasn't added due to no trees with bark");
                 return;
@@ -296,7 +296,7 @@ namespace BarkingUpTheRightTree
                             continue;
 
                         // ensure tree has been loaded and get required data
-                        if (!Api.GetRawTreeByName(treeName, out var treeId, out _, out _, out _, out _, out _, out _, out var shakingProducts, out _, out _, out _, out _, out _))
+                        if (!Api.GetRawTreeByName(treeName, out var rawTree))
                         {
                             this.Monitor.Log($"No tree with the name: {treeName} could be found. (Will not be planted on map)", LogLevel.Warn);
                             continue;
@@ -306,9 +306,9 @@ namespace BarkingUpTheRightTree
                         var tileLocation = new Vector2(x, y);
                         if (!location.terrainFeatures.ContainsKey(tileLocation) && !location.objects.ContainsKey(tileLocation))
                         {
-                            var tree = new Tree(treeId, 5);
+                            var tree = new Tree(rawTree.Id, 5);
                             tree.modData[$"{this.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
-                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[shakingProducts.Count]);
+                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[rawTree.Data.ShakingProducts.Count]);
                             if (location.doesTileHaveProperty(x, y, "NonChoppable", "Back") != null)
                                 tree.modData[$"{this.ModManifest.UniqueID}/nonChoppable"] = string.Empty; // the value is unused as only the presence of the key is checked to see if the tree is choppable
                             location.terrainFeatures.Add(tileLocation, tree);
@@ -363,7 +363,7 @@ namespace BarkingUpTheRightTree
                         int.TryParse(tree.modData[$"{this.ModManifest.UniqueID}/treeId"], out var customId);
 
                         // ensure a tree with this id exists
-                        if (!Api.GetTreeById(customId, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _))
+                        if (!Api.GetTreeById(customId, out _))
                         {
                             // get tree name from id mapping file
                             var name = "[Unknown]";
