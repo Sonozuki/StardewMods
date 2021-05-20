@@ -305,14 +305,19 @@ namespace BarkingUpTheRightTree
                         // place tree
                         var tileLocation = new Vector2(x, y);
                         if (!location.terrainFeatures.ContainsKey(tileLocation) && !location.objects.ContainsKey(tileLocation))
-                        {
-                            var tree = new Tree(rawTree.Id, 5);
-                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
-                            tree.modData[$"{this.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[rawTree.Data.ShakingProducts.Count]);
-                            if (location.doesTileHaveProperty(x, y, "NonChoppable", "Back") != null)
-                                tree.modData[$"{this.ModManifest.UniqueID}/nonChoppable"] = string.Empty; // the value is unused as only the presence of the key is checked to see if the tree is choppable
-                            location.terrainFeatures.Add(tileLocation, tree);
-                        }
+                            location.terrainFeatures.Add(tileLocation, new Tree(rawTree.Id, 5));
+
+                        // reset tree data
+                        if (!location.terrainFeatures.TryGetValue(tileLocation, out var terrainFeature))
+                            continue;
+
+                        if (!(terrainFeature is Tree tree))
+                            continue;
+
+                        tree.modData[$"{this.ModManifest.UniqueID}/daysTillBarkHarvest"] = "0";
+                        tree.modData[$"{this.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(new int[rawTree.Data.ShakingProducts.Count]);
+                        if (location.doesTileHaveProperty(x, y, "NonChoppable", "Back") != null)
+                            tree.modData[$"{this.ModManifest.UniqueID}/nonChoppable"] = string.Empty; // the value is unused as only the presence of the key is checked to see if the tree is choppable
                     }
         }
 
