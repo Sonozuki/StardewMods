@@ -9,8 +9,8 @@
         /// <summary>The number of days inbetween the product dropping.</summary>
         public int DaysBetweenProduce { get; }
 
-        /// <summary>The product that will drop.</summary>
-        public int Product { get; }
+        /// <summary>The id of the product that will drop.</summary>
+        public int ProductId { get; }
 
         /// <summary>The amount of product that will be produced.</summary>
         public int Amount { get; }
@@ -21,12 +21,12 @@
         *********/
         /// <summary>Constructs an instance.</summary>
         /// <param name="daysBetweenProduce">The number of days inbetween the product dropping.</param>
-        /// <param name="product">The product that will drop.</param>
+        /// <param name="productId">The id of the product that will drop.</param>
         /// <param name="amount">The amount of product that will be produced.</param>
-        public TimedProduct(int daysBetweenProduce, int product, int amount)
+        public TimedProduct(int daysBetweenProduce, int productId, int amount)
         {
             DaysBetweenProduce = daysBetweenProduce;
-            Product = product;
+            ProductId = productId;
             Amount = amount;
         }
     }

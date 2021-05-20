@@ -162,7 +162,7 @@ namespace BarkingUpTheRightTree.Patches
 
                 // handle dropping seed
                 if (__instance.hasSeed)
-                    Game1.createObjectDebris(tree.Seed, (int)tileLocation.X, (int)tileLocation.Y - 3, location);
+                    Game1.createObjectDebris(tree.SeedId, (int)tileLocation.X, (int)tileLocation.Y - 3, location);
 
                 // handle dropping custom shake produce
                 if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"))
@@ -177,7 +177,7 @@ namespace BarkingUpTheRightTree.Patches
                         if (!tree.ShakingProducts[i].Seasons.Contains(Game1.currentSeason.ToLower()))
                             continue;
 
-                        Game1.createObjectDebris(tree.ShakingProducts[i].Product, (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location);
+                        Game1.createObjectDebris(tree.ShakingProducts[i].ProductId, (int)tileLocation.X, (int)tileLocation.Y - 3, ((int)tileLocation.Y + 1) * 64, location: location);
                         daysTillNextShakeProducts[i] = tree.ShakingProducts[i].DaysBetweenProduce;
                     }
                     __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/daysTillNextShakeProducts"] = JsonConvert.SerializeObject(daysTillNextShakeProducts);
@@ -214,7 +214,7 @@ namespace BarkingUpTheRightTree.Patches
             }
 
             var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var tree);
-            var woodId = treeFound ? tree.Wood : 388;
+            var woodId = treeFound ? tree.WoodId : 388;
 
             // handle bark remover functionality first
             if (t is BarkRemover)
@@ -231,14 +231,14 @@ namespace BarkingUpTheRightTree.Patches
                     return false;
 
                 // make sure tree has a bark product (meaning it can be debarked in the first place)
-                if (!treeFound || tree.BarkProduct.Product == -1)
+                if (!treeFound || tree.BarkProduct.ProductId == -1)
                     return false;
 
                 // mark tree as barkless
                 ModEntry.Instance.Api.SetBarkState(location.Name, tileLocation, false);
 
                 // drop bark objects
-                var debris = new Debris(tree.BarkProduct.Product, tree.BarkProduct.Amount, t.getLastFarmerToUse().GetToolLocation() + new Vector2(16f, 0.0f), t.getLastFarmerToUse().Position);
+                var debris = new Debris(tree.BarkProduct.ProductId, tree.BarkProduct.Amount, t.getLastFarmerToUse().GetToolLocation() + new Vector2(16f, 0.0f), t.getLastFarmerToUse().Position);
                 location.debris.Add(debris);
                 __result = false;
                 return false;
@@ -508,7 +508,7 @@ namespace BarkingUpTheRightTree.Patches
             var treeFound = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var tree);
             var woodId = Debris.woodDebris;
             if (__instance.treeType >= ModEntry.CustomTreesStartId && treeFound)
-                woodId = tree.Wood;
+                woodId = tree.WoodId;
 
             var lastPlayerToHit = ((NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance)).Value;
             var extraWoodCalculator = typeof(Tree).GetMethod("extraWoodCalculator", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -526,7 +526,7 @@ namespace BarkingUpTheRightTree.Patches
             if (Game1.getFarmer(lastPlayerToHit).getEffectiveSkillLevel(Farmer.foragingSkill) >= 1
                 && Game1.random.NextDouble() < 0.75
                 && treeFound)
-                Game1.createRadialDebris(location, tree.Seed, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, random.Next(1, 3), resource: true);
+                Game1.createRadialDebris(location, tree.SeedId, (int)tileLocation.X + (__instance.shakeLeft ? (-4) : 4), (int)tileLocation.Y, random.Next(1, 3), resource: true);
 
             return true;
         }
@@ -611,7 +611,7 @@ namespace BarkingUpTheRightTree.Patches
             // stump has been cut down, spawn wood & sap debris
             var woodId = Debris.woodDebris;
             if (__instance.treeType >= ModEntry.CustomTreesStartId && treeFound)
-                woodId = tree.Wood;
+                woodId = tree.WoodId;
 
             var lastPlayerToHit = ((NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance)).Value;
 
@@ -639,7 +639,7 @@ namespace BarkingUpTheRightTree.Patches
             if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var tree))
             {
                 var lastPlayerToHit = (NetLong)typeof(Tree).GetField("lastPlayerToHit", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
-                Game1.createDebris(tree.Wood, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25f : 1) * 4), location);
+                Game1.createDebris(tree.WoodId, (int)tileLocation.X, (int)tileLocation.Y, (int)((Game1.getFarmer(lastPlayerToHit).professions.Contains(Farmer.forester) ? 1.25f : 1) * 4), location);
             }
 
             return false;
@@ -657,7 +657,7 @@ namespace BarkingUpTheRightTree.Patches
                 return true;
 
             if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var tree))
-                Game1.createDebris(tree.Wood, (int)tileLocation.X, (int)tileLocation.Y, 1);
+                Game1.createDebris(tree.WoodId, (int)tileLocation.X, (int)tileLocation.Y, 1);
 
             return false;
         }
@@ -696,7 +696,7 @@ namespace BarkingUpTheRightTree.Patches
             else if (__instance.treeType == Tree.mahoganyTree)
                 seedId = 292;
             else if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var tree))
-                seedId = tree.Seed;
+                seedId = tree.SeedId;
             if (seedId == -1)
                 return false;
 
@@ -724,7 +724,7 @@ namespace BarkingUpTheRightTree.Patches
             if (tapper_instance != null && tapper_instance.ParentSheetIndex == 264) // half the time for a heavy tapper
                 timeMultiplier = .5f;
 
-            tapper_instance.heldObject.Value = new StardewValley.Object(tree.TappedProduct.Product, tree.TappedProduct.Amount);
+            tapper_instance.heldObject.Value = new StardewValley.Object(tree.TappedProduct.ProductId, tree.TappedProduct.Amount);
             tapper_instance.minutesUntilReady.Value = (int)(tree.TappedProduct.DaysBetweenProduce * 1600 * timeMultiplier);
 
             return false;

@@ -96,14 +96,14 @@ namespace BarkingUpTheRightTree
             foreach (var rawTree in RawCustomTrees)
             {
                 // create objects
-                var tappedProductObject = new TapperTimedProduct(rawTree.Data.TappedProduct.DaysBetweenProduce, ResolveToken(rawTree.Data.TappedProduct.Product), rawTree.Data.TappedProduct.Amount);
-                var barkProductObject = new TimedProduct(rawTree.Data.BarkProduct.DaysBetweenProduce, ResolveToken(rawTree.Data.BarkProduct.Product), rawTree.Data.BarkProduct.Amount);
+                var tappedProductObject = new TapperTimedProduct(rawTree.Data.TappedProduct.DaysBetweenProduce, ResolveToken(rawTree.Data.TappedProduct.ProductId), rawTree.Data.TappedProduct.Amount);
+                var barkProductObject = new TimedProduct(rawTree.Data.BarkProduct.DaysBetweenProduce, ResolveToken(rawTree.Data.BarkProduct.ProductId), rawTree.Data.BarkProduct.Amount);
                 var shakingProductObjects = new List<SeasonalTimedProduct>();
                 foreach (var shakingProduct in rawTree.Data.ShakingProducts)
-                    shakingProductObjects.Add(new SeasonalTimedProduct(shakingProduct.DaysBetweenProduce, ResolveToken(shakingProduct.Product), shakingProduct.Amount, shakingProduct.Seasons));
+                    shakingProductObjects.Add(new SeasonalTimedProduct(shakingProduct.DaysBetweenProduce, ResolveToken(shakingProduct.ProductId), shakingProduct.Amount, shakingProduct.Seasons));
 
                 // add tree
-                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.Wood), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.Seed), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject, rawTree.Data.UnfertilisedGrowthChance, rawTree.Data.FertilisedGrowthChance));
+                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.WoodId), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.SeedId), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject, rawTree.Data.UnfertilisedGrowthChance, rawTree.Data.FertilisedGrowthChance));
             }
         }
 
@@ -265,7 +265,7 @@ namespace BarkingUpTheRightTree
                 return;
 
             // ensure there is atleast one custom tree that has bark to be harvested
-            if (CustomTrees.All(tree => tree.BarkProduct.Product == -1))
+            if (CustomTrees.All(tree => tree.BarkProduct.ProductId == -1))
             {
                 this.Monitor.Log("BarkRemover wasn't added due to no trees with bark");
                 return;
@@ -539,13 +539,13 @@ namespace BarkingUpTheRightTree
                         var treeData = contentPack.ReadJsonFile<ParsedCustomTree>(Path.Combine(treePath.Name, "content.json"));
 
                         // create tuples
-                        var tappedProduct = (treeData.TappedProduct?.DaysBetweenProduce ?? 0, treeData.TappedProduct?.Product, treeData.TappedProduct?.Amount ?? 0);
-                        var barkProduct = (treeData.BarkProduct?.DaysBetweenProduce ?? 0, treeData.BarkProduct?.Product, treeData.BarkProduct?.Amount ?? 0);
+                        var tappedProduct = (treeData.TappedProduct?.DaysBetweenProduce ?? 0, treeData.TappedProduct?.ProductId, treeData.TappedProduct?.Amount ?? 0);
+                        var barkProduct = (treeData.BarkProduct?.DaysBetweenProduce ?? 0, treeData.BarkProduct?.ProductId, treeData.BarkProduct?.Amount ?? 0);
                         var shakingProducts = new List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)>();
                         foreach (var shakingProduct in treeData.ShakingProducts)
-                            shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.Product, shakingProduct.Amount, shakingProduct.Seasons));
+                            shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.ProductId, shakingProduct.Amount, shakingProduct.Seasons));
 
-                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.Wood, treeData.DropsSap, treeData.Seed, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name, treeData.UnfertilisedGrowthChance, treeData.FertilisedGrowthChance);
+                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.WoodId, treeData.DropsSap, treeData.SeedId, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name, treeData.UnfertilisedGrowthChance, treeData.FertilisedGrowthChance);
                     }
                 }
                 catch (Exception ex)
