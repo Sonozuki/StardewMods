@@ -637,12 +637,6 @@ namespace FarmAnimalVarietyRedux
                     }
                 }
 
-                if (animalData.Subtypes.Count == 0)
-                {
-                    this.Monitor.Log($"No subtypes for the animal: {animalName} were loaded, skipping", LogLevel.Error);
-                    continue;
-                }
-
                 // load subtype assets
                 for (int i = 0; i < animalData.Subtypes.Count; i++)
                 {
@@ -656,6 +650,7 @@ namespace FarmAnimalVarietyRedux
                         if (!AreAssetsValid(contentPack, animalName, subtype.Name))
                         {
                             this.Monitor.Log($"Sprite sheets for subtype: {subtype.Name}, animal: {internalAnimalName} aren't valid, skipping", LogLevel.Error);
+                            animalData.Subtypes.RemoveAt(i--);
                             continue;
                         }
                     }
@@ -684,6 +679,13 @@ namespace FarmAnimalVarietyRedux
 
                     RegisterAssets(animalUniqueModId, subtypeUniqueModId, contentPack, animalName, subtype.Name);
                     RegisterAsset(Path.Combine(animalName, "shopdisplay.png"), $"{animalUniqueModId}.{animalName}", contentPack);
+                }
+
+                // ensure there are valid subtypes
+                if (animalData.Subtypes.Count == 0)
+                {
+                    this.Monitor.Log($"No subtypes for the animal: {animalName} were loaded, skipping", LogLevel.Error);
+                    continue;
                 }
 
                 if (!animalsByAction.ContainsKey(animalData.Action))
