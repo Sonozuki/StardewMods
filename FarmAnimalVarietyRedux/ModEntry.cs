@@ -426,6 +426,11 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(FarmAnimal), nameof(FarmAnimal.Eat)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.EatPrefix)))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(FarmAnimal), nameof(FarmAnimal.isMale)),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.IsMalePrefix)))
             );
@@ -792,20 +797,20 @@ namespace FarmAnimalVarietyRedux
             // TODO: ideally make this automatic, however, due to how hardcoded a lot of animal logic is this may not be feasible
             var animalSubtypes = new List<ParsedCustomAnimalType>
             {
-                new ParsedCustomAnimalType(Action.Add, "", "White Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 4, 35, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Brown Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "180", upgradedProductId: "182") }, 3, "cluck", 16, 16, 16, 16, "641", 7, 20, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Blue Chicken", Game1.player.eventsSeen.Contains(3900074), false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 7, 20, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Void Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "305") }, 3, "cluck", 16, 16, 16, 16, "641", 4, 20, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Golden Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "928") }, 3, "cluck", 16, 16, 16, 16, "641", 7, 20, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Duck", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "442", upgradedProductId: "444", upgradedProductIsRare: true, daysToProduce: 2) }, 5, "Duck", 16, 16, 16, 16, "642", 3, 40, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Rabbit", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "440", upgradedProductId: "446", upgradedProductIsRare: true, daysToProduce: 4) }, 6, "rabbit", 16, 16, 16, 16, "643", 10, 25),
-                new ParsedCustomAnimalType(Action.Add, "", "Dinosaur", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "107", daysToProduce: 7) }, 0, null, 16, 16, 16, 16, "644", 1, 40, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "White Cow", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "184", upgradedProductId: "186", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "cow", 32, 32, 32, 32, "639", 15, 25, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Brown Cow", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "184", upgradedProductId: "186", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "cow", 32, 32, 32, 32, "639", 15, 25, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Goat", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "436", upgradedProductId: "438", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "goat", 32, 32, 32, 32, "644", 10, 25, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Pig", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "430", harvestType: HarvestType.Forage) }, 10, "pig", 32, 32, 32, 32, "640", 20, 25),
-                new ParsedCustomAnimalType(Action.Add, "", "Sheep", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "440", daysToProduce: 3, harvestType: HarvestType.Tool, toolName: "shears", toolHarvestSound: "scissors", produceFasterWithShepherd: true) }, 4, "sheep", 32, 32, 32, 32, "644", 15, 25, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Ostrich", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "289", daysToProduce: 7) }, 7, "Ostrich", 32, 32, 32, 32, "644", 15, 25, isMale: false)
+                new ParsedCustomAnimalType(Action.Add, "", "White Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 4, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Brown Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "180", upgradedProductId: "182") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Blue Chicken", Game1.player.eventsSeen.Contains(3900074), false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Void Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "305") }, 3, "cluck", 16, 16, 16, 16, "641", 4, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Golden Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "928") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Duck", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "442", upgradedProductId: "444", upgradedProductIsRare: true, daysToProduce: 2) }, 5, "Duck", 16, 16, 16, 16, "642", 3, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Rabbit", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "440", upgradedProductId: "446", upgradedProductIsRare: true, daysToProduce: 4) }, 6, "rabbit", 16, 16, 16, 16, "643", 10),
+                new ParsedCustomAnimalType(Action.Add, "", "Dinosaur", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "107", daysToProduce: 7) }, 0, null, 16, 16, 16, 16, "644", 1, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "White Cow", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "184", upgradedProductId: "186", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "cow", 32, 32, 32, 32, "639", 15, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Brown Cow", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "184", upgradedProductId: "186", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "cow", 32, 32, 32, 32, "639", 15, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Goat", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "436", upgradedProductId: "438", harvestType: HarvestType.Tool, toolName: "milk pail", toolHarvestSound: "Milking") }, 5, "goat", 32, 32, 32, 32, "644", 10, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Pig", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "430", harvestType: HarvestType.Forage) }, 10, "pig", 32, 32, 32, 32, "640", 20),
+                new ParsedCustomAnimalType(Action.Add, "", "Sheep", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "440", daysToProduce: 3, harvestType: HarvestType.Tool, toolName: "shears", toolHarvestSound: "scissors", produceFasterWithShepherd: true) }, 4, "sheep", 32, 32, 32, 32, "644", 15, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Ostrich", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "289", daysToProduce: 7) }, 7, "Ostrich", 32, 32, 32, 32, "644", 15, isMale: false)
             };
 
             var animals = new List<ParsedCustomAnimal>

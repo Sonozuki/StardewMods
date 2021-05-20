@@ -1139,7 +1139,7 @@ namespace FarmAnimalVarietyRedux.Patches
 
             // increase animal fullness, happiness, and friendship
             __instance.Sprite.loop = false;
-            __instance.fullness.Value = (byte)Math.Min(byte.MaxValue, fullnessGain);
+            __instance.fullness.Value = (byte)Math.Min(byte.MaxValue, __instance.fullness.Value + fullnessGain);
             if (__instance.moodMessage != 5 && __instance.moodMessage != 6 && !Game1.isRaining)
             {
                 __instance.happiness.Value = byte.MaxValue;
