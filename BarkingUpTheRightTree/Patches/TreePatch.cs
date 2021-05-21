@@ -56,9 +56,11 @@ namespace BarkingUpTheRightTree.Patches
         /// <param name="tileLocation">The tile location of the tree being patched.</param>
         /// <param name="__instance">The <see cref="Tree"/> instance being patched.</param>
         /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
-        /// <remarks>This is used to </remarks>
+        /// <remarks>This is used to reimplement the game method to use the custom growth chance and to implement mushroom tree-like behaviour.</remarks>
         internal static bool DayUpdatePrefix(GameLocation environment, Vector2 tileLocation, Tree __instance)
         {
+            var isCustomTree = ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var customTree);
+            
             if (__instance.health <= -100)
             {
                 var destroy = typeof(Tree).GetField("destroy", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
@@ -96,7 +98,7 @@ namespace BarkingUpTheRightTree.Patches
                 // grow tree
                 var unfertilisedGrowthChance = (__instance.treeType == Tree.mahoganyTree) ? .15f : .2f;
                 var fertilisedGrowthChance = (__instance.treeType == Tree.mahoganyTree) ? .6f : 1;
-                if (ModEntry.Instance.Api.GetTreeById(__instance.treeType, out var customTree))
+                if (isCustomTree)
                 {
                     unfertilisedGrowthChance = customTree.UnfertilisedGrowthChance;
                     fertilisedGrowthChance = customTree.FertilisedGrowthChance;
@@ -106,8 +108,8 @@ namespace BarkingUpTheRightTree.Patches
                     __instance.growthStage.Value++;
             }
 
-            // turn mushroom tree into stump in the winter and back into a regular tree in spring
-            if (__instance.treeType == Tree.mushroomTree)
+            // turn mushroom(-like) trees into stumps in the winter and back into a regular tree in spring
+            if (__instance.treeType == Tree.mushroomTree || (customTree?.IsStumpInWinter ?? false))
                 if (Game1.GetSeasonForLocation(__instance.currentLocation) == "winter")
                     __instance.stump.Value = true;
                 else if (Game1.dayOfMonth == 1 && Game1.currentSeason == "spring")

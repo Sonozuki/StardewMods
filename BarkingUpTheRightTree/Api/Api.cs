@@ -17,7 +17,7 @@ namespace BarkingUpTheRightTree
         ** Public Methods
         *********/
         /// <inheritdoc/>
-        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName, float unfertilisedGrowthChance = .2f, float fertilisedGrowthChance = 1)
+        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, bool isStumpInWinter, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName, float unfertilisedGrowthChance = .2f, float fertilisedGrowthChance = 1)
         {
             // validate
             if (string.IsNullOrEmpty(name))
@@ -97,7 +97,7 @@ namespace BarkingUpTheRightTree
                 ModEntry.Instance.Monitor.Log($"Failed to add tree: {name} because host player doesn't have a tree with that name loaded.", LogLevel.Error);
                 return false;
             }
-            ModEntry.Instance.RawCustomTrees.Add((id, new ParsedCustomTree(name, tappedProductObject, wood, dropsSap, seed, requiredToolLevel, shakingProductObjects, includeIfModIsPresent, excludeIfModIsPresent, barkProductObject, unfertilisedGrowthChance, fertilisedGrowthChance), texture));
+            ModEntry.Instance.RawCustomTrees.Add((id, new ParsedCustomTree(name, tappedProductObject, wood, dropsSap, seed, requiredToolLevel, isStumpInWinter, shakingProductObjects, includeIfModIsPresent, excludeIfModIsPresent, barkProductObject, unfertilisedGrowthChance, fertilisedGrowthChance), texture));
 
             // register the tree as being added by the mod
             if (!ModEntry.Instance.TreesByMod.ContainsKey(modName))

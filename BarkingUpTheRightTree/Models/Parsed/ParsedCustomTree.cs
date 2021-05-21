@@ -30,6 +30,9 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <summary>The required tool level to cut down the tree.</summary>
         public int RequiredToolLevel { get; set; }
 
+        /// <summary>Whether the tree turns into a stump in winter, like the mushroom tree.</summary>
+        public bool IsStumpInWinter { get; set; }
+
         /// <summary>The items the tree can drop whenever it's shaken.</summary>
         public List<ParsedSeasonalTimedProduct> ShakingProducts { get; set; }
 
@@ -59,13 +62,14 @@ namespace BarkingUpTheRightTree.Models.Parsed
         /// <param name="dropsSap">Whether the tree drops sap when it gets cut down.</param>
         /// <param name="seedId">The id of the item to plant to grow the tree.</param>
         /// <param name="requiredToolLevel">The required tool level to cut down the tree.</param>
+        /// <param name="isStumpInWinter">Whether the tree turns into a stump in winter, like the mushroom tree.</param>
         /// <param name="shakingProducts">The items the tree can drop whenever it's shaken.</param>
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
         /// <param name="barkProduct">The item the tree drops when using the <see cref="BarkRemover"/> tool on it.</param>
         /// <param name="unfertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</param>
         /// <param name="fertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</param>
-        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string woodId, bool dropsSap, string seedId, int requiredToolLevel, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct, float unfertilisedGrowthChance, float fertilisedGrowthChance)
+        public ParsedCustomTree(string name, ParsedTapperTimedProduct tappedProduct, string woodId, bool dropsSap, string seedId, int requiredToolLevel, bool isStumpInWinter, List<ParsedSeasonalTimedProduct> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, ParsedTimedProduct barkProduct, float unfertilisedGrowthChance, float fertilisedGrowthChance)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             TappedProduct = tappedProduct;
@@ -73,6 +77,7 @@ namespace BarkingUpTheRightTree.Models.Parsed
             DropsSap = dropsSap;
             SeedId = seedId ?? "-1";
             RequiredToolLevel = requiredToolLevel;
+            IsStumpInWinter = isStumpInWinter;
             ShakingProducts = shakingProducts ?? new List<ParsedSeasonalTimedProduct>();
             IncludeIfModIsPresent = includeIfModIsPresent ?? new List<string>();
             ExcludeIfModIsPresent = excludeIfModIsPresent ?? new List<string>();

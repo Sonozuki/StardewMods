@@ -103,7 +103,7 @@ namespace BarkingUpTheRightTree
                     shakingProductObjects.Add(new SeasonalTimedProduct(shakingProduct.DaysBetweenProduce, ResolveToken(shakingProduct.ProductId), shakingProduct.Amount, shakingProduct.Seasons));
 
                 // add tree
-                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.WoodId), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.SeedId), rawTree.Data.RequiredToolLevel, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject, rawTree.Data.UnfertilisedGrowthChance, rawTree.Data.FertilisedGrowthChance));
+                CustomTrees.Add(new CustomTree(rawTree.Id, rawTree.Data.Name, rawTree.Texture, tappedProductObject, ResolveToken(rawTree.Data.WoodId), rawTree.Data.DropsSap, ResolveToken(rawTree.Data.SeedId), rawTree.Data.RequiredToolLevel, rawTree.Data.IsStumpInWinter, shakingProductObjects, rawTree.Data.IncludeIfModIsPresent, rawTree.Data.ExcludeIfModIsPresent, barkProductObject, rawTree.Data.UnfertilisedGrowthChance, rawTree.Data.FertilisedGrowthChance));
             }
         }
 
@@ -545,7 +545,7 @@ namespace BarkingUpTheRightTree
                         foreach (var shakingProduct in treeData.ShakingProducts)
                             shakingProducts.Add((shakingProduct.DaysBetweenProduce, shakingProduct.ProductId, shakingProduct.Amount, shakingProduct.Seasons));
 
-                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.WoodId, treeData.DropsSap, treeData.SeedId, treeData.RequiredToolLevel, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name, treeData.UnfertilisedGrowthChance, treeData.FertilisedGrowthChance);
+                        Api.AddTree($"{contentPack.Manifest.UniqueID}.{treeData.Name}", treeTexture, tappedProduct, treeData.WoodId, treeData.DropsSap, treeData.SeedId, treeData.RequiredToolLevel, treeData.IsStumpInWinter, shakingProducts, treeData.IncludeIfModIsPresent, treeData.ExcludeIfModIsPresent, barkProduct, contentPack.Manifest.Name, treeData.UnfertilisedGrowthChance, treeData.FertilisedGrowthChance);
                     }
                 }
                 catch (Exception ex)

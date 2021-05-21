@@ -21,6 +21,7 @@ namespace BarkingUpTheRightTree
         /// <param name="dropsSap">Whether the tree drops sap when it gets cut down.</param>
         /// <param name="seed">The item to plant to grow the tree.</param>
         /// <param name="requiredToolLevel">The required tool level to cut down the tree.</param>
+        /// <param name="isStumpInWinter">Whether the tree turns into a stump in winter, like the mushroom tree.</param>
         /// <param name="shakingProducts">The items the tree can drop whenever it's shaken.</param>
         /// <param name="includeIfModIsPresent">The tree will only get loaded if atleast one of the listed mods are present.</param>
         /// <param name="excludeIfModIsPresent">The tree will only get loaded if none of the listed mods are present.</param>
@@ -29,7 +30,7 @@ namespace BarkingUpTheRightTree
         /// <param name="unfertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's unfertilised.</param>
         /// <param name="fertilisedGrowthChance">The chance the tree has to grow a stage (at the start of each day) when it's fertilised.</param>
         /// <returns><see langword="true"/> if the tree was successfully added; otherwise, <see langword="false"/>.<br/>Note: if the tree wasn't added because it didn't pass the check for <paramref name="includeIfModIsPresent"/> or <paramref name="excludeIfModIsPresent"/> then <see langword="false"/> will be returned.</returns>
-        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName, float unfertilisedGrowthChance = .2f, float fertilisedGrowthChance = 1);
+        public bool AddTree(string name, Texture2D texture, (float DaysBetweenProduce, string Product, int Amount) tappedProduct, string wood, bool dropsSap, string seed, int requiredToolLevel, bool isStumpInWinter, List<(int DaysBetweenProduce, string Product, int Amount, string[] Seasons)> shakingProducts, List<string> includeIfModIsPresent, List<string> excludeIfModIsPresent, (int DaysBetweenProduce, string Product, int Amount) barkProduct, string modName, float unfertilisedGrowthChance = .2f, float fertilisedGrowthChance = 1);
 
         /// <summary>Gets the tree id by tree name.</summary>
         /// <param name="name">The name of the tree.</param>
