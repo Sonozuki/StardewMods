@@ -610,8 +610,8 @@ namespace FarmAnimalVarietyRedux.Patches
             if (Game1.timeOfDay >= ModEntry.Instance.Config.BedTime + 100 || __instance.pauseTimer > 0)
                 return false;
 
-            // give animal a chance to eat if it's hungry
-            if (__instance.fullness.Value < 255 && !__instance.IsActuallySwimming() && Game1.random.NextDouble() < .002f && !__instance.isEating.Value)
+            // let animal eat when swimming
+            if (__instance.fullness.Value < 255 && __instance.IsActuallySwimming() && Game1.random.NextDouble() < .002f && !__instance.isEating.Value)
                 __instance.Eat(__instance.currentLocation);
 
             if (!Game1.IsClient && Game1.random.NextDouble() < .007f && __instance.uniqueFrameAccumulator == -1)
