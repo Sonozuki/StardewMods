@@ -28,8 +28,11 @@ namespace MoreGrass
         /// <summary>Gets the number of sprites in the sprite pool.</summary>
         public int Count => Sprites.Count;
 
+        /// <summary>The default grass sprites in the sprite pool.</summary>
+        public List<Texture2D> DefaultSprites => new List<Texture2D>(DefaultGrassSprites);
+
         /// <summary>The currently active sprites in the sprite pool.</summary>
-        public List<Texture2D> Sprites => (IncludeDefaultGrass) ? AllGrassSprites : CustomGrassSprites;
+        public List<Texture2D> Sprites => (IncludeDefaultGrass) ? AllGrassSprites : new List<Texture2D>(CustomGrassSprites);
 
         /// <summary>Whether the default sprites should be including in the resulting sprite collection.</summary>
         public bool IncludeDefaultGrass

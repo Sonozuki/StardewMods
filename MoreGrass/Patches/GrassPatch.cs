@@ -118,24 +118,36 @@ namespace MoreGrass.Patches
             var flip = (bool[])typeof(Grass).GetField("flip", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(__instance);
 
             // cache the textures
+            var defaultTextures = new List<Texture2D>();
             var textures = new List<Texture2D>();
             switch (Game1.currentSeason)
             {
-                case "spring": textures = ModEntry.Instance.SpringSpritePool.Sprites; break;
-                case "summer": textures = ModEntry.Instance.SummerSpritePool.Sprites; break;
-                case "fall": textures = ModEntry.Instance.FallSpritePool.Sprites; break;
-                case "winter": textures = ModEntry.Instance.WinterSpritePool.Sprites; break;
+                case "spring": textures = ModEntry.Instance.SpringSpritePool.Sprites; defaultTextures = ModEntry.Instance.SpringSpritePool.DefaultSprites; break;
+                case "summer": textures = ModEntry.Instance.SummerSpritePool.Sprites; defaultTextures = ModEntry.Instance.SummerSpritePool.DefaultSprites; break;
+                case "fall":   textures = ModEntry.Instance.FallSpritePool.Sprites;   defaultTextures = ModEntry.Instance.FallSpritePool.DefaultSprites;   break;
+                case "winter": textures = ModEntry.Instance.WinterSpritePool.Sprites; defaultTextures = ModEntry.Instance.WinterSpritePool.DefaultSprites; break;
             }
 
             // draw the grass
             for (int i = 0; i < __instance.numberOfWeeds; i++)
             {
+                var useDefaultGrass = false;
+                var grassId = whichWeed[i];
+
+                // force default grass based on configuration
+                var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed / 28 + (int)tileLocation.X * 7 * (int)tileLocation.Y * 11 + i);
+                if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f))
+                {
+                    useDefaultGrass = true;
+                    grassId = random.Next(defaultTextures.Count);
+                }
+
                 var globalPosition = i != 4
                     ? tileLocation * 64f + new Vector2(x: i % 2 * 64 / 2 + offset3[i] * 4 - 4 + 30, y: i / 2 * 64 / 2 + offset4[i] * 4 + 40)
                     : tileLocation * 64f + new Vector2(x: 16 + offset1[i] * 4 - 4 + 30, y: 16 + offset2[i] * 4 + 40);
                 
                 spriteBatch.Draw(
-                    texture: textures[whichWeed[i]],
+                    texture: useDefaultGrass ? defaultTextures[grassId] : textures[grassId],
                     position: Game1.GlobalToLocal(Game1.viewport, globalPosition),
                     sourceRectangle: new Rectangle(0, 0, 15, 20),
                     color: Color.White,
