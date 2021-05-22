@@ -68,7 +68,7 @@ namespace MoreGrass
         }
 
         /// <summary>Gets a random sprite from the sprite pool.</summary>
-        /// <param name="random">The <see cref="System.Random"/> object to use (if <see langword="null"/> is specified, then the <see cref="StardewValley.Game1.random"/> instance will be used).</param>
+        /// <param name="random">The <see cref="Random"/> object to use (if <see langword="null"/> is specified, then the <see cref="Game1.random"/> instance will be used).</param>
         /// <returns>A random sprite from the sprite pool.</returns>
         public Texture2D GetRandomSprite(Random random = null)
         {

@@ -41,7 +41,7 @@ namespace MoreGrass
         /// <summary>The sprite pool for winter grass sprites.</summary>
         public SpritePool WinterSpritePool { get; } = new SpritePool();
 
-        /// <summary>The singleton instance of <see cref="MoreGrass.ModEntry"/>.</summary>
+        /// <summary>The singleton instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
 
 
@@ -217,7 +217,7 @@ namespace MoreGrass
 
                 // a rare bug on Unix causes Directory.GetFiles(string) to return invalid files, it'll return a list of the expected files as well as a copy of each file but prefixed with "._"
                 // these files don't actually exist and cause the below to throw an exception, I tried checking if the files started with "._" but that didn't work, in the end silently
-                // catching the exception and ignoring it worked to be the only way for it to work. silently catching shouldn't be a problem here as that shouldn't throw any other exception anyway
+                // catching the exception and ignoring it seemed to be the only way for it to work. silently catching shouldn't be a problem here as that shouldn't throw any other exception anyway
                 Texture2D grassTexture;
                 try { grassTexture = contentPack.LoadAsset<Texture2D>(relativePath); }
                 catch { continue; }

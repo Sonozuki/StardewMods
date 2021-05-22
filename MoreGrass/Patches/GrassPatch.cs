@@ -1,5 +1,4 @@
-﻿using Harmony;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.TerrainFeatures;
@@ -9,16 +8,16 @@ using System.Reflection;
 
 namespace MoreGrass.Patches
 {
-    /// <summary>Contains patches for patching game code in the <see cref="StardewValley.TerrainFeatures.Grass"/> class.</summary>
+    /// <summary>Contains patches for patching game code in the <see cref="Grass"/> class.</summary>
     internal class GrassPatch
     {
         /*********
         ** Internal Methods
         *********/
-        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Grass.reduceBy(int, Microsoft.Xna.Framework.Vector2, bool)"/> method.</summary>
+        /// <summary>The prefix for the <see cref="Grass.reduceBy(int, Vector2, bool)"/> method.</summary>
         /// <param name="tileLocation">The tile location of the grass.</param>
         /// <param name="showDebris">Whether debris should be drawn.</param>
-        /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Grass"/> instance that is being patched.</param>
+        /// <param name="__instance">The current <see cref="Grass"/> instance that is being patched.</param>
         /// <param name="__result">The return value of the method being patched.</param>
         /// <returns><see langword="true"/> if the original method should get ran; otherwise <see langword="false"/> (depending on the mod configuration).</returns>
         /// <remarks>This is used so animals won't eat grass if the configuration forbids them from it.</remarks>
@@ -35,8 +34,8 @@ namespace MoreGrass.Patches
             return false;
         }
 
-        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Grass.seasonUpdate(bool)"/> method.</summary>
-        /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Grass"/> instance that is being patched.</param>
+        /// <summary>The prefix for the <see cref="Grass.seasonUpdate(bool)"/> method.</summary>
+        /// <param name="__instance">The current <see cref="Grass"/> instance that is being patched.</param>
         /// <param name="__result">Whether all the grass should be killed (this is the return value of the original method).</param>
         /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
         /// <remarks>This is used to determine if grass should get killed at the beginning of a new season based on the mod configuration.</remarks>
@@ -57,8 +56,8 @@ namespace MoreGrass.Patches
             return false;
         }
 
-        /// <summary>The post fix for the <see cref="StardewValley.TerrainFeatures.Grass.loadSprite"/> method.</summary>
-        /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Grass"/> instance that is being patched.</param>
+        /// <summary>The post fix for the <see cref="Grass.loadSprite"/> method.</summary>
+        /// <param name="__instance">The current <see cref="Grass"/> instance that is being patched.</param>
         /// <remarks>This is used to load the custom grass sprite.</remarks>
         internal static void LoadSpritePostFix(Grass __instance)
         {
@@ -75,8 +74,8 @@ namespace MoreGrass.Patches
             __instance.grassSourceOffset.Value = 0;
         }
 
-        /// <summary>The post fix for the <see cref="StardewValley.TerrainFeatures.Grass.setUpRandom(Vector2)"/> method.</summary>
-        /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Grass"/> instance that is being patched.</param>
+        /// <summary>The post fix for the <see cref="Grass.setUpRandom(Vector2)"/> method.</summary>
+        /// <param name="__instance">The current <see cref="Grass"/> instance that is being patched.</param>
         /// <remarks>This is used for setting the 'whichWeed' member which ensures the custom sprite is drawn correctly.</remarks>
         internal static void SetupRandomPostFix(Vector2 tileLocation, Grass __instance)
         {
@@ -99,10 +98,10 @@ namespace MoreGrass.Patches
             typeof(Grass).GetField("whichWeed", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(__instance, newWhichWeed);
         }
 
-        /// <summary>The prefix for the <see cref="StardewValley.TerrainFeatures.Grass.draw(SpriteBatch, Vector2)(bool)"/> method.</summary>
+        /// <summary>The prefix for the <see cref="Grass.draw(SpriteBatch, Vector2)(bool)"/> method.</summary>
         /// <param name="spriteBatch">The sprite batch to draw the grass to.</param>
         /// <param name="tileLocation">The tile location of the current grass being drawn.</param>
-        /// <param name="__instance">The current <see cref="StardewValley.TerrainFeatures.Grass"/> instance that is being patched.</param>
+        /// <param name="__instance">The current <see cref="Grass"/> instance that is being patched.</param>
         /// <returns><see langword="false"/>, meaning the original method will not get ran.</returns>
         /// <remarks>This is used to draw the grass sprites.</remarks>
         internal static bool DrawPrefix(SpriteBatch spriteBatch, Vector2 tileLocation, Grass __instance)
