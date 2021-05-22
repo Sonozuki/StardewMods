@@ -177,6 +177,7 @@ namespace BarkingUpTheRightTree
             this.Helper.Events.GameLoop.Saving += OnSaving;
             this.Helper.Events.GameLoop.Saved += OnSaved;
             this.Helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+            this.Helper.Events.GameLoop.DayStarted += OnDayStarted;
             this.Helper.Events.Display.MenuChanged += OnMenuChanged;
         }
 
@@ -248,6 +249,40 @@ namespace BarkingUpTheRightTree
             this.Monitor.Log("Reloading content packs", LogLevel.Info);
             LoadContentPacks();
             ConvertRawTrees();
+        }
+
+        /// <summary>Invoked when a new day starts.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        /// <remarks>This is used to emulate the behavior of map trees having a 50% chance of regrowing when outside of the farm.</remarks>
+        private void OnDayStarted(object sender, DayStartedEventArgs e)
+        {
+            foreach (var location in Game1.locations)
+            {
+                if (location is Farm) // trees shouldn't regrow on the farm
+                    continue;
+
+                for (int x = 0; x < location.Map.Layers[0].LayerWidth; x++)
+                    for (int y = 0; y < location.Map.Layers[0].LayerHeight; y++)
+                    {
+                        if (Game1.random.NextDouble() < .5) // trees have a 50/50 chance of regrowing
+                            continue;
+
+                        // check if the tile has the "Tree" property
+                        var treeName = location.doesTileHaveProperty(x, y, "Tree", "Back");
+                        if (treeName == null)
+                            continue;
+
+                        // ensure tree has been loaded and get required data
+                        if (!Api.GetRawTreeByName(treeName, out var rawTree))
+                            continue;
+
+                        // place tree
+                        var tileLocation = new Vector2(x, y);
+                        if (!location.terrainFeatures.ContainsKey(tileLocation) && !location.objects.ContainsKey(tileLocation))
+                            location.terrainFeatures.Add(tileLocation, new Tree(rawTree.Id, 2));
+                    }
+            }
         }
 
         /// <summary>Invoked when the <see cref="Game1.activeClickableMenu"/> changes.</summary>
