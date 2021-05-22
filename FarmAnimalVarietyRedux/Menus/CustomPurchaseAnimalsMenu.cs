@@ -1095,7 +1095,7 @@ namespace FarmAnimalVarietyRedux.Menus
 
                     // space available
                     var indoors = building.indoors.Value as AnimalHouse;
-                    var spaceAvailableText = $"{indoors.Animals.Keys.Count()}/{indoors.animalLimit.Value}";
+                    var spaceAvailableText = $"{indoors.animalsThatLiveHere.Count}/{indoors.animalLimit.Value}";
                     var spaceAvailableTextWidth = Game1.dialogueFont.MeasureString(spaceAvailableText).X;
                     spriteBatch.DrawString(
                         spriteFont: Game1.dialogueFont,
