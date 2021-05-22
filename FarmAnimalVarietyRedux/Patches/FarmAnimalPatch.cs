@@ -425,6 +425,15 @@ namespace FarmAnimalVarietyRedux.Patches
             // handle eating behavior
             if (__instance.isEating)
             {
+                // stop the animal from eating if they're in their house (this was causing the animal to infinitely loop their eating animation)
+                if (__instance.currentLocation == __instance.home.indoors.Value)
+                {
+                    __instance.isEating.Value = false;
+                    __instance.Halt();
+                    __result = false;
+                    return false;
+                }
+
                 // don't try to eat if the animal is 'inside' the building (when they're spawned on the farm when let out in the day)
                 if (__instance.home != null && __instance.home.getRectForAnimalDoor().Intersects(__instance.GetBoundingBox()))
                 {
