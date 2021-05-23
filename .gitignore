@@ -23,4 +23,3 @@ _ReSharper*/
 **/packages/*
 *.nuget.props
 *.nuget.targets
-/MoreMachines
