@@ -125,6 +125,11 @@ namespace MoreGrass
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(Grass), nameof(Grass.performToolAction)),
+                transpiler: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.PerformToolActionTranspiler)))
+            );
+
+            harmony.Patch(
                 original: AccessTools.Method(typeof(Grass), nameof(Grass.setUpRandom)),
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.SetupRandomPostFix)))
             );

@@ -1,10 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Harmony;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace MoreGrass.Patches
 {
@@ -72,6 +74,21 @@ namespace MoreGrass.Patches
 
             __instance.texture = new Lazy<Texture2D>(() => grassTexture);
             __instance.grassSourceOffset.Value = 0;
+        }
+
+        /// <summary>The transpiler for the <see cref="Grass.performToolAction(Tool, int, Vector2, GameLocation)"/> method.</summary>
+        /// <param name="instructions">The IL instructions.</param>
+        /// <returns>The new IL instructions.</returns>
+        /// <remarks>This is used to change the colour of the break animation of grass in winter.</remarks>
+        internal static IEnumerable<CodeInstruction> PerformToolActionTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (var instruction in instructions)
+            {
+                if (instruction.opcode == OpCodes.Call && instruction.operand == typeof(Color).GetMethod("get_Green", BindingFlags.Public | BindingFlags.Static))
+                    instruction.operand = typeof(Color).GetMethod("get_DarkTurquoise", BindingFlags.Public | BindingFlags.Static);
+
+                yield return instruction;
+            }
         }
 
         /// <summary>The post fix for the <see cref="Grass.setUpRandom(Vector2)"/> method.</summary>
