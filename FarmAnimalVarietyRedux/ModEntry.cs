@@ -52,6 +52,9 @@ namespace FarmAnimalVarietyRedux
         /// <summary>Whether the content packs have been loaded.</summary>
         public bool ContentPacksLoaded { get; private set; }
 
+        /// <summary>Contains all the animals that the current <see cref="CustomPurchaseAnimalsMenu"/> should contain.</summary>
+        internal List<StardewValley.Object> AnimalsInPurchaseMenu { get; set; } = new List<StardewValley.Object>();
+
         /// <summary>Contains all animals that were parsed from the save.</summary>
         /// <remarks>The reason this is done is because when the animals need to be retreived to convert them to custom animals, the farm buildings aren't accessible from the <see cref="GameLocation"/> yet, so the references are stored from when they're created to be changed.</remarks>
         internal List<FarmAnimal> ParsedAnimals { get; private set; } = new List<FarmAnimal>();
@@ -244,7 +247,7 @@ namespace FarmAnimalVarietyRedux
             if (e.NewMenu is AnimalQueryMenu animalQueryMenu)
                 Game1.activeClickableMenu = new CustomAnimalQueryMenu((FarmAnimal)typeof(AnimalQueryMenu).GetField("animal", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(animalQueryMenu));
             else if (e.NewMenu is PurchaseAnimalsMenu)
-                Game1.activeClickableMenu = new CustomPurchaseAnimalsMenu(Utility.getPurchaseAnimalStock());
+                Game1.activeClickableMenu = new CustomPurchaseAnimalsMenu(AnimalsInPurchaseMenu);
         }
 
         /// <summary>Invoked when the player uses a tool.</summary>
@@ -372,6 +375,11 @@ namespace FarmAnimalVarietyRedux
             harmony.Patch(
                 original: AccessTools.Method(typeof(AnimalQueryMenu), nameof(AnimalQueryMenu.draw), new[] { typeof(SpriteBatch) }),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.DrawPrefix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Constructor(typeof(PurchaseAnimalsMenu), new[] { typeof(List<StardewValley.Object>) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.ConstructorPrefix)))
             );
 
             harmony.Patch(
