@@ -383,6 +383,11 @@ namespace FarmAnimalVarietyRedux
             );
 
             harmony.Patch(
+                original: AccessTools.Method(typeof(PurchaseAnimalsMenu), nameof(PurchaseAnimalsMenu.draw), new[] { typeof(SpriteBatch) }),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(PurchaseAnimalsMenuPatch), nameof(PurchaseAnimalsMenuPatch.DrawPrefix)))
+            );
+
+            harmony.Patch(
                 original: typeof(FarmAnimal).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null), // need manual reflection here as Harmony 1.2.0.1 doesn't have a way to differentiate between instance and static constuctors,
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmAnimalPatch), nameof(FarmAnimalPatch.ConstructorPrefix)))
             );
