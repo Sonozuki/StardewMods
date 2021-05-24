@@ -576,9 +576,9 @@ namespace FarmAnimalVarietyRedux.Patches
                 var amount = Utilities.DetermineDropAmount(produceToDrop);
                 var quality = Utilities.DetermineProductQuality(__instance, produceToDrop);
                 if (location == Game1.currentLocation)
-                    AnimateForage(__instance, (Farmer farmer) => { SpawnForagedItem(forageId, amount, quality, __instance); });
+                    AnimateForage(__instance, (Farmer farmer) => { SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, __instance); });
                 else
-                    SpawnForagedItem(forageId, amount, quality, __instance);
+                    SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, __instance);
 
                 // update parsed products to reset object
                 parsedProduces.First(produce => produce.UniqueName.ToLower() == produceToDrop.UniqueName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(produceToDrop);
@@ -1248,13 +1248,16 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="id">The id of the object to spawn.</param>
         /// <param name="stackSize">The stack size of the object.</param>
         /// <param name="quality">The quality of the product being produced (4 = iridium, 2 = gold, 1 = silver, 0 = normal)</param>
+        /// <param name="standardQualityOnly">Whether the spawned object should have it's quality forced to be normal (this is used to counter the botanist profession).</param>
         /// <param name="animal">The animal to spawn forage produce for.</param>
         /// <returns><see langword="true"/> if the object was successfully spawned; otherwise, <see langword="false"/>.</returns>
         /// <remarks>This also updates the modData with the resetted DaysToProduce, this is because the method can be delayed if it's a callback from an animation, this resulted in the modData not being updated and animals endlessly producing forage produce.</remarks>
-        private static void SpawnForagedItem(int id, int stackSize, int quality, FarmAnimal animal)
+        private static void SpawnForagedItem(int id, int stackSize, int quality, bool standardQualityOnly, FarmAnimal animal)
         {
             var objectToSpawn = new StardewValley.Object(animal.getTileLocation(), id, stackSize) { Quality = quality };
             objectToSpawn.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/producedItem"] = ""; // this is used so we can tell if this object should keep it's stack size when being picked up (no value is expected, just the keys presence)
+            if (standardQualityOnly)
+                objectToSpawn.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality"] = "";
 
             if (Utility.spawnObjectAround(Utility.getTranslatedVector2(animal.getTileLocation(), animal.FacingDirection, 1), objectToSpawn, Game1.getFarm()))
             {
