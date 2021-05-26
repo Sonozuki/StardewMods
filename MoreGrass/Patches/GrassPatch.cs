@@ -5,6 +5,7 @@ using StardewValley;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -150,13 +151,20 @@ namespace MoreGrass.Patches
                 var useDefaultGrass = false;
                 var grassId = whichWeed[i];
 
-                // force default grass based on configuration
+                // force default grass based on coverage configuration
                 var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed / 28 + (int)tileLocation.X * 7 * (int)tileLocation.Y * 11 + i);
                 if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f))
-                {
                     useDefaultGrass = true;
+
+                // force default grass based on user specified white/black list configuration
+                var whiteListLocations = ModEntry.Instance.Config.LocationsWhiteList ?? new List<string>();
+                var blackListLocations = ModEntry.Instance.Config.LocationsBlackList ?? new List<string>();
+                if ((whiteListLocations.Count > 0 && !Utilities.ContainsCurrentLocation(whiteListLocations, __instance.currentLocation.Name))
+                    || (blackListLocations.Count > 0 && Utilities.ContainsCurrentLocation(blackListLocations, __instance.currentLocation.Name)))
+                    useDefaultGrass = true;
+
+                if (useDefaultGrass)
                     grassId = random.Next(defaultTextures.Count);
-                }
 
                 var globalPosition = i != 4
                     ? tileLocation * 64f + new Vector2(x: i % 2 * 64 / 2 + offset3[i] * 4 - 4 + 30, y: i / 2 * 64 / 2 + offset4[i] * 4 + 40)
