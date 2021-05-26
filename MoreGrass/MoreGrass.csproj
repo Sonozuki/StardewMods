@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\ModConfig.cs" />
+    <Compile Include="Models\GrassSprite.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Patches\GameLocationPatch.cs" />
     <Compile Include="Patches\GrassPatch.cs" />

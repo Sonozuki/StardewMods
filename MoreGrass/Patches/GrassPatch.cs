@@ -67,10 +67,10 @@ namespace MoreGrass.Patches
             Texture2D grassTexture = null;
             switch (Game1.currentSeason)
             {
-                case "spring": grassTexture = ModEntry.Instance.SpringSpritePool.GetRandomSprite(); break;
-                case "summer": grassTexture = ModEntry.Instance.SummerSpritePool.GetRandomSprite(); break;
-                case "fall": grassTexture = ModEntry.Instance.FallSpritePool.GetRandomSprite(); break;
-                case "winter": grassTexture = ModEntry.Instance.WinterSpritePool.GetRandomSprite(); break;
+                case "spring": grassTexture = ModEntry.Instance.SpringSpritePool.GetRandomSprite(__instance.currentLocation?.Name); break;
+                case "summer": grassTexture = ModEntry.Instance.SummerSpritePool.GetRandomSprite(__instance.currentLocation?.Name); break;
+                case "fall": grassTexture = ModEntry.Instance.FallSpritePool.GetRandomSprite(__instance.currentLocation?.Name); break;
+                case "winter": grassTexture = ModEntry.Instance.WinterSpritePool.GetRandomSprite(__instance.currentLocation?.Name); break;
             }
 
             __instance.texture = new Lazy<Texture2D>(() => grassTexture);
@@ -105,10 +105,10 @@ namespace MoreGrass.Patches
             {
                 switch (Game1.currentSeason)
                 {
-                    case "spring": newWhichWeed[i] = random.Next(ModEntry.Instance.SpringSpritePool.Count); break;
-                    case "summer": newWhichWeed[i] = random.Next(ModEntry.Instance.SummerSpritePool.Count); break;
-                    case "fall": newWhichWeed[i] = random.Next(ModEntry.Instance.FallSpritePool.Count); break;
-                    case "winter": newWhichWeed[i] = random.Next(ModEntry.Instance.WinterSpritePool.Count); break;
+                    case "spring": newWhichWeed[i] = random.Next(ModEntry.Instance.SpringSpritePool.GetSprites(__instance.currentLocation.Name).Count); break;
+                    case "summer": newWhichWeed[i] = random.Next(ModEntry.Instance.SummerSpritePool.GetSprites(__instance.currentLocation.Name).Count); break;
+                    case "fall": newWhichWeed[i] = random.Next(ModEntry.Instance.FallSpritePool.GetSprites(__instance.currentLocation.Name).Count); break;
+                    case "winter": newWhichWeed[i] = random.Next(ModEntry.Instance.WinterSpritePool.GetSprites(__instance.currentLocation.Name).Count); break;
                 }
             }
 
@@ -139,10 +139,10 @@ namespace MoreGrass.Patches
             var textures = new List<Texture2D>();
             switch (Game1.currentSeason)
             {
-                case "spring": textures = ModEntry.Instance.SpringSpritePool.Sprites; defaultTextures = ModEntry.Instance.SpringSpritePool.DefaultSprites; break;
-                case "summer": textures = ModEntry.Instance.SummerSpritePool.Sprites; defaultTextures = ModEntry.Instance.SummerSpritePool.DefaultSprites; break;
-                case "fall":   textures = ModEntry.Instance.FallSpritePool.Sprites;   defaultTextures = ModEntry.Instance.FallSpritePool.DefaultSprites;   break;
-                case "winter": textures = ModEntry.Instance.WinterSpritePool.Sprites; defaultTextures = ModEntry.Instance.WinterSpritePool.DefaultSprites; break;
+                case "spring": textures = ModEntry.Instance.SpringSpritePool.GetSprites(__instance.currentLocation.Name); defaultTextures = ModEntry.Instance.SpringSpritePool.DefaultSprites; break;
+                case "summer": textures = ModEntry.Instance.SummerSpritePool.GetSprites(__instance.currentLocation.Name); defaultTextures = ModEntry.Instance.SummerSpritePool.DefaultSprites; break;
+                case "fall":   textures = ModEntry.Instance.FallSpritePool.GetSprites(__instance.currentLocation.Name);   defaultTextures = ModEntry.Instance.FallSpritePool.DefaultSprites;   break;
+                case "winter": textures = ModEntry.Instance.WinterSpritePool.GetSprites(__instance.currentLocation.Name); defaultTextures = ModEntry.Instance.WinterSpritePool.DefaultSprites; break;
             }
 
             // draw the grass
