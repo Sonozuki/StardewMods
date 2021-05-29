@@ -16,10 +16,13 @@ namespace MoreGrass
         private bool _IncludeDefaultGrass;
 
         /// <summary>The default grass sprites in the sprite pool.</summary>
-        private List<Texture2D> DefaultGrassSprites = new List<Texture2D>();
+        private readonly List<Texture2D> DefaultGrassSprites = new List<Texture2D>();
 
         /// <summary>The custom grass sprites in the sprite pool.</summary>
-        private List<GrassSprite> CustomGrassSprites = new List<GrassSprite>();
+        private readonly List<GrassSprite> CustomGrassSprites = new List<GrassSprite>();
+
+        /// <summary>The cached results of <see cref="GetSprites(string)"/>.</summary>
+        private readonly Dictionary<string, List<Texture2D>> GetSpriteCache = new Dictionary<string, List<Texture2D>>();
 
 
         /*********
@@ -66,14 +69,25 @@ namespace MoreGrass
         /// <returns>The sprites from the sprite pool that can show up in the specified location.</returns>
         public List<Texture2D> GetSprites(string locationName)
         {
-            var sprites = CustomGrassSprites.Where(grassSprite => locationName == null // if no location is specified, don't both checking the whitelist/blacklist
-                || ((grassSprite.WhiteListedLocations.Count == 0 || Utilities.ContainsCurrentLocation(grassSprite.WhiteListedLocations, locationName))
-                && (grassSprite.BlackListedLocations.Count == 0 || !Utilities.ContainsCurrentLocation(grassSprite.BlackListedLocations, locationName))))
+            if (locationName == null)
+                return DefaultSprites;
+
+            // check if the result has been cached
+            locationName = locationName.ToLower();
+            if (GetSpriteCache.TryGetValue(locationName, out var sprites))
+                return sprites;
+
+            // calculate result and cache it
+            sprites = CustomGrassSprites.Where(grassSprite =>
+                    (grassSprite.WhiteListedLocations.Count == 0 || Utilities.ContainsLocation(locationName, grassSprite.WhiteListedLocations))       
+                 && (grassSprite.BlackListedLocations.Count == 0 || !Utilities.ContainsLocation(locationName, grassSprite.BlackListedLocations)))
                 .Select(grassSprite => grassSprite.Sprite)
                 .ToList();
 
             if (IncludeDefaultGrass || sprites.Count == 0)
                 sprites.AddRange(DefaultGrassSprites);
+
+            GetSpriteCache[locationName] = sprites;
 
             return sprites;
         }

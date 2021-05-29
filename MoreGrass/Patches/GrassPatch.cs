@@ -5,7 +5,6 @@ using StardewValley;
 using StardewValley.TerrainFeatures;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -145,33 +144,27 @@ namespace MoreGrass.Patches
                 case "winter": textures = ModEntry.Instance.WinterSpritePool.GetSprites(__instance.currentLocation.Name); defaultTextures = ModEntry.Instance.WinterSpritePool.DefaultSprites; break;
             }
 
+            // force default grass based on user specified white/black list configuration
+            var forceDefaultGrass = Utilities.ShouldForceGrassToDefault(__instance.currentLocation.Name);
+
             // draw the grass
+            var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed / 28 + (int)tileLocation.X * 7 * (int)tileLocation.Y * 11);
             for (int i = 0; i < __instance.numberOfWeeds; i++)
             {
-                var useDefaultGrass = false;
                 var grassId = whichWeed[i];
 
                 // force default grass based on coverage configuration
-                var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed / 28 + (int)tileLocation.X * 7 * (int)tileLocation.Y * 11 + i);
-                if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f))
-                    useDefaultGrass = true;
-
-                // force default grass based on user specified white/black list configuration
-                var whiteListLocations = ModEntry.Instance.Config.LocationsWhiteList ?? new List<string>();
-                var blackListLocations = ModEntry.Instance.Config.LocationsBlackList ?? new List<string>();
-                if ((whiteListLocations.Count > 0 && !Utilities.ContainsCurrentLocation(whiteListLocations, __instance.currentLocation.Name))
-                    || (blackListLocations.Count > 0 && Utilities.ContainsCurrentLocation(blackListLocations, __instance.currentLocation.Name)))
-                    useDefaultGrass = true;
-
-                if (useDefaultGrass)
+                if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f)
+                    || forceDefaultGrass)
                     grassId = random.Next(defaultTextures.Count);
 
+                // draw grass
                 var globalPosition = i != 4
                     ? tileLocation * 64f + new Vector2(x: i % 2 * 64 / 2 + offset3[i] * 4 - 4 + 30, y: i / 2 * 64 / 2 + offset4[i] * 4 + 40)
                     : tileLocation * 64f + new Vector2(x: 16 + offset1[i] * 4 - 4 + 30, y: 16 + offset2[i] * 4 + 40);
                 
                 spriteBatch.Draw(
-                    texture: useDefaultGrass ? defaultTextures[grassId] : textures[grassId],
+                    texture: forceDefaultGrass ? defaultTextures[grassId] : textures[grassId],
                     position: Game1.GlobalToLocal(Game1.viewport, globalPosition),
                     sourceRectangle: new Rectangle(0, 0, 15, 20),
                     color: Color.White,
