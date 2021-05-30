@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MoreGrass.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MoreGrass
@@ -13,7 +14,7 @@ namespace MoreGrass
         private static readonly Dictionary<string, bool> ShouldForceGrassToDefaultCache = new Dictionary<string, bool>();
 
         /// <summary>The cached results of <see cref="ContainsLocation(string, List{string})"/>.</summary>
-        private static readonly Dictionary<(string, List<string>), bool> ContainsLocationCache = new Dictionary<(string, List<string>), bool>();
+        private static readonly Dictionary<ContainsLocationData, bool> ContainsLocationCache = new Dictionary<ContainsLocationData, bool>();
 
 
         /*********
@@ -48,10 +49,10 @@ namespace MoreGrass
         public static bool ContainsLocation(string locationName, List<string> locations)
         {
             locationName = locationName.ToLower();
-            var tuple = (locationName, locations);
+            var containsLocationData = new ContainsLocationData(locationName, locations);
 
             // check if value has been cached
-            if (ContainsLocationCache.TryGetValue(tuple, out var containsLocation))
+            if (ContainsLocationCache.TryGetValue(containsLocationData, out var containsLocation))
                 return containsLocation;
 
             // calculate whether the location is contained and cache value
@@ -68,7 +69,7 @@ namespace MoreGrass
                 }
             }
 
-            ContainsLocationCache[tuple] = containsLocation;
+            ContainsLocationCache[containsLocationData] = containsLocation;
             return containsLocation;
         }
     }
