@@ -54,7 +54,10 @@ namespace Outerwear
             var buff = Game1.buffsDisplay.otherBuffs.FirstOrDefault(buff => buff.which == BuffId);
 
             if (equippedOuterwearData.ObjectId != CurrentBuffObjectId)
-                buff?.removeBuff();
+            {
+                Game1.buffsDisplay.removeOtherBuff(BuffId);
+                buff = null;
+            }
 
             if (buff == null)
             {
