@@ -54,12 +54,15 @@
   <ItemGroup>
     <Compile Include="Api\Api.cs" />
     <Compile Include="Api\IApi.cs" />
+    <Compile Include="CustomBuff.cs" />
     <Compile Include="Models\Converted\OuterwearData.cs" />
     <Compile Include="Models\OuterwearEffects.cs" />
     <Compile Include="Models\Parsed\ParsedOuterwearData.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="OuterwearEffectsApplier.cs" />
     <Compile Include="OuterwearType.cs" />
+    <Compile Include="Patches\BuffPatch.cs" />
+    <Compile Include="Patches\FarmerPatch.cs" />
     <Compile Include="Patches\FarmerRendererPatch.cs" />
     <Compile Include="Patches\InventoryPagePatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +73,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\CustomBuffIcons.png" />
     <Content Include="Assets\OuterwearPlaceholder.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

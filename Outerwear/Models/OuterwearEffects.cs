@@ -18,8 +18,26 @@
         /// <summary>The fishing skill added to the player.</summary>
         public int FishingIncrease { get; set; }
 
+        /// <summary>The combat skill added to the player.</summary>
+        public int CombatIncrease { get; set; }
+
+        /// <summary>The max health added to the player.</summary>
+        public int MaxHealthIncrease { get; set; }
+
         /// <summary>The max stamina added to the player.</summary>
         public int MaxStaminaIncrease { get; set; }
+
+        /// <summary>The health regenerated every second.</summary>
+        public int HealthRegeneration { get; set; }
+
+        /// <summary>The stamina regenerated every second.</summary>
+        public int StaminaRegeneration { get; set; }
+
+        /// <summary>The percent critical chance added to the player.</summary>
+        public int CriticalChanceIncrease { get; set; }
+
+        /// <summary>The percent critical power added to the player.</summary>
+        public int CriticalPowerIncrease { get; set; }
 
         /// <summary>The magnetic radius added to the player.</summary>
         public int MagneticRadiusIncrease { get; set; }

@@ -15,7 +15,7 @@ using System.IO;
 namespace Outerwear
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod
+    public class ModEntry : Mod, IAssetEditor
     {
         /*********
         ** Accessors
@@ -53,11 +53,22 @@ namespace Outerwear
             ApplyHarmonyPatches();
 
             this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-            this.Helper.Events.GameLoop.UpdateTicked += (sender, e) => OuterwearEffectsApplier.Update();
+            this.Helper.Events.GameLoop.Saved += (sender, e) => FixStaminaAndHealth();
+            this.Helper.Events.GameLoop.UpdateTicked += (sender, e) => OuterwearEffectsApplier.Update(e.IsOneSecond);
         }
 
         /// <inheritdoc/>
         public override object GetApi() => Api;
+
+        /// <inheritdoc/>
+        public bool CanEdit<T>(IAssetInfo asset) => asset.AssetNameEquals("TileSheets/BuffsIcons");
+
+        /// <inheritdoc/>
+        public void Edit<T>(IAssetData asset)
+        {
+            var customBuffIconsTexture = this.Helper.Content.Load<Texture2D>("assets/CustomBuffIcons.png");
+            asset.AsImage().PatchImage(customBuffIconsTexture, targetArea: new Rectangle(80, 32, 96, 16));
+        }
 
 
         /*********
@@ -71,6 +82,25 @@ namespace Outerwear
             OuterwearData.Clear();
 
             LoadContentPacks();
+
+            FixStaminaAndHealth();
+        }
+
+        /// <summary>Corrects the stamina and health of the player accomodating for equipped outerwear.</summary>
+        /// <remarks>This is required because before the game saves, it'll remove all buffs. This means the max health and max stamina don't take into account the outerwear buffs.</remarks>
+        private void FixStaminaAndHealth()
+        {
+            var equippedOuterwear = Api.GetEquippedOuterwear();
+            if (equippedOuterwear == null)
+                return;
+            var equippedOuterwearData = Api.GetOuterwearData(equippedOuterwear.ParentSheetIndex);
+            if (equippedOuterwearData == null)
+                return;
+
+            Game1.player.health = Game1.player.maxHealth + equippedOuterwearData.Effects.MaxHealthIncrease;
+
+            if (Game1.player.stamina == Game1.player.MaxStamina) // only increase stamina if it's full, this is so if the player was exhausted, it won't fill up their stamina
+                Game1.player.stamina = Game1.player.MaxStamina + equippedOuterwearData.Effects.MaxStaminaIncrease;
         }
 
         /// <summary>Applies the harmony patches for patching game code.</summary>
@@ -80,6 +110,38 @@ namespace Outerwear
             var harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
 
             // apply the patches
+            foreach (var constructorInfo in typeof(Buff).GetConstructors())
+                harmony.Patch(
+                    original: constructorInfo,
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(BuffPatch), nameof(BuffPatch.ConstructorPostFix)))
+                );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Buff), nameof(Buff.getClickableComponents)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(BuffPatch), nameof(BuffPatch.GetClickableComponentsPostFix)))
+            );
+
+            foreach (var constructorInfo in typeof(Farmer).GetConstructors())
+                harmony.Patch(
+                    original: constructorInfo,
+                    transpiler: new HarmonyMethod(AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.ConstructorTranspile)))
+                );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.addBuffAttributes)),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.AddBuffAttributesPostFix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.removeBuffAttributes), new[] { typeof(int[]) }),
+                postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.RemoveBuffAttributesPostFix)))
+            );
+
+            harmony.Patch(
+                original: AccessTools.Method(typeof(Farmer), nameof(Farmer.ClearBuffs)),
+                prefix: new HarmonyMethod(AccessTools.Method(typeof(FarmerPatch), nameof(FarmerPatch.ClearBuffsPrefix)))
+            );
+
             harmony.Patch(
                 original: AccessTools.Method(typeof(FarmerRenderer), nameof(FarmerRenderer.draw), new Type[] { typeof(SpriteBatch), typeof(FarmerSprite.AnimationFrame), typeof(int), typeof(Rectangle), typeof(Vector2), typeof(Vector2), typeof(float), typeof(int), typeof(Color), typeof(float), typeof(float), typeof(Farmer) }),
                 postfix: new HarmonyMethod(AccessTools.Method(typeof(FarmerRendererPatch), nameof(FarmerRendererPatch.DrawPostFix)))

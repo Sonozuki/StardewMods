@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
+using System;
 using System.Linq;
 
 namespace Outerwear
@@ -11,9 +12,9 @@ namespace Outerwear
         /*********
         ** Fields
         *********/
-        /// <summary>The object id of the outerwear currently worn.</summary>
+        /// <summary>The object id of the outerwear whose buff is currently active.</summary>
         /// <remarks>This is used to tell when an outerwear has been changed if it hasn't been set to <see langword="null"/> first, so the buff can be reset correctly.</remarks>
-        private static int CurrentOuterwearObjectId;
+        private static int CurrentBuffObjectId;
 
 
         /*********
@@ -30,8 +31,9 @@ namespace Outerwear
         ** Public Methods
         *********/
         /// <summary>Updates the outerwear effects.</summary>
+        /// <param name="isOneSecond">Whether <see cref="StardewModdingAPI.Events.UpdateTickedEventArgs.Ticks"/> is a multiple of 60, which happens approximately once per second.</param>
         /// <remarks>This is invoked once per tick.</remarks>
-        public static void Update()
+        public static void Update(bool isOneSecond)
         {
             // ignore in cutscenes
             if (Game1.eventUp || !Context.IsWorldReady)
@@ -45,16 +47,18 @@ namespace Outerwear
                 return;
             }
             var equippedOuterwearData = ModEntry.Instance.Api.GetOuterwearData(equippedOuterwear.ParentSheetIndex);
-
-            // remove the old buff if it's no longer valid
-            if (equippedOuterwearData.ObjectId != CurrentOuterwearObjectId)
-                Game1.buffsDisplay.otherBuffs.RemoveAll(buff => buff.which == BuffId);
+            if (equippedOuterwearData == null) // this will be the case if the player has uninstalled a content pack while wearing one of it's outerwear
+                return;
 
             // add or update buff
             var buff = Game1.buffsDisplay.otherBuffs.FirstOrDefault(buff => buff.which == BuffId);
+
+            if (equippedOuterwearData.ObjectId != CurrentBuffObjectId)
+                buff?.removeBuff();
+
             if (buff == null)
             {
-                Game1.buffsDisplay.addOtherBuff(buff = new Buff(
+                buff = new Buff(
                     farming: equippedOuterwearData.Effects.FarmingIncrease,
                     fishing: equippedOuterwearData.Effects.FishingIncrease,
                     mining: equippedOuterwearData.Effects.MiningIncrease, 0, 0,
@@ -65,10 +69,26 @@ namespace Outerwear
                     defense: equippedOuterwearData.Effects.DefenceIncrease,
                     attack: equippedOuterwearData.Effects.AttackIncrease,
                     minutesDuration: 1, source: "Outerwear", displaySource: "Outerwear")
-                { which = BuffId });
+                { which = BuffId };
+                buff.buffAttributes[(int)CustomBuff.CombatSkill] = equippedOuterwearData.Effects.CombatIncrease;
+                buff.buffAttributes[(int)CustomBuff.CriticalChance] = equippedOuterwearData.Effects.CriticalChanceIncrease;
+                buff.buffAttributes[(int)CustomBuff.CriticalPower] = equippedOuterwearData.Effects.CriticalPowerIncrease;
+                buff.buffAttributes[(int)CustomBuff.MaxHealth] = equippedOuterwearData.Effects.MaxHealthIncrease;
+                buff.buffAttributes[(int)CustomBuff.HealthRegeneration] = equippedOuterwearData.Effects.HealthRegeneration;
+                buff.buffAttributes[(int)CustomBuff.StaminaRegeneration] = equippedOuterwearData.Effects.StaminaRegeneration;
+
+                Game1.buffsDisplay.addOtherBuff(buff);
             }
+
             buff.millisecondsDuration = 50;
-            CurrentOuterwearObjectId = equippedOuterwearData.ObjectId;
+            CurrentBuffObjectId = equippedOuterwearData.ObjectId;
+
+            // apply regeneration
+            if (isOneSecond)
+            {
+                Game1.player.health = Math.Min(Game1.player.maxHealth, Game1.player.health + equippedOuterwearData.Effects.HealthRegeneration);
+                Game1.player.Stamina = Math.Min(Game1.player.MaxStamina, Game1.player.stamina + equippedOuterwearData.Effects.StaminaRegeneration);
+            }
 
             // add or update light emission
             if (equippedOuterwearData.Effects.EmitsLight)
