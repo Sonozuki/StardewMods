@@ -74,6 +74,8 @@ namespace Outerwear.Patches
             {
                 Game1.player.CursorSlotItem = equippedOuterwear;
                 ModEntry.Instance.Api.UnequipOuterwear();
+
+                Game1.playSound("dwop");
             }
             else if (Game1.player.CursorSlotItem != null && ModEntry.Instance.Api.IsOuterwear(Game1.player.CursorSlotItem.ParentSheetIndex))
             {
@@ -81,6 +83,8 @@ namespace Outerwear.Patches
 
                 ModEntry.Instance.Api.EquipOuterwear(Game1.player.CursorSlotItem);
                 Game1.player.CursorSlotItem = oldOuterwear;
+
+                Game1.playSound("sandyStep");
             }
         }
 
