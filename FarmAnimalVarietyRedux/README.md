@@ -250,6 +250,125 @@ InternalAnimalName |               | The internal name of either the animal or a
         }
     }
 
+## Editing with Content Patcher
+FAVR enables you to edit both the sprite sheets and purchase menu icons through Content Patcher using custom tokens, these are:
+
+Property     | Description
+------------ | -----------
+GetAssetPath | Gets the asset path of either an animal sprite sheet or an animal purchase menu icon.
+GetSourceX   | Gets the X position of the purchase menu icon source rectangle.
+GetSourceY   | Gets the Y position of the purchase menu icon source rectangle.
+
+(See: [Content Patcher Examples](#content-patcher-examples) for full examples, or see below for a description of each property.)
+
+### GetAssetPath
+#### Getting an animal sprite sheet
+Requires 5 parameters: **internal animal name**, **internal subtype name**, **isBaby**, **isHarvested**, **season**.
+
+Parameter             | Type                       | Description
+--------------------- | :------------------------: | -----------
+Internal Animal Name  | `string`                   | The *internal* animal name, see [Special Properties](#special-properties) for details.
+Internal Subtype Name | `string`                   | The *internal* subtype name, see [Special Properties](#special-properties) for details.
+IsBaby                | `bool` (`true` or `false`) | Whether the sprite sheet to retrieve should be of the baby version of the animal.
+IsHarvested           | `bool` (`true` or `false`) | Whether the sprite sheet to retrieve should be of the harvested version of the animal.
+Season                | `string`                   | The season whose sprite sheet should be retrieved of the animal.
+
+(See [Editing a sprite sheet](#editing-a-sprite-sheet) for an example)
+
+#### Getting an animal purchase menu icon
+Requires 1 parameter: **internal animal name**
+
+Parameter             | Type     | Description
+--------------------- | :------: | -----------
+Internal Animal Name  | `string` | The *internal* animal name, see [Special Properties](#special-properties) for details.
+
+(See [Editing a purchase menu icon](#editing-a-purchase-menu-icon) for an example)
+
+### GetSourceX
+When patching the source rectangle of a purchase menu icon, it's important to specify the source X and Y position, this is because the icons can be inside a sprite sheet (instead of their own texture, in the case of default shop icons.)
+
+Requires 1 parameter: **internal animal name**
+
+Parameter             | Type     | Description
+--------------------- | :------: | -----------
+Internal Animal Name  | `string` | The *internal* animal name, see [Special Properties](#special-properties) for details.
+
+(See [Editing a purchase menu icon](#editing-a-purchase-menu-icon) for an example)
+
+### GetSourceY
+When patching the source rectangle of a purchase menu icon, it's important to specify the source X and Y position, this is because the icons can be inside a sprite sheet (instead of their own texture, in the case of default shop icons.)
+
+Requires 1 parameter: **internal animal name**
+
+Parameter             | Type     | Description
+--------------------- | :------: | -----------
+Internal Animal Name  | `string` | The *internal* animal name, see [Special Properties](#special-properties) for details.
+
+(See [Editing a purchase menu icon](#editing-a-purchase-menu-icon) for an example)
+
+### Content Patcher Examples
+#### Editing a sprite sheet
+Replaces the **adult**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+
+    "Changes": [
+        {
+            "Action": "EditImage",
+            "Target": "{{Satozaki.FarmAnimalVarietyRedux/GetAssetPath: Satozaki.CustomAnimals.Elephant, Satozaki.CustomAnimals.Grey Elephant, false, false, {{season}}}}",
+            "FromFile": "assets/grey elephant {{season}}.png",
+            "When": {
+                "HasMod": "Satozaki.FarmAnimalVarietyRedux"
+            }
+        }
+    ]
+
+
+Replaces the **baby**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+
+    "Changes": [
+        {
+            "Action": "EditImage",
+            "Target": "{{Satozaki.FarmAnimalVarietyRedux/GetAssetPath: Satozaki.CustomAnimals.Elephant, Satozaki.CustomAnimals.Grey Elephant, true, false, {{season}}}}",
+            "FromFile": "assets/grey elephant {{season}}.png",
+            "When": {
+                "HasMod": "Satozaki.FarmAnimalVarietyRedux"
+            }
+        }
+    ]
+
+
+Replaces the **adult**, **harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+
+    "Changes": [
+        {
+            "Action": "EditImage",
+            "Target": "{{Satozaki.FarmAnimalVarietyRedux/GetAssetPath: Satozaki.CustomAnimals.Elephant, Satozaki.CustomAnimals.Grey Elephant, false, true, {{season}}}}",
+            "FromFile": "assets/grey elephant {{season}}.png",
+            "When": {
+                "HasMod": "Satozaki.FarmAnimalVarietyRedux"
+            }
+        }
+    ]
+
+#### Editing a purchase menu icon
+Replaces the purchase menu icon of the `Elephant` added by `Satozaki.CustomAnimals` with `assets/shopicon.png`:
+
+    "Changes": [
+    {
+            "Action": "EditImage",
+            "Target": "{{Satozaki.FarmAnimalVarietyRedux/GetAssetPath: Satozaki.CustomAnimals.Elephant}}",
+            "ToArea": {
+                "X": "{{Satozaki.FarmAnimalVarietyRedux/GetSourceX: Satozaki.CustomAnimals.Elephant}}",
+                "Y": "{{Satozaki.FarmAnimalVarietyRedux/GetSourceY: Satozaki.CustomAnimals.Elephant}}",
+                "Width": 32,
+                "Height": 16
+            },
+            "FromFile": "assets/shopicon.png",
+            "When": {
+                "HasMod": "Satozaki.FarmAnimalVarietyRedux"
+            }
+        }
+    ]
+
 ## Install
 1. Install the latest version of [SMAPI](https://www.nexusmods.com/stardewvalley/mods/2400).
 2. Install the latest version of [this mod](https://www.nexusmods.com/stardewvalley/mods/).
