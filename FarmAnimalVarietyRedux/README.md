@@ -308,7 +308,7 @@ Internal Animal Name  | `string` | The *internal* animal name, see [Special Prop
 
 ### Content Patcher Examples
 #### Editing a sprite sheet
-Replaces the **adult**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+Replaces the **adult**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/grey elephant {{season}}.png`:
 
     "Changes": [
         {
@@ -322,7 +322,7 @@ Replaces the **adult**, **non harvested** sprite sheet of the `Grey Elephant` ad
     ]
 
 
-Replaces the **baby**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+Replaces the **baby**, **non harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/grey elephant {{season}}.png`:
 
     "Changes": [
         {
@@ -336,7 +336,7 @@ Replaces the **baby**, **non harvested** sprite sheet of the `Grey Elephant` add
     ]
 
 
-Replaces the **adult**, **harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/new grey elephant.png`:
+Replaces the **adult**, **harvested** sprite sheet of the `Grey Elephant` added by `Satozaki.CustomAnimals` with `assets/grey elephant {{season}}.png`:
 
     "Changes": [
         {
