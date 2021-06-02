@@ -68,10 +68,9 @@ namespace FarmAnimalVarietyRedux
                 return;
 
             // don't override the type if one exists, this will result in custom animals from uninstalled packs being converted to chickens in a way that's not reversible
-            if (animal.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/type"))
-                return;
+            if (!animal.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/type"))
+                animal.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/type"] = animal.type;
 
-            animal.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/type"] = animal.type;
             animal.type.Value = "White Chicken";
         }
 
