@@ -105,7 +105,8 @@ Also, a "default" adult sheet (the one that is in the root of the assets folder)
                         "RequiresMale": null,
                         "RequiresCoopMaster": null,
                         "RequiresShepherd": null,
-                        "StandardQualityOnly": false
+                        "StandardQualityOnly": false,
+                        "DoNotAllowDuplicates": false
                     }
                 ],
                 "DaysTillMature": 3,
@@ -205,6 +206,7 @@ RequiresMale                    | `null`                                     | W
 RequiresCoopMaster              | `null`                                     | Whether the player must have the Coop Master profession for the animal to produce the item. **Note:** if `true` is specified then the farmer must have the Coop Master profession for the animal to drop the item, if `false` is specified then the farmer must not have the Coop Master profession for the animal to drop the item, if `null` is specified then it doesn't matter whether the farmer has it or not.
 RequiresShepherd                | `null`                                     | Whether the player must have the Shepherd profession for the animal to produce the item. **Note:** if `true` is specified then the farmer must have the Shepherd profession for the animal to drop the item, if `false` is specified then the farmer must not have the Shepherd profession for the animal to drop the item, if `null` is specified then it doesn't matter whether the farmer has it or not.
 StandardQualityOnly             | `false`                                    | Whether the product should be standard quality only.
+DoNotAllowDuplicates            | `false`                                    | Whether the item can not be produced if it's in the player possession. An object is in the players possession if it placed in an animal building or on the farm, in a farmer's inventory, or in a chest.
 
 #### Special properties
 Property     | Description
