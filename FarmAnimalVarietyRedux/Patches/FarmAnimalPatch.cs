@@ -1297,7 +1297,7 @@ namespace FarmAnimalVarietyRedux.Patches
             foreach (var environmentObject in animal.home.indoors.Value.Objects.Values)
             {
                 // ensure object is an auto grabber
-                if (!environmentObject.bigCraftable || environmentObject.ParentSheetIndex != 165 || environmentObject.heldObject != null)
+                if (!environmentObject.bigCraftable || environmentObject.ParentSheetIndex != 165 || environmentObject.heldObject == null)
                     continue;
 
                 // try to place the full object in the auto grabber
