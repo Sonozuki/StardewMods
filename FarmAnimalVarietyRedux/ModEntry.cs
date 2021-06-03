@@ -28,7 +28,7 @@ using System.Reflection;
 namespace FarmAnimalVarietyRedux
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod
+    public class ModEntry : Mod, IAssetEditor
     {
         /*********
         ** Fields
@@ -132,6 +132,18 @@ namespace FarmAnimalVarietyRedux
             // add all incubator recipes found in content packs
             foreach (var incubatorRecipe in ParsedRecipes)
                 Api.AddIncubatorRecipe(incubatorRecipe);
+        }
+
+        /// <inheritdoc/>
+        public bool CanEdit<T>(IAssetInfo asset) => asset.AssetNameEquals("data/bigcraftablesinformation");
+
+        /// <inheritdoc/>
+        public void Edit<T>(IAssetData asset)
+        {
+            // TODO: i18n
+            var data = asset.AsDictionary<int, string>();
+            data.Data[101] = "Incubator/0/-300/Crafting -9/Hatches eggs into baby animals./true/false/2/Incubator";
+            data.Data[254] = "Ostrich Incubator/0/-300/Crafting -9/Hatches eggs into baby animals. Place in a barn./true/true/0/Ostrich Incubator";
         }
 
         /// <inheritdoc/>
