@@ -60,7 +60,9 @@
     <Compile Include="Api\IApi.cs" />
     <Compile Include="CommandManager.cs" />
     <Compile Include="Models\Converted\FishCategory.cs" />
+    <Compile Include="Models\Converted\LocationArea.cs" />
     <Compile Include="Models\Parsed\ParsedFishCategory.cs" />
+    <Compile Include="Models\Parsed\ParsedLocationArea.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

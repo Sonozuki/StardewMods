@@ -25,5 +25,22 @@ namespace MasterFisher
         /// <param name="categoryName">The name of the category to retrieve.</param>
         /// <returns>A fish category with the name of <paramref name="categoryName"/>, if one exists; otherwise, <see langword="null"/>.</returns>
         public FishCategory GetFishCategory(string categoryName);
+
+        /// <summary>Adds a location area.</summary>
+        /// <param name="locationArea">The location area to add.</param>
+        public void AddLocationArea(ParsedLocationArea locationArea);
+
+        /// <summary>Edits a location area.</summary>
+        /// <param name="locationArea">The location area to edit (with the new values.)</param>
+        public void EditLocationArea(ParsedLocationArea locationArea);
+
+        /// <summary>Deletes a location area.</summary>
+        /// <param name="uniqueName">The unique name of the location area to delete.</param>
+        public void DeleteLocationArea(string uniqueName);
+
+        /// <summary>Retrieves a location area by unique name.</summary>
+        /// <param name="uniqueName">The unique name of the location area to retrieve.</param>
+        /// <returns>A location area with the unique name of <paramref name="uniqueName"/>, if one exists; otherwise, <see langword="null"/>.</returns>
+        public LocationArea GetLocationArea(string uniqueName);
     }
 }

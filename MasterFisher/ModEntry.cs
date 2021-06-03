@@ -21,6 +21,9 @@ namespace MasterFisher
         /// <summary>The loaded fish categories.</summary>
         public List<FishCategory> Categories { get; } = new List<FishCategory>();
 
+        /// <summary>The loaded location areas.</summary>
+        public List<LocationArea> LocationAreas { get; } = new List<LocationArea>();
+
         /// <summary>The singleton instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
 
@@ -57,6 +60,7 @@ namespace MasterFisher
         private void LoadContentPacks()
         {
             var categories = new List<ParsedFishCategory>();
+            var locationAreas = new List<ParsedLocationArea>();
 
             foreach (var contentPack in this.Helper.ContentPacks.GetOwned())
             {
@@ -67,6 +71,10 @@ namespace MasterFisher
                     // categories
                     if (File.Exists(Path.Combine(contentPack.DirectoryPath, "categories.json")))
                         categories.AddRange(contentPack.LoadAsset<List<ParsedFishCategory>>("categories.json"));
+
+                    // location areas
+                    if (File.Exists(Path.Combine(contentPack.DirectoryPath, "locations.json")))
+                        locationAreas.AddRange(contentPack.LoadAsset<List<ParsedLocationArea>>("locations.json"));
                 }
                 catch (Exception ex)
                 {
@@ -81,6 +89,14 @@ namespace MasterFisher
                 Api.EditFishCategory(category);
             foreach (var category in categories.Where(category => category.Action == Action.Delete))
                 Api.DeleteFishCategory(category.Name);
+
+            // location areas
+            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Add))
+                Api.AddLocationArea(locationArea);
+            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Edit))
+                Api.EditLocationArea(locationArea);
+            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Delete))
+                Api.DeleteLocationArea(locationArea.UniqueName);
         }
     }
 }
