@@ -578,18 +578,28 @@ namespace FarmAnimalVarietyRedux.Patches
 
                 var shouldSpawnAgain = true;
                 if (location == Game1.currentLocation)
-                    AnimateForage(__instance, (Farmer farmer) => { shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, produceToDrop.DoNotAllowDuplicates, __instance); });
+                    AnimateForage(__instance, (Farmer farmer) =>
+                    {
+                        shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, produceToDrop.DoNotAllowDuplicates, __instance);
+                        UpdateParsedProduce(shouldSpawnAgain, parsedProduces, produceToDrop);
+                    });
                 else
+                {
                     shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, produceToDrop.DoNotAllowDuplicates, __instance);
-
-                // update parsed products to reset object
-                if (!shouldSpawnAgain)
-                    parsedProduces.First(produce => produce.UniqueName.ToLower() == produceToDrop.UniqueName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(produceToDrop);
-                __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/produces"] = JsonConvert.SerializeObject(parsedProduces);
+                    UpdateParsedProduce(shouldSpawnAgain, parsedProduces, produceToDrop);
+                }
             }
 
             __result = false;
             return false;
+
+            // Updates saved produce data
+            void UpdateParsedProduce(bool shouldSpawnAgain, List<SavedProduceData> parsedProduces, AnimalProduce produceToDrop)
+            {
+                if (!shouldSpawnAgain)
+                    parsedProduces.First(produce => produce.UniqueName.ToLower() == produceToDrop.UniqueName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(produceToDrop);
+                __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/produces"] = JsonConvert.SerializeObject(parsedProduces);
+            }
         }
 
         /// <summary>The prefix for the <see cref="FarmAnimal.CanSwim()"/> method.</summary>
