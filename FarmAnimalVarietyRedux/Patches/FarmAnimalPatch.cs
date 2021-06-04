@@ -578,9 +578,9 @@ namespace FarmAnimalVarietyRedux.Patches
 
                 var shouldSpawnAgain = true;
                 if (location == Game1.currentLocation)
-                    AnimateForage(__instance, (Farmer farmer) => { shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, __instance); });
+                    AnimateForage(__instance, (Farmer farmer) => { shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, produceToDrop.DoNotAllowDuplicates, __instance); });
                 else
-                    shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, __instance);
+                    shouldSpawnAgain = SpawnForagedItem(forageId, amount, quality, produceToDrop.StandardQualityOnly, produceToDrop.DoNotAllowDuplicates, __instance);
 
                 // update parsed products to reset object
                 if (!shouldSpawnAgain)
@@ -1252,20 +1252,27 @@ namespace FarmAnimalVarietyRedux.Patches
         /// <param name="stackSize">The stack size of the object.</param>
         /// <param name="quality">The quality of the product being produced (4 = iridium, 2 = gold, 1 = silver, 0 = normal)</param>
         /// <param name="standardQualityOnly">Whether the spawned object should have it's quality forced to be normal (this is used to counter the botanist profession).</param>
+        /// <param name="doNotAllowDuplicates">Whether the spawned object should have no duplicates (this is used to counter the gatherer profession, and AllowForageRepeats).</param>
         /// <param name="animal">The animal to spawn forage produce for.</param>
         /// <returns><see langword="true"/> if the object should be able to spawned again in the same day; otherwise, <see langword="false"/>.</returns>
         /// <remarks>This also updates the modData with the resetted DaysToProduce, this is because the method can be delayed if it's a callback from an animation, this resulted in the modData not being updated and animals endlessly producing forage produce.</remarks>
-        private static bool SpawnForagedItem(int id, int stackSize, int quality, bool standardQualityOnly, FarmAnimal animal)
+        private static bool SpawnForagedItem(int id, int stackSize, int quality, bool standardQualityOnly, bool doNotAllowDuplicates, FarmAnimal animal)
         {
             var objectToSpawn = new StardewValley.Object(animal.getTileLocation(), id, stackSize) { Quality = quality };
             objectToSpawn.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/producedItem"] = ""; // this is used so we can tell if this object should keep it's stack size when being picked up (no value is expected, just the keys presence)
             if (standardQualityOnly)
                 objectToSpawn.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality"] = "";
+            if (doNotAllowDuplicates)
+                objectToSpawn.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/doNotAllowDuplicates"] = "";
 
             if (Utility.spawnObjectAround(Utility.getTranslatedVector2(animal.getTileLocation(), animal.FacingDirection, 1), objectToSpawn, Game1.getFarm()))
             {
                 if (id == 430)
                     Game1.stats.TrufflesFound++;
+
+                // ensure the object is allowed duplicates before determining if repeats are allowed
+                if (doNotAllowDuplicates)
+                    return false;
 
                 // check if animal should skip resetting product's DaysLeft
                 var allowForageRepeats = true;
