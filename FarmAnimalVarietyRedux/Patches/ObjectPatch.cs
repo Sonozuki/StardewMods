@@ -75,17 +75,17 @@ namespace FarmAnimalVarietyRedux.Patches
         internal static void GetOnePostFix(Object __instance, ref Item __result)
         {
             // ensure the stack size is correct
-            if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/producedItem"))
+            if (__result.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/producedItem"))
             {
                 __result.Stack = __instance.Stack;
-                __instance.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/producedItem");
+                __result.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/producedItem");
             }
 
             // ensure the quality is correct
-            if (__instance.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality"))
+            if (__result.modData.ContainsKey($"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality"))
             {
                 (__result as Object).Quality = 0;
-                __instance.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality");
+                __result.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/producedShouldBeStandardQuality");
             }
         }
 
