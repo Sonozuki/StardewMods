@@ -591,7 +591,7 @@ namespace FarmAnimalVarietyRedux
             // force JA to initialise early
             var jaModData = this.Helper.ModRegistry.Get("spacechase0.JsonAssets");
             var jaInstance = (Mod)jaModData.GetType().GetProperty("Mod", BindingFlags.Public | BindingFlags.Instance).GetValue(jaModData);
-            jaInstance.GetType().GetMethod("initStuff", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(jaInstance, new object[] { false });
+            jaInstance.GetType().GetMethod("InitStuff", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(jaInstance, new object[] { false });
         }
 
         /// <summary>Loads a content pack.</summary>
