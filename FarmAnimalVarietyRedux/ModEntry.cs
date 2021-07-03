@@ -350,6 +350,11 @@ namespace FarmAnimalVarietyRedux
                     if (productId == -1)
                         continue;
 
+                    // ensure product can be dropped based off of duplicates property
+                    if (animalProduce.DoNotAllowDuplicates)
+                        if (Utilities.IsObjectInPlayerPossession(productId))
+                            continue;
+
                     // try to add the item to the player inventory
                     var amount = Utilities.DetermineDropAmount(animalProduce);
                     var quality = Utilities.DetermineProductQuality(hitAnimal, animalProduce);

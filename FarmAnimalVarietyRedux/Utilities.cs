@@ -168,11 +168,6 @@ namespace FarmAnimalVarietyRedux
             else if (canDropUpgradedProduct) // make sure to return true if only the upgraded product is able to be dropped
                 dropUpgradedProduct = true;
 
-            // ensure product can be dropped based off of duplicates property
-            if (produce.DoNotAllowDuplicates)
-                if (Utilities.IsObjectInPlayerPossession(dropUpgradedProduct ? produce.UpgradedProductId : produce.DefaultProductId))
-                    return null;
-
             return dropUpgradedProduct;
         }
 

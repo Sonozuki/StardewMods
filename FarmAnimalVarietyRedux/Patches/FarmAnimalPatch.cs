@@ -551,6 +551,11 @@ namespace FarmAnimalVarietyRedux.Patches
                     return false;
                 }
 
+                // ensure product can be dropped based off of duplicates property
+                if (produceToDrop.DoNotAllowDuplicates)
+                    if (Utilities.IsObjectInPlayerPossession(forageId))
+                        return false;
+
                 // make sure the place is blank for spawning the foraged item
                 var boundingBox = __instance.GetBoundingBox();
                 for (int corner = 0; corner < 4; ++corner)
@@ -1093,6 +1098,11 @@ namespace FarmAnimalVarietyRedux.Patches
 
                         if (productId == -1)
                             continue;
+
+                        // ensure product can be dropped based off of duplicates property
+                        if (animalProduce.DoNotAllowDuplicates)
+                            if (Utilities.IsObjectInPlayerPossession(productId))
+                                continue;
 
                         // try to spawn the object
                         var amount = Utilities.DetermineDropAmount(animalProduce);
