@@ -182,13 +182,15 @@ namespace FarmAnimalVarietyRedux
         /// <remarks>An object is in the players possession if it placed in an animal building or on the farm, in a farmer's inventory, or in a chest.</remarks>
         public static bool IsObjectInPlayerPossession(int objectId)
         {
-            // check placed objects and chests in the animal buildings
+            // check placed objects and chests/auto grabbers in the animal buildings
             if (Game1.getFarm().buildings
                 .Where(building => building.indoors.Value is AnimalHouse)
                 .Select(building => building.indoors.Value)
                 .Cast<AnimalHouse>()
                 .SelectMany(animalHouse => animalHouse.Objects.Values)
-                .Any(@object => @object.ParentSheetIndex == objectId || (@object is Chest chest && chest.items.Any(item => item.ParentSheetIndex == objectId))))
+                .Any(@object => @object.ParentSheetIndex == objectId
+                    || (@object is Chest chest && chest.items.Any(item => item.ParentSheetIndex == objectId))
+                    || (@object.heldObject?.Value is Chest heldChest && heldChest.items.Any(item => item.ParentSheetIndex == objectId))))
                 return true;
 
             // check placed objects in the farm
