@@ -1267,7 +1267,10 @@ namespace FarmAnimalVarietyRedux.Patches
 
                 // try to place the full object in the auto grabber
                 if ((@object = (environmentObject.heldObject.Value as Chest).addItem(@object) as StardewValley.Object) == null)
+                {
+                    environmentObject.showNextIndex.Value = true;
                     break;
+                }
             }
         }
     }
