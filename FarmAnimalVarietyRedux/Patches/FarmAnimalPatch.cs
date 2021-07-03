@@ -754,22 +754,16 @@ namespace FarmAnimalVarietyRedux.Patches
                 if (int.TryParse(adultSellPriceString, out var adultSellPriceParsed))
                     adultSellPrice = adultSellPriceParsed;
 
-            // try to determine the sell price based on the baby / adult sell prices
+            // retrieve base sell price
             int sellPrice;
             if (__instance.isBaby())
-                sellPrice = babySellPrice ?? adultSellPrice ?? 0;
+                sellPrice = babySellPrice ?? adultSellPrice ?? __instance.price;
             else
-                sellPrice = adultSellPrice ?? babySellPrice ?? 0;
+                sellPrice = adultSellPrice ?? babySellPrice ?? __instance.price;
 
-            if (sellPrice > 0)
-            {
-                __result = sellPrice;
-                return false;
-            }
-
-            // fallback to the default game method of calculating sell price
+            // calculate sell price
             var friendshipModifier = __instance.friendshipTowardFarmer / 1000f + .3f;
-            __result = (int)(__instance.price * friendshipModifier);
+            __result = (int)(sellPrice * friendshipModifier);
             return false;
         }
 
