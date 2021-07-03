@@ -283,98 +283,68 @@ namespace FarmAnimalVarietyRedux
             if (subtype == null)
                 return;
 
-            // get produce that animal has that uses the uses the tool
-            var animalProduces = subtype.Produce.Where(product => product.HarvestType == HarvestType.Tool && product.ToolName.ToLower() == Game1.player.CurrentTool.BaseName.ToLower());
-
-            // get all modData products
-            var parsedProduces = new List<SavedProduceData>();
-            if (hitAnimal.modData.TryGetValue($"{this.ModManifest.UniqueID}/produces", out var productsString))
-                parsedProduces = JsonConvert.DeserializeObject<List<SavedProduceData>>(productsString);
-
-            // get the modData products that are valid to be dropped
-            var validProduces = Utilities.GetValidAnimalProduce(animalProduces, hitAnimal);
-            var produces = parsedProduces
-                .Where(product => product.DaysLeft <= 0 && validProduces.Any(animalProduct => animalProduct.UniqueName.ToLower() == product.UniqueName.ToLower()));
-
-            // handle producing item
             var ignoreErrorMessage = SkipErrorMessagesForTools.Any(toolName => toolName.ToLower() == Game1.player.CurrentTool.BaseName.ToLower());
-
-            if (hitAnimal.isBaby()) // animal is too young
+            
+            // ensure animal is an adult
+            if (hitAnimal.isBaby())
             {
                 if (!ignoreErrorMessage)
                     Game1.showRedMessage($"{hitAnimal.displayName} is too young to produce.");
+                return;
             }
-            else if (produces.Count() == 0) // there is no produce for the animal right now
+
+            // ensure animal can be harvested
+            var pendingToolProduces = Utilities.GetPendingProduceDrops(hitAnimal, HarvestType.Tool, product => product.ToolName.ToLower() == Game1.player.CurrentTool.BaseName.ToLower());
+            if (pendingToolProduces.Count == 0)
             {
                 if (!ignoreErrorMessage)
-                    if (animalProduces.Count() == 0) // check if there is *ever* any produce using the tool for the animal
+                    // TODO: having this check separate here is kinda hacky, perhaps have an out of how many got filtered?
+                    if (subtype.Produce.Where(product => product.HarvestType == HarvestType.Tool && product.ToolName.ToLower() == Game1.player.CurrentTool.BaseName.ToLower()).Count() == 0) // check if there is *ever* any produce using the tool for the animal
                         Game1.showRedMessage($"Cannot use the {Game1.player.CurrentTool.BaseName} to harvest produce from {hitAnimal.displayName}.");
                     else
                         Game1.showRedMessage($"{hitAnimal.displayName} has no produce to harvest with the {Game1.player.CurrentTool.BaseName} right now.");
+                return;
             }
-            else // animal can produce
+
+            // set necessary animal state
+            hitAnimal.doEmote(FarmAnimal.heartEmote);
+            hitAnimal.friendshipTowardFarmer.Value = Math.Min(1000, (int)hitAnimal.friendshipTowardFarmer + 5);
+            hitAnimal.pauseTimer = 1500;
+            if (hitAnimal.showDifferentTextureWhenReadyForHarvest)
+                hitAnimal.Sprite.LoadTexture(Path.Combine("Animals", "Sheared") + hitAnimal.type);
+
+            Game1.playSound("coin");
+            Game1.player.gainExperience(Farmer.farmingSkill, 5);
+
+            // get all modData products
+            var parsedProduces = new List<SavedProduceData>();
+            if (hitAnimal.modData.TryGetValue($"{this.ModManifest.UniqueID}/produces", out var producesString))
+                parsedProduces = JsonConvert.DeserializeObject<List<SavedProduceData>>(producesString);
+
+            // drop products
+            foreach (var pendingToolProduce in pendingToolProduces)
             {
-                // set necessary animal state
-                hitAnimal.doEmote(FarmAnimal.heartEmote);
-                hitAnimal.friendshipTowardFarmer.Value = Math.Min(1000, (int)hitAnimal.friendshipTowardFarmer + 5);
-                hitAnimal.pauseTimer = 1500;
-                if (hitAnimal.showDifferentTextureWhenReadyForHarvest)
-                    hitAnimal.Sprite.LoadTexture(Path.Combine("Animals", "Sheared") + hitAnimal.type);
+                // make tool harvest sound
+                if (pendingToolProduce.Key.ToolHarvestSound != null && pendingToolProduce.Key.ToolHarvestSound.ToLower() != "none")
+                    Game1.player.currentLocation.localSound(pendingToolProduce.Key.ToolHarvestSound);
 
-                Game1.playSound("coin");
-                Game1.player.gainExperience(Farmer.farmingSkill, 5);
-
-                // drop products
-                foreach (var produce in produces)
+                if (!Game1.player.couldInventoryAcceptThisObject(pendingToolProduce.Value.ParentSheetIndex, pendingToolProduce.Value.Stack, pendingToolProduce.Value.Quality))
                 {
-                    var animalProduce = animalProduces.FirstOrDefault(ap => ap.UniqueName.ToLower() == produce.UniqueName.ToLower());
-                    if (animalProduce == null)
-                        continue;
-
-                    // make tool harvest sound
-                    if (animalProduce.ToolHarvestSound != null && animalProduce.ToolHarvestSound.ToLower() != "none")
-                        Game1.player.currentLocation.localSound(animalProduce.ToolHarvestSound);
-
-                    // determine item to drop (default or upgraded)
-                    var uniqueProduceName = ""; // unique name is kept track to update the saved data
-                    var productId = -1;
-                    var shouldDropUpgraded = Utilities.ShouldDropUpgradedProduct(animalProduce, hitAnimal);
-                    if (shouldDropUpgraded != null)
-                    {
-                        if (shouldDropUpgraded.Value)
-                            (uniqueProduceName, productId) = (animalProduce.UniqueName, animalProduce.UpgradedProductId);
-                        else
-                            (uniqueProduceName, productId) = (animalProduce.UniqueName, animalProduce.DefaultProductId);
-                    }
-
-                    if (productId == -1)
-                        continue;
-
-                    // ensure product can be dropped based off of duplicates property
-                    if (animalProduce.DoNotAllowDuplicates)
-                        if (Utilities.IsObjectInPlayerPossession(productId))
-                            continue;
-
-                    // try to add the item to the player inventory
-                    var amount = Utilities.DetermineDropAmount(animalProduce);
-                    var quality = Utilities.DetermineProductQuality(hitAnimal, animalProduce);
-                    if (!Game1.player.couldInventoryAcceptThisObject(productId, amount, quality))
-                    {
-                        Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Crop.cs.588"));
-                        continue;
-                    }
-
-                    var item = new StardewValley.Object(productId, amount) { Quality = quality };
-                    Game1.player.addItemToInventory(item);
-                    Game1.addHUDMessage(new HUDMessage(item.DisplayName, item.Stack, true, Color.WhiteSmoke, item));
-
-                    // update parsed products to reset object
-                    parsedProduces.First(produce => produce.UniqueName.ToLower() == uniqueProduceName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(animalProduce);
+                    Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Crop.cs.588"));
+                    continue;
                 }
 
-                // update modData
-                hitAnimal.modData[$"{this.ModManifest.UniqueID}/produces"] = JsonConvert.SerializeObject(parsedProduces);
+                Game1.player.addItemToInventory(pendingToolProduce.Value);
+                Game1.addHUDMessage(new HUDMessage(pendingToolProduce.Value.DisplayName, pendingToolProduce.Value.Stack, true, Color.WhiteSmoke, pendingToolProduce.Value));
+
+                // update parsed products to reset object
+                var uniqueProduceName = pendingToolProduce.Value.modData[$"{this.ModManifest.UniqueID}/uniqueProduceName"];
+                pendingToolProduce.Value.modData.Remove($"{this.ModManifest.UniqueID}/uniqueProduceName");
+                parsedProduces.First(produce => produce.UniqueName.ToLower() == uniqueProduceName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(pendingToolProduce.Key);
             }
+
+            // update modData
+            hitAnimal.modData[$"{this.ModManifest.UniqueID}/produces"] = JsonConvert.SerializeObject(parsedProduces);
         }
 
         /// <summary>Applies the harmony patches.</summary>

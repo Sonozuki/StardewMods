@@ -1,4 +1,6 @@
-﻿using FarmAnimalVarietyRedux.Models.Converted;
+﻿using FarmAnimalVarietyRedux.Models;
+using FarmAnimalVarietyRedux.Models.Converted;
+using Newtonsoft.Json;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
@@ -72,6 +74,63 @@ namespace FarmAnimalVarietyRedux
                 animal.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/type"] = animal.type;
 
             animal.type.Value = "White Chicken";
+        }
+
+        /// <summary>Retrieves all the pending produce of an animal for a specified harvest type.</summary>
+        /// <param name="animal">The animal whose pending produce should be retrieved.</param>
+        /// <param name="harvestType">The harvest type the retrieved produce shoudl be.</param>
+        /// <param name="harvestableProducePredicate">The predicate to check when filtering on <paramref name="harvestType"/>.</param>
+        /// <returns>The pending produce of <paramref name="animal"/> with a harvest type of <paramref name="harvestType"/>.</returns>
+        public static Dictionary<AnimalProduce, StardewValley.Object> GetPendingProduceDrops(FarmAnimal animal, HarvestType harvestType, Predicate<AnimalProduce> harvestableProducePredicate = null)
+        {
+            var pendingProduceDrops = new Dictionary<AnimalProduce, StardewValley.Object>();
+            var subtype = ModEntry.Instance.Api.GetAnimalSubtypeByInternalName(animal.type);
+
+            // get all modData products
+            var parsedProduces = new List<SavedProduceData>();
+            if (animal.modData.TryGetValue($"{ModEntry.Instance.ModManifest.UniqueID}/produces", out var producesString))
+                parsedProduces = JsonConvert.DeserializeObject<List<SavedProduceData>>(producesString);
+
+            // get the parsed products that have the specified harvest type, and that is pending to drop (zero 'days till next produce' in modData)
+            var harvestTypeParsedProduce = subtype.Produce.Where(product => product.HarvestType == harvestType && (harvestableProducePredicate?.Invoke(product) ?? true));
+            var validProduces = Utilities.GetValidAnimalProduce(harvestTypeParsedProduce, animal);
+            var readyParsedProduces = parsedProduces
+                .Where(product => product.DaysLeft <= 0 && validProduces.Any(animalProduct => animalProduct.UniqueName.ToLower() == product.UniqueName.ToLower()));
+
+            // create objects to produce
+            foreach (var readyParsedProduce in readyParsedProduces)
+            {
+                // try to get the animal produce that matches the current parsed produce
+                var animalProduce = harvestTypeParsedProduce.FirstOrDefault(ap => ap.UniqueName.ToLower() == readyParsedProduce.UniqueName.ToLower());
+                if (animalProduce == null)
+                    continue;
+
+                // determine item to drop (default or upgraded)
+                var productId = -1;
+                var shouldDropUpgraded = Utilities.ShouldDropUpgradedProduct(animalProduce, animal);
+                if (shouldDropUpgraded.HasValue)
+                    if (shouldDropUpgraded.Value)
+                        productId = animalProduce.UpgradedProductId;
+                    else
+                        productId = animalProduce.DefaultProductId;
+
+                if (productId == -1)
+                    continue;
+
+                // ensure product can be dropped based off of duplicates property
+                if (animalProduce.DoNotAllowDuplicates)
+                    if (Utilities.IsObjectInPlayerPossession(productId))
+                        continue;
+
+                // create object to spawn
+                var amount = Utilities.DetermineDropAmount(animalProduce);
+                var quality = Utilities.DetermineProductQuality(animal, animalProduce);
+                var @object = new StardewValley.Object(productId, amount, quality: quality);
+                @object.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/uniqueProduceName"] = animalProduce.UniqueName; // a temp mod data used to easily update the parsed modData
+                pendingProduceDrops[animalProduce] = @object;
+            }
+
+            return pendingProduceDrops;
         }
 
         /// <summary>Filters a list of produces to get the ones that are valid for a specified animal to produce.</summary>
@@ -254,7 +313,7 @@ namespace FarmAnimalVarietyRedux
         public static int DetermineDaysToProduce(AnimalProduce produce)
         {
             var daysToProduce = produce.DaysToProduce;
-            
+
             if (produce.ProduceFasterWithCoopMaster && Game1.player.professions.Contains(Farmer.butcher))
                 daysToProduce--;
             if (produce.ProduceFasterWithShepherd && Game1.player.professions.Contains(Farmer.shepherd))
