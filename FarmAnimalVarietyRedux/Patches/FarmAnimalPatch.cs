@@ -1027,6 +1027,26 @@ namespace FarmAnimalVarietyRedux.Patches
                     }
                 }
 
+                // update modData
+                // this is done here despite it being done at the end so the days remaining changges have been applied for the Utilities.GetPendingProduceDrops calls
+                __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/produces"] = JsonConvert.SerializeObject(parsedProduces);
+
+                // try to add all pending 'tool' produce into auto grabbers
+                var pendingToolProduces = Utilities.GetPendingProduceDrops(__instance, HarvestType.Tool);
+                for (int i = 0; i < pendingToolProduces.Count; i++)
+                {
+                    var pendingToolProduce = pendingToolProduces.ElementAt(i);
+                    var @object = pendingToolProduce.Value;
+                    TryToAddObjectToAutoGrabbers(__instance.home.indoors.Value, ref @object);
+                    if (@object != null)
+                        continue;
+
+                    // update parsed products to reset object
+                    var uniqueProduceName = pendingToolProduce.Value.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/uniqueProduceName"];
+                    pendingToolProduce.Value.modData.Remove($"{ModEntry.Instance.ModManifest.UniqueID}/uniqueProduceName");
+                    parsedProduces.First(produce => produce.UniqueName.ToLower() == uniqueProduceName.ToLower()).DaysLeft = Utilities.DetermineDaysToProduce(pendingToolProduce.Key);
+                }
+
                 // spawn all pending 'lay' produce
                 var pendingLayProduces = Utilities.GetPendingProduceDrops(__instance, HarvestType.Lay);
                 foreach (var pendingLayProduce in pendingLayProduces)
