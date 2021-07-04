@@ -1,4 +1,10 @@
-﻿using StardewModdingAPI;
+﻿using Harmony;
+using SatoCore.Attributes;
+using SatoCore.Extensions;
+using StardewModdingAPI;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace SatoCore
 {
@@ -9,6 +15,72 @@ namespace SatoCore
         ** Public Methods
         *********/
         /// <inheritdoc/>
-        public sealed override void Entry(IModHelper helper) { }
+        public sealed override void Entry(IModHelper helper)
+        {
+            Entry();
+            LoadHarmonyPatches();
+        }
+
+        /// <summary>Loads the content packs.</summary>
+        /// <remarks>This needs to be called manually, this is because not all mods can have content packs loaded in the same place (FAVR for example.)</remarks>
+        public void LoadContentPacks()
+        {
+            this.Monitor.Log("Loading content packs", LogLevel.Info);
+            foreach (var contentPack in this.Helper.ContentPacks.GetOwned())
+                try
+                {
+                    this.Monitor.Log($"Loading {contentPack.Manifest.Name}", LogLevel.Info);
+                    LoadContentPack(contentPack);
+                }
+                catch (Exception ex)
+                {
+                    this.Monitor.Log($"Unhandled exception occured when loading content pack: {contentPack.Manifest.Name}\n{ex}", LogLevel.Error);
+                }
+        }
+
+
+        /*********
+        ** Protected Methods
+        *********/
+        /// <summary>The mod entry point.</summary>
+        protected abstract void Entry();
+
+        /// <summary>Loads a content pack.</summary>
+        /// <param name="contentPack">The content pack to load.</param>
+        protected virtual void LoadContentPack(IContentPack contentPack) { }
+
+
+        /*********
+        ** Private Methods
+        *********/
+        /// <summary>Loads the harmony patches.</summary>
+        private void LoadHarmonyPatches()
+        {
+            var harmonyInstance = HarmonyInstance.Create(this.ModManifest.UniqueID);
+
+            foreach (var method in this.GetType().Assembly.GetTypes().SelectMany(type => type.GetTypeInfo().DeclaredMethods))
+            {
+                // check if method is a patch
+                var patchAttribute = method.GetCustomAttribute<PatchAttribute>();
+                if (patchAttribute == null)
+                    continue;
+
+                // ensure method is static
+                if (!method.IsStatic)
+                {
+                    this.Monitor.Log($"Patch '{method.GetFullName()}' isn't static", LogLevel.Error);
+                    continue;
+                }
+
+                // apply patch
+                switch (patchAttribute.PatchType)
+                {
+                    case PatchType.Prefix: harmonyInstance.Patch(patchAttribute.OriginalMethod, prefix: new HarmonyMethod(method)); break;
+                    case PatchType.Transpiler: harmonyInstance.Patch(patchAttribute.OriginalMethod, transpiler: new HarmonyMethod(method)); break;
+                    case PatchType.Postfix: harmonyInstance.Patch(patchAttribute.OriginalMethod, postfix: new HarmonyMethod(method)); break;
+                    default: this.Monitor.Log($"Patch '{method.GetFullName()}' has an invalid patch type ({patchAttribute.PatchType})", LogLevel.Error); break;
+                }
+            }
+        }
     }
 }
