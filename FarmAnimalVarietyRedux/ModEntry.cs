@@ -33,6 +33,9 @@ namespace FarmAnimalVarietyRedux
         /*********
         ** Fields
         *********/
+        /// <summary>Whether the 8 heart Shane event has been seen (used to determine if blue chickens should be buyable.)</summary>
+        private bool PreviousBlueChickenEventState;
+
         /// <summary>Contains all recipes that were parsed from the content packs, these are stored and then done all at once to ensure all animals have been loaded first.</summary>
         private List<ParsedIncubatorRecipe> ParsedRecipes = new List<ParsedIncubatorRecipe>();
 
@@ -89,6 +92,7 @@ namespace FarmAnimalVarietyRedux
             this.Helper.Content.AssetLoaders.Add(AssetManager);
 
             this.Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            this.Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
             this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             this.Helper.Events.GameLoop.Saving += OnSaving;
             this.Helper.Events.GameLoop.Saved += OnSaved;
@@ -108,6 +112,8 @@ namespace FarmAnimalVarietyRedux
             CustomAnimals.Clear();
             ParsedRecipes.Clear();
             CustomIncubatorRecipes.Clear();
+
+            PreviousBlueChickenEventState = Game1.player.eventsSeen.Contains(3900074);
 
             LoadDefaultAnimals();
             LoadDefaultRecipes();
@@ -156,9 +162,10 @@ namespace FarmAnimalVarietyRedux
         /// <summary>Invoked when the game has launched.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event data.</param>
-        /// <remarks>This is used to create Content Patcher tokens so FAVR assets can be edited from Content Patcher content packs.</remarks>
+        /// <remarks>This is used to record the initial blue chicken event state and to create Content Patcher tokens so FAVR assets can be edited from Content Patcher content packs.</remarks>
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
+            // create CP tokens
             if (!this.Helper.ModRegistry.IsLoaded("Pathoschild.ContentPatcher"))
                 return;
 
@@ -167,6 +174,26 @@ namespace FarmAnimalVarietyRedux
             registerToken.Invoke(cpApi, new object[] { this.ModManifest, "GetAssetPath", new GetAssetPathToken() });
             registerToken.Invoke(cpApi, new object[] { this.ModManifest, "GetSourceX", new GetSourceXToken() });
             registerToken.Invoke(cpApi, new object[] { this.ModManifest, "GetSourceY", new GetSourceYToken() });
+        }
+
+        /// <summary>Invoked each tick, approximately 60 times a second.</summary>
+        /// <param name="sender">The event sender.</param>
+        /// <param name="e">The event data.</param>
+        /// <remarks>This is used to set the blue chicken to be buyable once the 8 heart Shane event has been seen.</remarks>
+        private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        {
+            var currentBlueChickenEventState = Game1.player.eventsSeen.Contains(3900074);
+            if (!PreviousBlueChickenEventState && currentBlueChickenEventState)
+            {
+                PreviousBlueChickenEventState = currentBlueChickenEventState;
+
+                var blueChicken = Api.GetAnimalByInternalName("game.Blue Chicken");
+                blueChicken.IsBuyable = true;
+                Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "176", .25f, 9000, "game.Blue Chicken")); // white egg
+                Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "174", .25f, 9000, "game.Blue Chicken")); // large white egg
+                Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "180", .25f, 9000, "game.Blue Chicken")); // brown egg
+                Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "182", .25f, 9000, "game.Blue Chicken")); // large brown egg
+            }
         }
 
         /// <summary>Invoked when the player loads a save.</summary>
@@ -848,7 +875,7 @@ namespace FarmAnimalVarietyRedux
             {
                 new ParsedCustomAnimalType(Action.Add, "", "White Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 4, isMale: false),
                 new ParsedCustomAnimalType(Action.Add, "", "Brown Chicken", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "180", upgradedProductId: "182") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
-                new ParsedCustomAnimalType(Action.Add, "", "Blue Chicken", Game1.player.eventsSeen.Contains(3900074), false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
+                new ParsedCustomAnimalType(Action.Add, "", "Blue Chicken", PreviousBlueChickenEventState, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "176", upgradedProductId: "174") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
                 new ParsedCustomAnimalType(Action.Add, "", "Void Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "305") }, 3, "cluck", 16, 16, 16, 16, "641", 4, isMale: false),
                 new ParsedCustomAnimalType(Action.Add, "", "Golden Chicken", false, false, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "928") }, 3, "cluck", 16, 16, 16, 16, "641", 7, isMale: false),
                 new ParsedCustomAnimalType(Action.Add, "", "Duck", true, true, new List<ParsedAnimalProduce> { new ParsedAnimalProduce(Action.Add, "0", "442", upgradedProductId: "444", upgradedProductIsRare: true, daysToProduce: 2) }, 5, "Duck", 16, 16, 16, 16, "642", 3, isMale: false),
@@ -920,6 +947,14 @@ namespace FarmAnimalVarietyRedux
         /// <summary>Loads all the default incubator recipes.</summary>
         private void LoadDefaultRecipes()
         {
+            if (PreviousBlueChickenEventState) // blue chicken recipes
+            {
+                ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "176", .25f, 9000, "game.Blue Chicken")); // white egg
+                ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "174", .25f, 9000, "game.Blue Chicken")); // large white egg
+                ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "180", .25f, 9000, "game.Blue Chicken")); // brown egg
+                ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "182", .25f, 9000, "game.Blue Chicken")); // large brown egg
+            }
+
             ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "176", 1, 9000, "game.White Chicken")); // white egg
             ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "174", 1, 9000, "game.White Chicken")); // large white egg
             ParsedRecipes.Add(new ParsedIncubatorRecipe(IncubatorType.Regular, "180", 1, 9000, "game.Brown Chicken")); // brown egg
