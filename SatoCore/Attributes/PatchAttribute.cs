@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace SatoCore.Attributes
 {
-    /// <summary>An attribute used for specifying information about a Harmony patch.</summary>
+    /// <summary>Specifies information about a Harmony patch.</summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
     public class PatchAttribute : Attribute
     {
