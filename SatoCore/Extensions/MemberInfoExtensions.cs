@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 
 namespace SatoCore.Extensions
@@ -15,10 +14,10 @@ namespace SatoCore.Extensions
         /// <returns>The full name of the member.</returns>
         public static string GetFullName(this MemberInfo memberInfo) => $"{memberInfo.DeclaringType.FullName}.{memberInfo.Name}";
 
-        /// <summary>Gets the first attribute of a specified type on the member.</summary>
-        /// <typeparam name="T">The attribute type to get.</typeparam>
-        /// <param name="memberInfo">The member instance to get the attribute from.</param>
-        /// <returns>The first occurance of an attribute of type <typeparamref name="T"/>, if one exists; otherwise, <see langword="null"/>.</returns>
-        public static T GetAttribute<T>(this MemberInfo memberInfo) where T : Attribute => (T)memberInfo?.GetCustomAttributes(typeof(T), false).FirstOrDefault();
+        /// <summary>Gets whether the member has an attribute of a specified type.</summary>
+        /// <typeparam name="T">The type of attribute to check for.</typeparam>
+        /// <param name="memberInfo">The member whose attributes should get checked.</param>
+        /// <returns><see langword="true"/>, if the member has an attribute of type <typeparamref name="T"/>; otherwise, <see langword="false"/>.</returns>
+        public static bool HasCustomAttribute<T>(this MemberInfo memberInfo) where T : Attribute => memberInfo.GetCustomAttribute<T>() != null;
     }
 }
