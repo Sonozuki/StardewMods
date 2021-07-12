@@ -48,7 +48,7 @@ namespace SatoCore
                     // ensure identifier is readable
                     if (!identifierProperty.CanRead)
                     {
-                        monitor.Log($"'{identifierProperty.GetFullName()}' is marked as the identifier by not readable", LogLevel.Error);
+                        monitor.Log($"'{identifierProperty.GetFullName()}' is marked as the identifier but not readable", LogLevel.Error);
                         isValid = false;
                     }
                 }
