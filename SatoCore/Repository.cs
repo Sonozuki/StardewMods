@@ -2,6 +2,7 @@
 using SatoCore.Extensions;
 using StardewModdingAPI;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +12,7 @@ namespace SatoCore
     /// <summary>Represents a data model store.</summary>
     /// <typeparam name="T">The type of data models to store.</typeparam>
     /// <typeparam name="TIdentifier">The type of the property with the <see cref="IdentifierAttribute"/> in the model.</typeparam>
-    public class Repository<T, TIdentifier>
+    public class Repository<T, TIdentifier> : IEnumerable<T>
         where T : class
     {
         /*********
@@ -149,7 +150,7 @@ namespace SatoCore
             var itemToDelete = Get(id);
             if (itemToDelete == null)
             {
-                Monitor.Log($"An item ({typeof(T).Name}) with the id: '{id}' doesn't exists (trying to edit)", LogLevel.Error);
+                Monitor.Log($"An item ({typeof(T).Name}) with the id: '{id}' doesn't exists (trying to delete)", LogLevel.Error);
                 return;
             }
 
@@ -167,6 +168,12 @@ namespace SatoCore
             else
                 return Items.FirstOrDefault(item => GetIdentifier(item).Equals(id));
         }
+
+        /// <inheritdoc/>
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => Items.GetEnumerator();
+
+        /// <inheritdoc/>
+        IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
 
 
         /*********
