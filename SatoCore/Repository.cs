@@ -180,12 +180,12 @@ namespace SatoCore
         /// <summary>Checks if all required properties are valid.</summary>
         /// <param name="item">The item whose properties should be checked.</param>
         /// <returns><see langword="true"/>, if all the required properties are valid; otherwise, <see langword="false"/>.</returns>
+        /// <remarks>This includes the identifier property.</remarks>
         private bool ValidateRequiredProperties(T item)
         {
             // retrieve required properties
-            var properties = typeof(T)
-                .GetInstanceProperties()
-                .Where(property => property.HasCustomAttribute<RequiredAttribute>());
+            var properties = typeof(T).GetRequiredProperties().ToList();
+            properties.Add(typeof(T).GetIdentifierProperties().First());
 
             // check required properties
             var isValid = true;
