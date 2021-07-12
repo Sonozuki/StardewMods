@@ -23,5 +23,14 @@ namespace SatoCore.Attributes
         {
             DefaultValue = defaultValue;
         }
+
+        /// <summary>Constructs an instance.</summary>
+        /// <param name="defaultValueType">The type of the default value to create.</param>
+        /// <remarks>This is used to set the default value to the initial state of an object (an empty rectangle, for example).</remarks>
+        public DefaultValueAttribute(Type defaultValueType)
+        {
+            if (defaultValueType != null)
+                DefaultValue = Activator.CreateInstance(defaultValueType);
+        }
     }
 }
