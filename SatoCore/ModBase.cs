@@ -26,6 +26,9 @@ namespace SatoCore
         public void LoadContentPacks()
         {
             this.Monitor.Log("Loading content packs", LogLevel.Info);
+
+            InitialiseContentPackLoading();
+
             foreach (var contentPack in this.Helper.ContentPacks.GetOwned())
                 try
                 {
@@ -36,6 +39,8 @@ namespace SatoCore
                 {
                     this.Monitor.Log($"Unhandled exception occured when loading content pack: {contentPack.Manifest.Name}\n{ex}", LogLevel.Error);
                 }
+
+            FinaliseContentPackLoading();
         }
 
 
@@ -45,9 +50,17 @@ namespace SatoCore
         /// <summary>The mod entry point.</summary>
         protected abstract void Entry();
 
+        /// <summary>Initialises content pack loading.</summary>
+        /// <remarks>This is called before any content packs have been loaded through <see cref="LoadContentPack(IContentPack)"/>, this should be used to reset lists used for updating repositories etc.</remarks>
+        protected virtual void InitialiseContentPackLoading() { }
+
         /// <summary>Loads a content pack.</summary>
         /// <param name="contentPack">The content pack to load.</param>
         protected virtual void LoadContentPack(IContentPack contentPack) { }
+
+        /// <summary>Finalises content pack loading.</summary>
+        /// <remarks>This is called after all content packs have been loaded through <see cref="LoadContentPack(IContentPack)"/>, this should be used to update repositories etc.</remarks>
+        protected virtual void FinaliseContentPackLoading() { }
 
 
         /*********
