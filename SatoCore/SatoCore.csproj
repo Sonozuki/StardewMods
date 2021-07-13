@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="Attributes\DefaultValueAttribute.cs" />
     <Compile Include="Attributes\EditableAttribute.cs" />
     <Compile Include="Attributes\IdentifierAttribute.cs" />
