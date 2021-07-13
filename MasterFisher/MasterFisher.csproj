@@ -55,20 +55,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Action.cs" />
-    <Compile Include="Api\Api.cs" />
-    <Compile Include="Api\IApi.cs" />
     <Compile Include="CommandManager.cs" />
-    <Compile Include="Models\Converted\FishCategory.cs" />
-    <Compile Include="Models\Converted\LocationArea.cs" />
-    <Compile Include="Models\Parsed\ParsedFishCategory.cs" />
-    <Compile Include="Models\Parsed\ParsedLocationArea.cs" />
+    <Compile Include="Models\FishCategory.cs" />
+    <Compile Include="Models\LocationArea.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="manifest.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SatoCore\SatoCore.csproj">
+      <Project>{2009aa6f-8f0a-4941-9d32-fa99c48c35ee}</Project>
+      <Name>SatoCore</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

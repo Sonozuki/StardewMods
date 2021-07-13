@@ -1,8 +1,6 @@
-﻿using MasterFisher.Models.Converted;
-using MasterFisher.Models.Parsed;
+﻿using MasterFisher.Models;
+using SatoCore;
 using StardewModdingAPI;
-using StardewModdingAPI.Events;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,93 +8,86 @@ using System.Linq;
 namespace MasterFisher
 {
     /// <summary>The mod entry point.</summary>
-    public class ModEntry : Mod
+    public class ModEntry : ModBase
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The fish categories that have been parsed from content packs.</summary>
+        /// <remarks>This is used to temporarily store all categories before populating the repository, so edits and deletions can work correctly.</remarks>
+        private readonly List<FishCategory> CategoriesBeingLoaded = new List<FishCategory>();
+
+        /// <summary>The location areas that have been parsed from content packs.</summary>
+        /// <remarks>This is used to temporarily store all location areas before populating the repository, so edits and deletions can work correctly.</remarks>
+        private readonly List<LocationArea> LocationAreasBeingLoaded = new List<LocationArea>();
+
+
         /*********
         ** Accessors
         *********/
-        /// <summary>Provides basic fish apis.</summary>
-        public IApi Api { get; private set; }
-
         /// <summary>The loaded fish categories.</summary>
-        public List<FishCategory> Categories { get; } = new List<FishCategory>();
+        public Repository<FishCategory, string> Categories { get; private set; }
 
         /// <summary>The loaded location areas.</summary>
-        public List<LocationArea> LocationAreas { get; } = new List<LocationArea>();
+        public Repository<LocationArea, string> LocationAreas { get; private set; }
 
         /// <summary>The singleton instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
 
 
         /*********
-        ** Public Methods
+        ** Protected Methods
         *********/
-        /// <summary>The mod entry point.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
-        public override void Entry(IModHelper helper)
+        /// <inheritdoc/>
+        protected override void Entry()
         {
             Instance = this;
-            Api = new Api();
 
-            this.Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            Categories = new Repository<FishCategory, string>(this.Monitor);
+            LocationAreas = new Repository<LocationArea, string>(this.Monitor);
+
+            this.Helper.Events.GameLoop.SaveLoaded += (sender, e) => LoadContentPacks();
 
             this.Helper.ConsoleCommands.Add("mf_summary", "Logs the current state of all fish information.\n\nUsage: mf_summary", (command, args) => CommandManager.LogSummary());
         }
 
-
-        /*********
-        ** Private Methods
-        *********/
-        /// <summary>Invoked when the player loads a save.</summary>
-        /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        /// <remarks>This is used to load the content packs.</remarks>
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        /// <inheritdoc/>
+        protected override void InitialiseContentPackLoading()
         {
-            LoadContentPacks();
+            CategoriesBeingLoaded.Clear();
+            LocationAreasBeingLoaded.Clear();
         }
 
-        /// <summary>Loads all the content packs.</summary>
-        private void LoadContentPacks()
+        /// <inheritdoc/>
+        protected override void LoadContentPack(IContentPack contentPack)
         {
-            var categories = new List<ParsedFishCategory>();
-            var locationAreas = new List<ParsedLocationArea>();
-
-            foreach (var contentPack in this.Helper.ContentPacks.GetOwned())
-            {
-                try
-                {
-                    this.Monitor.Log($"Loading {contentPack.Manifest.Name}", LogLevel.Info);
-
-                    // categories
-                    if (File.Exists(Path.Combine(contentPack.DirectoryPath, "categories.json")))
-                        categories.AddRange(contentPack.LoadAsset<List<ParsedFishCategory>>("categories.json"));
-
-                    // location areas
-                    if (File.Exists(Path.Combine(contentPack.DirectoryPath, "locations.json")))
-                        locationAreas.AddRange(contentPack.LoadAsset<List<ParsedLocationArea>>("locations.json"));
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"Unhandled exception occured when loading content pack: {contentPack.Manifest.Name}\n{ex}", LogLevel.Error);
-                }
-            }
-
             // categories
-            foreach (var category in categories.Where(category => category.Action == Action.Add))
-                Api.AddFishCategory(category);
-            foreach (var category in categories.Where(category => category.Action == Action.Edit))
-                Api.EditFishCategory(category);
-            foreach (var category in categories.Where(category => category.Action == Action.Delete))
-                Api.DeleteFishCategory(category.Name);
+            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "categories.json")))
+                CategoriesBeingLoaded.AddRange(contentPack.LoadAsset<List<FishCategory>>("categories.json"));
 
             // location areas
-            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Add))
-                Api.AddLocationArea(locationArea);
-            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Edit))
-                Api.EditLocationArea(locationArea);
-            foreach (var locationArea in locationAreas.Where(locationArea => locationArea.Action == Action.Delete))
-                Api.DeleteLocationArea(locationArea.UniqueName);
+            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "locations.json")))
+                LocationAreasBeingLoaded.AddRange(contentPack.LoadAsset<List<LocationArea>>("locations.json"));
+        }
+
+        /// <inheritdoc/>
+        protected override void FinaliseContentPackLoading()
+        {
+            // categories
+            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Add))
+                Categories.Add(category);
+            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Edit))
+                Categories.Edit(category);
+            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Delete))
+                Categories.Delete(category.Name);
+
+            // location areas
+            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Add))
+                LocationAreas.Add(locationArea);
+            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Edit))
+                LocationAreas.Edit(locationArea);
+            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Delete))
+                LocationAreas.Delete(locationArea.UniqueName);
         }
     }
 }
