@@ -30,18 +30,22 @@ namespace MasterFisher.Models
 
         /// <summary>The fish that can be caught in spring in the area.</summary>
         [Editable]
+        [DefaultValue(typeof(List<string>))]
         public List<string> SpringFish { get; set; }
 
         /// <summary>The fish that can be caught in summer in the area.</summary>
         [Editable]
+        [DefaultValue(typeof(List<string>))]
         public List<string> SummerFish { get; set; }
 
         /// <summary>The fish that can be caught in fall in the area.</summary>
         [Editable]
+        [DefaultValue(typeof(List<string>))]
         public List<string> FallFish { get; set; }
 
         /// <summary>The fish that can be caught in winter in the area.</summary>
         [Editable]
+        [DefaultValue(typeof(List<string>))]
         public List<string> WinterFish { get; set; }
 
         // TODO: add fishable objects property
