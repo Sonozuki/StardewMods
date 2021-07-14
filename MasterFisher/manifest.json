@@ -6,5 +6,6 @@
   "UniqueID": "Satozaki.MasterFisher",
   "EntryDll": "MasterFisher.dll",
   "MinimumApiVersion": "3.8.0",
-  "UpdateKeys": [ "Nexus:" ]
+  "UpdateKeys": [ "Nexus:" ],
+  "Dependencies": [ { "UniqueID": "Satozaki.SatoCore" } ]
 }
