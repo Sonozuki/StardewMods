@@ -47,7 +47,7 @@ namespace SatoCore
 
             // ensure identifier is type TIdentifier
             var identifierProperty = typeof(T).GetIdentifierProperties().FirstOrDefault();
-            if (identifierProperty?.GetType() != typeof(TIdentifier))
+            if (identifierProperty?.PropertyType != typeof(TIdentifier))
             {
                 Monitor.Log($"{nameof(TIdentifier)} ({typeof(TIdentifier).FullName}) doesn't match the identifier member ({identifierProperty.GetType().FullName})", LogLevel.Error);
                 IsValid = false;

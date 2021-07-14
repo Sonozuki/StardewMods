@@ -34,7 +34,7 @@ namespace SatoCore.Extensions
         /// <summary>Retrieves all properties that have a <see cref="DefaultValueAttribute"/>.</summary>
         /// <param name="type">The type whose token properties should be retrieved.</param>
         /// <returns>The properties that have a <see cref="DefaultValueAttribute"/>.</returns>
-        public static PropertyInfo[] GetTokenProperties(this Type type) => type.GetPropertiesWithAttribute<DefaultValueAttribute>();
+        public static PropertyInfo[] GetTokenProperties(this Type type) => type.GetPropertiesWithAttribute<TokenAttribute>();
 
         /// <summary>Retrieves all properties that have a <see cref="RequiredAttribute"/>.</summary>
         /// <param name="type">The type whose token properties should be retrieved.</param>
