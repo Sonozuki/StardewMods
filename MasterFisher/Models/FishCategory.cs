@@ -19,7 +19,7 @@ namespace MasterFisher.Models
         /// <summary>The maximum number of fish allowed in a pond in the category.</summary>
         [Editable]
         [DefaultValue(10)]
-        public int FishPondCap { get; set; }
+        public int? FishPondCap { get; set; }
 
         /// <summary>The path to the sprite to use in the fishing mini game when a fish in this category is hooked.</summary>
         [Editable]
