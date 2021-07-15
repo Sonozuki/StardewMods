@@ -32,6 +32,16 @@ namespace MasterFisher
                 ModEntry.Instance.Monitor.Log($"    WinterFish:     | [{string.Join(", ", locationArea.WinterFish.Select(fish => $"\"{fish}\""))}]", LogLevel.Info);
                 ModEntry.Instance.Monitor.Log($"    TreasureChance: | {locationArea.TreasureChance}\n", LogLevel.Info);
             }
+
+            ModEntry.Instance.Monitor.Log("Bait:", LogLevel.Info);
+            foreach (var bait in ModEntry.Instance.Bait)
+            {
+                ModEntry.Instance.Monitor.Log($"    ObjectId:            | {bait.ObjectId}", LogLevel.Info);
+                ModEntry.Instance.Monitor.Log($"    ResolvedObjectId:    | {bait.ResolvedObjectId}", LogLevel.Info);
+                ModEntry.Instance.Monitor.Log($"    ContextTagsAffected: | [{string.Join(", ", bait.ContextTagsAffected.Select(contextTag => $"\"{contextTag}\""))}]", LogLevel.Info);
+                ModEntry.Instance.Monitor.Log($"    FishAffected:        | [{string.Join(", ", bait.FishAffected.Select(fish => $"\"{fish}\""))}]", LogLevel.Info);
+                ModEntry.Instance.Monitor.Log($"    BiteRate:            | {bait.BiteRate}", LogLevel.Info);
+            }
         }
     }
 }

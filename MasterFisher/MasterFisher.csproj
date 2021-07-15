@@ -9,12 +9,13 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MasterFisher</RootNamespace>
     <AssemblyName>MasterFisher</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <LangVersion>8.0</LangVersion>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandManager.cs" />
+    <Compile Include="Models\Bait.cs" />
     <Compile Include="Models\FishCategory.cs" />
     <Compile Include="Models\LocationArea.cs" />
     <Compile Include="ModEntry.cs" />

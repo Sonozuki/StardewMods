@@ -21,6 +21,10 @@ namespace MasterFisher
         /// <remarks>This is used to temporarily store all location areas before populating the repository, so edits and deletions can work correctly.</remarks>
         private readonly List<LocationArea> LocationAreasBeingLoaded = new List<LocationArea>();
 
+        /// <summary>The bait that have been parsed from content packs.</summary>
+        /// <remarks>This is used to temporarily store all bait before populating the repository, so edits and deletions can work correctly.</remarks>
+        private readonly List<Bait> BaitBeingLoaded = new List<Bait>();
+
 
         /*********
         ** Accessors
@@ -30,6 +34,9 @@ namespace MasterFisher
 
         /// <summary>The loaded location areas.</summary>
         public Repository<LocationArea, string> LocationAreas { get; private set; }
+
+        /// <summary>The loaded bait.</summary>
+        public Repository<Bait, string> Bait { get; private set; }
 
         /// <summary>The singleton instance of <see cref="ModEntry"/>.</summary>
         public static ModEntry Instance { get; private set; }
@@ -45,6 +52,7 @@ namespace MasterFisher
 
             Categories = new Repository<FishCategory, string>(this.Monitor);
             LocationAreas = new Repository<LocationArea, string>(this.Monitor);
+            Bait = new Repository<Bait, string>(this.Monitor);
 
             this.Helper.Events.GameLoop.SaveLoaded += (sender, e) => LoadContentPacks();
 
@@ -68,6 +76,10 @@ namespace MasterFisher
             // location areas
             if (File.Exists(Path.Combine(contentPack.DirectoryPath, "locations.json")))
                 LocationAreasBeingLoaded.AddRange(contentPack.LoadAsset<List<LocationArea>>("locations.json"));
+
+            // bait
+            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "bait.json")))
+                BaitBeingLoaded.AddRange(contentPack.LoadAsset<List<Bait>>("bait.json"));
         }
 
         /// <inheritdoc/>
@@ -88,6 +100,14 @@ namespace MasterFisher
                 LocationAreas.Edit(locationArea);
             foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Delete))
                 LocationAreas.Delete(locationArea.UniqueName);
+
+            // bait
+            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Add))
+                Bait.Add(bait);
+            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Edit))
+                Bait.Edit(bait);
+            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Delete))
+                Bait.Delete(bait.ObjectId);
         }
     }
 }
