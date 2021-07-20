@@ -187,7 +187,7 @@ namespace FarmAnimalVarietyRedux
             {
                 PreviousBlueChickenEventState = currentBlueChickenEventState;
 
-                var blueChicken = Api.GetAnimalByInternalName("game.Blue Chicken");
+                var blueChicken = Api.GetAnimalSubtypeByInternalName("game.Blue Chicken");
                 blueChicken.IsBuyable = true;
                 Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "176", .25f, 9000, "game.Blue Chicken")); // white egg
                 Api.AddIncubatorRecipe(new ParsedIncubatorRecipe(IncubatorType.Regular, "174", .25f, 9000, "game.Blue Chicken")); // large white egg
