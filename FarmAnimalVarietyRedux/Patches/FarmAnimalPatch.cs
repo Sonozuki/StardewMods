@@ -510,10 +510,10 @@ namespace FarmAnimalVarietyRedux.Patches
             }
 
             // handle forage behavior
+            var pendingForageProduces = Utilities.GetPendingProduceDrops(__instance, HarvestType.Forage);
             var animalSubtype = ModEntry.Instance.Api.GetAnimalSubtypeByInternalName(__instance.type);
-            if (animalSubtype != null && location.IsOutdoors && !Game1.isRaining && !__instance.isBaby() && Game1.random.NextDouble() < .0002f) // the random is so the animals don't produce all foragables instantly
+            if (pendingForageProduces.Count() > 0 && animalSubtype != null && location.IsOutdoors && !Game1.isRaining && !__instance.isBaby() && Game1.random.NextDouble() < .0002f) // the random is so the animals don't produce all foragables instantly
             {
-                var pendingForageProduces = Utilities.GetPendingProduceDrops(__instance, HarvestType.Lay);
                 var pendingForageProduce = pendingForageProduces.ElementAt(Game1.random.Next(pendingForageProduces.Count()));
 
                 // make sure the place is blank for spawning the foraged item
