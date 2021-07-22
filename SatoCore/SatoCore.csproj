@@ -62,6 +62,7 @@
     <Compile Include="Extensions\MemberInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="ModBase.cs" />
+    <Compile Include="ModelBase.cs" />
     <Compile Include="ModelValidator.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="PatchType.cs" />

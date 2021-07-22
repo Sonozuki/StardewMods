@@ -13,7 +13,7 @@ namespace SatoCore
     /// <typeparam name="T">The type of data models to store.</typeparam>
     /// <typeparam name="TIdentifier">The type of the property with the <see cref="IdentifierAttribute"/> in the model.</typeparam>
     public class Repository<T, TIdentifier> : IEnumerable<T>
-        where T : class
+        where T : ModelBase
     {
         /*********
         ** Fields
