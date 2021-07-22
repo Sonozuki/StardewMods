@@ -63,6 +63,7 @@ namespace MasterFisher
         {
             CategoriesBeingLoaded.Clear();
             LocationAreasBeingLoaded.Clear();
+            BaitBeingLoaded.Clear();
         }
 
         /// <inheritdoc/>
