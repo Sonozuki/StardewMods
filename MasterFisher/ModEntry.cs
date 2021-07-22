@@ -1,8 +1,8 @@
 ﻿using MasterFisher.Models;
 using SatoCore;
+using SatoCore.Extensions;
 using StardewModdingAPI;
 using System.Collections.Generic;
-using System.IO;
 
 namespace MasterFisher
 {
@@ -70,16 +70,16 @@ namespace MasterFisher
         protected override void LoadContentPack(IContentPack contentPack)
         {
             // categories
-            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "categories.json")))
-                CategoriesBeingLoaded.AddRange(contentPack.LoadAsset<List<FishCategory>>("categories.json"));
+            if (contentPack.TryLoadAsset<List<FishCategory>>("categories.json", out var fishCategories))
+                CategoriesBeingLoaded.AddRange(fishCategories);
 
             // location areas
-            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "locations.json")))
-                LocationAreasBeingLoaded.AddRange(contentPack.LoadAsset<List<LocationArea>>("locations.json"));
+            if (contentPack.TryLoadAsset<List<LocationArea>>("locations.json", out var locations))
+                LocationAreasBeingLoaded.AddRange(locations);
 
             // bait
-            if (File.Exists(Path.Combine(contentPack.DirectoryPath, "bait.json")))
-                BaitBeingLoaded.AddRange(contentPack.LoadAsset<List<Bait>>("bait.json"));
+            if (contentPack.TryLoadAsset<List<Bait>>("bait.json", out var bait))
+                BaitBeingLoaded.AddRange(bait);
         }
 
         /// <inheritdoc/>
