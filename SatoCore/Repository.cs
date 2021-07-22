@@ -72,7 +72,7 @@ namespace SatoCore
             foreach (var item in items.Where(item => item.Action == Action.Edit))
                 Edit(item);
             foreach (var item in items.Where(item => item.Action == Action.Delete))
-                Delete(GetIdentifier(item));
+                Delete((TIdentifier)item.GetIdentifier());
         }
 
         /// <summary>Adds an item to the repository.</summary>
@@ -92,7 +92,7 @@ namespace SatoCore
                 return;
 
             // ensure item doesn't already exist in the repository
-            var identifier = GetIdentifier(item);
+            var identifier = (TIdentifier)item.GetIdentifier();
             if (identifier == null)
             {
                 Monitor.Log($"Tried to add an item ({typeof(T).Name}) without specifying the identifier", LogLevel.Error);
@@ -136,7 +136,7 @@ namespace SatoCore
                 throw new InvalidOperationException("Repository is invalid");
 
             // ensure the item exists in the repository
-            var identifier = GetIdentifier(item);
+            var identifier = (TIdentifier)item.GetIdentifier();
             if (identifier == null)
             {
                 Monitor.Log($"Tried to edit an item ({typeof(T).Name}) without specifying the identifier", LogLevel.Error);
@@ -185,9 +185,9 @@ namespace SatoCore
         public T Get(TIdentifier id)
         {
             if (typeof(TIdentifier) == typeof(string))
-                return Items.FirstOrDefault(item => GetIdentifier(item).ToString().ToLower() == id.ToString().ToLower());
+                return Items.FirstOrDefault(item => item.GetIdentifier().ToString().ToLower() == id.ToString().ToLower());
             else
-                return Items.FirstOrDefault(item => GetIdentifier(item).Equals(id));
+                return Items.FirstOrDefault(item => item.GetIdentifier().Equals(id));
         }
 
         /// <inheritdoc/>
@@ -200,11 +200,6 @@ namespace SatoCore
         /*********
         ** Private Methods
         *********/
-        /// <summary>Retrieves the identifier of an item.</summary>
-        /// <param name="item">The item whose identifier should be retrieved.</param>
-        /// <returns>The identitifer of <paramref name="item"/>.</returns>
-        private TIdentifier GetIdentifier(T item) => (TIdentifier)typeof(T).GetIdentifierProperties().FirstOrDefault()?.GetValue(item);
-
         /// <summary>Checks if all required properties are valid.</summary>
         /// <param name="item">The item whose properties should be checked.</param>
         /// <returns><see langword="true"/>, if all the required properties are valid; otherwise, <see langword="false"/>.</returns>
