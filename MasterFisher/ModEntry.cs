@@ -3,7 +3,6 @@ using SatoCore;
 using StardewModdingAPI;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace MasterFisher
 {
@@ -85,29 +84,9 @@ namespace MasterFisher
         /// <inheritdoc/>
         protected override void FinaliseContentPackLoading()
         {
-            // categories
-            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Add))
-                Categories.Add(category);
-            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Edit))
-                Categories.Edit(category);
-            foreach (var category in CategoriesBeingLoaded.Where(category => category.Action == Action.Delete))
-                Categories.Delete(category.Name);
-
-            // location areas
-            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Add))
-                LocationAreas.Add(locationArea);
-            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Edit))
-                LocationAreas.Edit(locationArea);
-            foreach (var locationArea in LocationAreasBeingLoaded.Where(locationArea => locationArea.Action == Action.Delete))
-                LocationAreas.Delete(locationArea.UniqueName);
-
-            // bait
-            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Add))
-                Bait.Add(bait);
-            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Edit))
-                Bait.Edit(bait);
-            foreach (var bait in BaitBeingLoaded.Where(bait => bait.Action == Action.Delete))
-                Bait.Delete(bait.ObjectId);
+            Categories.Process(CategoriesBeingLoaded);
+            LocationAreas.Process(LocationAreasBeingLoaded);
+            Bait.Process(BaitBeingLoaded);
         }
     }
 }
