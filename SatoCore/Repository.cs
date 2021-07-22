@@ -54,6 +54,27 @@ namespace SatoCore
             }
         }
 
+        /// <summary>Processes a collecton of models.</summary>
+        /// <param name="items">The models to process.</param>
+        /// <remarks>This will add, then edit, then delete.</remarks>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="item"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the repository is invalid.</exception>
+        public void Process(IEnumerable<T> items)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            if (!IsValid)
+                throw new InvalidOperationException("Repository is invalid");
+
+            foreach (var item in items.Where(item => item.Action == Action.Add))
+                Add(item);
+            foreach (var item in items.Where(item => item.Action == Action.Edit))
+                Edit(item);
+            foreach (var item in items.Where(item => item.Action == Action.Delete))
+                Delete(GetIdentifier(item));
+        }
+
         /// <summary>Adds an item to the repository.</summary>
         /// <param name="item">The item to add.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="item"/> is <see langword="null"/>.</exception>
