@@ -1,5 +1,5 @@
 ﻿using BetterMixedSeeds.Models;
-using Harmony;
+using HarmonyLib;
 using StardewValley;
 using StardewValley.Locations;
 using System.Collections.Generic;

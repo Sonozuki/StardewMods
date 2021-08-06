@@ -1,7 +1,7 @@
 ﻿using BetterMixedSeeds.Models;
 using BetterMixedSeeds.Models.Config;
 using BetterMixedSeeds.Patches;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
@@ -378,7 +378,7 @@ namespace BetterMixedSeeds
             var cropData = this.Helper.Content.Load<Dictionary<int, string>>(Path.Combine("Data", "Crops"), ContentSource.GameContent);
 
             // loop through each crop mod in config
-            var cropMods = Config.CropModSettings.Values.Add(Config.StardewValley);
+            var cropMods = Config.CropModSettings.Values.AddItem(Config.StardewValley);
             foreach (var cropMod in cropMods)
             {
                 // ensure crop mod is enabled
@@ -453,7 +453,7 @@ namespace BetterMixedSeeds
         private void ApplyHarmonyPatches()
         {
             // create harmony instance for patching game code
-            var harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
+            var harmony = new Harmony(this.ModManifest.UniqueID);
 
             // apply patches
             harmony.Patch(
