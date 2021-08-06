@@ -1,6 +1,6 @@
 ﻿using BetterRarecrows.Config;
 using BetterRarecrows.Patches;
-using Harmony;
+using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using System.Collections.Generic;
@@ -47,7 +47,7 @@ namespace BetterRarecrows
         private void ApplyHarmonyPatches()
         {
             // create a new Harmony instance for patching source code
-            HarmonyInstance harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
+            var harmony = new Harmony(this.ModManifest.UniqueID);
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(Farm), nameof(Farm.addCrows)),
