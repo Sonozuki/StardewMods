@@ -13,6 +13,6 @@
         public bool EnableProgressiveMode { get; set; } = true;
 
         /// <summary>The chance that each rarecrow has at stopping crows spawning, with progressive mode (e.g. at a chance of 10, 5 rarecrows would stop crows spawning 50% or time).</summary>
-        public int ProgressivePercentPerRarecrow { get; set; } = 10;
+        public float ProgressivePercentPerRarecrow { get; set; } = 10;
     }
 }
