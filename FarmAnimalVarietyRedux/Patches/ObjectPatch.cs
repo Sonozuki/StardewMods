@@ -1,6 +1,5 @@
-﻿using FarmAnimalVarietyRedux.Models;
-using FarmAnimalVarietyRedux.Models.Converted;
-using Harmony;
+﻿using FarmAnimalVarietyRedux.Models.Converted;
+using HarmonyLib;
 using StardewValley;
 using StardewValley.Locations;
 using System.Collections.Generic;

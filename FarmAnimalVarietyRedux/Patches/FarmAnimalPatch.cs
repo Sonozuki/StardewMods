@@ -1,7 +1,7 @@
 ﻿using FarmAnimalVarietyRedux.Menus;
 using FarmAnimalVarietyRedux.Models;
 using FarmAnimalVarietyRedux.Models.Converted;
-using Harmony;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
@@ -60,7 +60,7 @@ namespace FarmAnimalVarietyRedux.Patches
                     && nextInstruction.opcode == OpCodes.Callvirt && nextInstruction.operand == typeof(FarmAnimal).GetMethod("reloadData", BindingFlags.Public | BindingFlags.Instance))
                 {
                     // skip loading both these instructions
-                    i += 2;
+                    i++;
                     continue;
                 }
 

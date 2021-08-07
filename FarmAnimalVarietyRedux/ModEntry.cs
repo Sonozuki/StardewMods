@@ -7,7 +7,7 @@ using FarmAnimalVarietyRedux.Models.BfavSaveData;
 using FarmAnimalVarietyRedux.Models.Converted;
 using FarmAnimalVarietyRedux.Models.Parsed;
 using FarmAnimalVarietyRedux.Patches;
-using Harmony;
+using HarmonyLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -377,10 +377,8 @@ namespace FarmAnimalVarietyRedux
         /// <summary>Applies the harmony patches.</summary>
         private void ApplyHarmonyPatches()
         {
-            // create a new Harmony instance for patching game code
-            var harmony = HarmonyInstance.Create(this.ModManifest.UniqueID);
+            var harmony = new Harmony(this.ModManifest.UniqueID);
 
-            // apply the patches
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(AnimalQueryMenu), new[] { typeof(FarmAnimal) }),
                 prefix: new HarmonyMethod(AccessTools.Method(typeof(AnimalQueryMenuPatch), nameof(AnimalQueryMenuPatch.ConstructorPrefix)))
