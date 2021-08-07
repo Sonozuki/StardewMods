@@ -181,7 +181,6 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.GetType().GetField("_displayType", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(__instance, animalName);
             __instance.sound.Value = animalSubtype.SoundId;
             __instance.showDifferentTextureWhenReadyForHarvest.Value = ModEntry.Instance.AssetManager.HasDifferentSpriteSheetWhenHarvested(animal.InternalName, animalSubtype.InternalName);
-            __instance.Sprite = new AnimatedSprite(Path.Combine("Animals", animalType), 0, animalSubtype.FrontAndBackSpriteWidth, animalSubtype.FrontAndBackSpriteHeight);
             __instance.frontBackSourceRect.Value = new Rectangle(0, 0, animalSubtype.FrontAndBackSpriteWidth, animalSubtype.FrontAndBackSpriteHeight);
             __instance.sidewaysSourceRect.Value = new Rectangle(0, 0, animalSubtype.SideSpriteWidth, animalSubtype.SideSpriteHeight);
             __instance.happinessDrain.Value = animalSubtype.HappinessDrain;
@@ -200,6 +199,20 @@ namespace FarmAnimalVarietyRedux.Patches
             __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/buildings"] = JsonConvert.SerializeObject(animal.Buildings ?? new List<string>());
             __instance.modData[$"{ModEntry.Instance.ModManifest.UniqueID}/allowForageRepeats"] = animalSubtype.AllowForageRepeats.ToString();
 
+            // set the sprite
+            {
+                var parsedProduces = new List<SavedProduceData>();
+                if (__instance.modData.TryGetValue($"{ModEntry.Instance.ModManifest.UniqueID}/produces", out var producesString))
+                    parsedProduces = JsonConvert.DeserializeObject<List<SavedProduceData>>(producesString);
+
+                var isSheared = false;
+                var pendingToolProduces = Utilities.GetPendingProduceDrops(__instance, HarvestType.Tool);
+                if (__instance.showDifferentTextureWhenReadyForHarvest && !pendingToolProduces.Any(toolProduce => toolProduce.Key.ShowHarvestableSpriteSheet && parsedProduces.First(parsedProduce => parsedProduce.UniqueName.ToLower() == toolProduce.Key.UniqueName.ToLower()).DaysLeft == 0))
+                    isSheared = true;
+
+                __instance.Sprite = new AnimatedSprite(Path.Combine("Animals", (isSheared ? "Sheared" : "") + animalType), 0, animalSubtype.FrontAndBackSpriteWidth, animalSubtype.FrontAndBackSpriteHeight);
+            }
+            
             // fix stored produce (if an animal was converted from BFAV to FAVR or if a content pack changes half way through a save
             {
                 var parsedProduces = new List<SavedProduceData>();

@@ -108,7 +108,8 @@ Also, a "default" adult sheet (the one that is in the root of the assets folder)
                         "RequiresCoopMaster": null,
                         "RequiresShepherd": null,
                         "StandardQualityOnly": false,
-                        "DoNotAllowDuplicates": false
+                        "DoNotAllowDuplicates": false,
+                        "ShowHarvestableSpriteSheet": true
                     }
                 ],
                 "DaysTillMature": 3,
@@ -209,6 +210,7 @@ RequiresCoopMaster              | `null`                                     | W
 RequiresShepherd                | `null`                                     | Whether the player must have the Shepherd profession for the animal to produce the item. **Note:** if `true` is specified then the farmer must have the Shepherd profession for the animal to drop the item, if `false` is specified then the farmer must not have the Shepherd profession for the animal to drop the item, if `null` is specified then it doesn't matter whether the farmer has it or not.
 StandardQualityOnly             | `false`                                    | Whether the product should be standard quality only.
 DoNotAllowDuplicates            | `false`                                    | Whether the item can not be produced if it's in the player possession. An object is in the players possession if it placed in an animal building or on the farm, in a farmer's inventory, or in a chest.
+ShowHarvestableSpriteSheet      | `true`                                     | Whether the produce is able to update the animals sprite sheet to 'harvestable' (if a harvestable sprite sheet is available).
 
 #### Special properties
 Property     | Description
