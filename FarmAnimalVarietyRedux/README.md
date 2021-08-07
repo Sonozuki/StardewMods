@@ -85,6 +85,7 @@ Also, a "default" adult sheet (the one that is in the root of the assets folder)
                 "IsIncubatable": true,
                 "Produce": [
                     {
+                        "UniqueName": "default",
                         "Action": "Add",
                         "DefaultProductId": "-1",
                         "DefaultProductMinFriendship": 0,
