@@ -56,6 +56,8 @@ The way the assets system works is an 'order of priority' of sorts. The assets f
 
 The names for the images have to be exactly the same as in the **content.json** below with either **"Baby "** or **"Harvested "** concatenated on the front (obviously depending on if the sheet is for the baby or harvested varients).
 
+There is also a special prefix that is **"Harvestable "**, this will set the current 'adult' sprite sheet to be the 'harvested' sprite sheet, and the 'harvestable' sprite sheet will be set to the 'adult' sprite sheet.
+
 The only required asset is an adult sheet (see Lion example above), the animal will still have a child phase (unless specified in **content.json**), however, they will look exactly the same to their adult versions.
 
 Also, a "default" adult sheet (the one that is in the root of the assets folder) isn't required if each season has a valid adult sheet in its sub folder.
