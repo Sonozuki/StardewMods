@@ -86,7 +86,7 @@ namespace FarmAnimalVarietyRedux
             var pendingProduceDrops = new Dictionary<AnimalProduce, StardewValley.Object>();
             
             var subtype = ModEntry.Instance.Api.GetAnimalSubtypeByInternalName(animal.type);
-            if (subtype.Produce == null || subtype.Produce.Count == 0)
+            if (subtype?.Produce == null || subtype.Produce.Count == 0)
                 return pendingProduceDrops;
 
             // get all modData products
