@@ -72,6 +72,21 @@ namespace SatoCore
             StagedItems.Add(item);
         }
 
+        /// <summary>Stages items ready to be processed.</summary>
+        /// <param name="items">The items to stage.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="items"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the repository is invalid.</exception>
+        public void StageItems(IEnumerable<T> items)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            if (!IsValid)
+                throw new InvalidOperationException("Repository is invalid");
+
+            StagedItems.AddRange(items.Where(item => item != null));
+        }
+
         /// <summary>Processes the staged items.</summary>
         /// <remarks>This will add, then edit, then delete.</remarks>
         /// <exception cref="InvalidOperationException">Thrown if the repository is invalid.</exception>
