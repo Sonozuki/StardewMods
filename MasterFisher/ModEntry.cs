@@ -10,22 +10,6 @@ namespace MasterFisher
     public class ModEntry : ModBase
     {
         /*********
-        ** Fields
-        *********/
-        /// <summary>The fish categories that have been parsed from content packs.</summary>
-        /// <remarks>This is used to temporarily store all categories before populating the repository, so edits and deletions can work correctly.</remarks>
-        private readonly List<FishCategory> CategoriesBeingLoaded = new List<FishCategory>();
-
-        /// <summary>The location areas that have been parsed from content packs.</summary>
-        /// <remarks>This is used to temporarily store all location areas before populating the repository, so edits and deletions can work correctly.</remarks>
-        private readonly List<LocationArea> LocationAreasBeingLoaded = new List<LocationArea>();
-
-        /// <summary>The bait that have been parsed from content packs.</summary>
-        /// <remarks>This is used to temporarily store all bait before populating the repository, so edits and deletions can work correctly.</remarks>
-        private readonly List<Bait> BaitBeingLoaded = new List<Bait>();
-
-
-        /*********
         ** Accessors
         *********/
         /// <summary>The loaded fish categories.</summary>
@@ -61,9 +45,9 @@ namespace MasterFisher
         /// <inheritdoc/>
         protected override void InitialiseContentPackLoading()
         {
-            CategoriesBeingLoaded.Clear();
-            LocationAreasBeingLoaded.Clear();
-            BaitBeingLoaded.Clear();
+            Categories.Clear();
+            LocationAreas.Clear();
+            Bait.Clear();
         }
 
         /// <inheritdoc/>
@@ -71,23 +55,23 @@ namespace MasterFisher
         {
             // categories
             if (contentPack.TryLoadAsset<List<FishCategory>>("categories.json", out var fishCategories))
-                CategoriesBeingLoaded.AddRange(fishCategories);
+                Categories.StageItems(fishCategories);
 
             // location areas
             if (contentPack.TryLoadAsset<List<LocationArea>>("locations.json", out var locations))
-                LocationAreasBeingLoaded.AddRange(locations);
+                LocationAreas.StageItems(locations);
 
             // bait
             if (contentPack.TryLoadAsset<List<Bait>>("bait.json", out var bait))
-                BaitBeingLoaded.AddRange(bait);
+                Bait.StageItems(bait);
         }
 
         /// <inheritdoc/>
         protected override void FinaliseContentPackLoading()
         {
-            Categories.Process(CategoriesBeingLoaded);
-            LocationAreas.Process(LocationAreasBeingLoaded);
-            Bait.Process(BaitBeingLoaded);
+            Categories.ProcessStagedItems();
+            LocationAreas.ProcessStagedItems();
+            Bait.ProcessStagedItems();
         }
     }
 }
