@@ -101,6 +101,13 @@ namespace SatoCore
                 return Items.FirstOrDefault(item => item.GetIdentifier().Equals(id));
         }
 
+        /// <summary>Removes all items from the repository.</summary>
+        public void Clear()
+        {
+            StagedItems.Clear();
+            Items.Clear();
+        }
+
         /// <inheritdoc/>
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => Items.GetEnumerator();
 
