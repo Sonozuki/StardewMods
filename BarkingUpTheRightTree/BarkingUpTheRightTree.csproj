@@ -80,7 +80,13 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SatoCore\SatoCore.csproj">
+      <Project>{2009aa6f-8f0a-4941-9d32-fa99c48c35ee}</Project>
+      <Name>SatoCore</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\BarkRemover.png" />
   </ItemGroup>
