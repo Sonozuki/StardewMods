@@ -151,7 +151,7 @@ namespace MoreGrass.Patches
             var random = new Random((int)Game1.uniqueIDForThisGame + (int)Game1.stats.DaysPlayed / 28 + (int)tileLocation.X * 7 * (int)tileLocation.Y * 11);
             for (int i = 0; i < __instance.numberOfWeeds; i++)
             {
-                var grassId = whichWeed[i];
+                var grassId = random.Next(textures.Count);
 
                 // force default grass based on coverage configuration
                 if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f)
