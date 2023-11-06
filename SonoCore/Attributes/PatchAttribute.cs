@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace SatoCore.Attributes
+namespace SonoCore.Attributes
 {
     /// <summary>Specifies information about a Harmony patch.</summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = false)]

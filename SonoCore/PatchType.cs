@@ -1,4 +1,4 @@
-﻿namespace SatoCore
+﻿namespace SonoCore
 {
     /// <summary>The types of a Harmony patch.</summary>
     public enum PatchType

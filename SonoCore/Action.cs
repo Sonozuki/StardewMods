@@ -1,4 +1,4 @@
-﻿namespace SatoCore
+﻿namespace SonoCore
 {
     /// <summary>The ways that data in a model can be interpreted.</summary>
     public enum Action

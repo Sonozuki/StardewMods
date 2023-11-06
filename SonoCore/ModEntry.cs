@@ -1,6 +1,6 @@
 ﻿using StardewModdingAPI;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>The mod entry point.</summary>
     public class ModEntry : Mod

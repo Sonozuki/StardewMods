@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace SatoCore.Extensions
+namespace SonoCore.Extensions
 {
     /// <summary>Extension methods for the <see cref="MemberInfo"/> class.</summary>
     public static class MemberInfoExtensions

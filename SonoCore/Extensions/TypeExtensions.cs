@@ -1,9 +1,9 @@
-﻿using SatoCore.Attributes;
+﻿using SonoCore.Attributes;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace SatoCore.Extensions
+namespace SonoCore.Extensions
 {
     /// <summary>Extension methods for the <see cref="Type"/> class.</summary>
     public static class TypeExtensions

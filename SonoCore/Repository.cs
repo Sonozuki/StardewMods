@@ -1,5 +1,5 @@
-﻿using SatoCore.Attributes;
-using SatoCore.Extensions;
+﻿using SonoCore.Attributes;
+using SonoCore.Extensions;
 using StardewModdingAPI;
 using System;
 using System.Collections;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>Represents a data model store.</summary>
     /// <typeparam name="T">The type of data models to store.</typeparam>

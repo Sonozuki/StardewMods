@@ -1,11 +1,11 @@
-﻿using SatoCore.Attributes;
-using SatoCore.Extensions;
+﻿using SonoCore.Attributes;
+using SonoCore.Extensions;
 using StardewModdingAPI;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>A data model validator.</summary>
     internal static class ModelValidator

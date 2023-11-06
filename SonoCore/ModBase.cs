@@ -1,14 +1,14 @@
 ﻿using HarmonyLib;
-using SatoCore.Attributes;
-using SatoCore.Extensions;
+using SonoCore.Attributes;
+using SonoCore.Extensions;
 using StardewModdingAPI;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace SatoCore
+namespace SonoCore
 {
-    /// <summary>Represents the base of a mod that depends on SatoCore.</summary>
+    /// <summary>Represents the base of a mod that depends on SonoCore.</summary>
     public abstract class ModBase : Mod
     {
         /*********

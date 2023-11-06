@@ -3,7 +3,7 @@ using StardewModdingAPI;
 using System;
 using System.IO;
 
-namespace SatoCore.Extensions
+namespace SonoCore.Extensions
 {
     /// <summary>Extension methods for the <see cref="IContentPack"/> interface.</summary>
     public static class IContentPackExtensions

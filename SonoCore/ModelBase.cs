@@ -1,7 +1,7 @@
-﻿using SatoCore.Extensions;
+﻿using SonoCore.Extensions;
 using System.Linq;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>The base of a model that can be used in a <see cref="Repository{T, TIdentifier}"/>.</summary>
     public abstract class ModelBase

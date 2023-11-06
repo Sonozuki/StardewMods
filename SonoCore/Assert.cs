@@ -1,7 +1,7 @@
 ﻿using StardewModdingAPI;
 using System.Runtime.CompilerServices;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>Contains helpful assertions.</summary>
     /// <remarks>Assertion failures are error logged.</remarks>

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace SatoCore
+namespace SonoCore
 {
     /// <summary>Contains miscellaneous helper methods.</summary>
     public static class Utilities

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SatoCore.Attributes
+namespace SonoCore.Attributes
 {
     /// <summary>The default value of the member.</summary>
     /// <remarks>This should be used when the model has nullable members in order to support editing previous versions while still having a default value.</remarks>

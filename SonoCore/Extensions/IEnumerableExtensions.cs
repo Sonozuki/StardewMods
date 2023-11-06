@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 
-namespace SatoCore.Extensions
+namespace SonoCore.Extensions
 {
     /// <summary>Extension methods for the <see cref="IEnumerable{T}"/> interface.</summary>
     public static class IEnumerableExtensions

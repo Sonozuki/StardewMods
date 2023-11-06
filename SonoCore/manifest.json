@@ -1,0 +1,10 @@
+﻿{
+    "Name": "Sono Core",
+    "Author": "Sonozuki",
+    "Version": "1.0.0",
+    "Description": "Provides common functionality to some mods.",
+    "UniqueID": "Sonozuki.SonoCore",
+    "EntryDll": "SonoCore.dll",
+    "MinimumApiVersion": "3.8.0",
+    "UpdateKeys": [ "Nexus:" ]
+}

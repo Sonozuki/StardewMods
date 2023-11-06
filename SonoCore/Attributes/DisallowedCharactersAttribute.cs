@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SatoCore.Attributes
+namespace SonoCore.Attributes
 {
     /// <summary>Indicates the property isn't allowed to have specified characters.</summary>
     /// <remarks>This can only be used on a property of type <see langword="string"/>.</remarks>
