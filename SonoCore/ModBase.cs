@@ -29,7 +29,7 @@ public abstract class ModBase : Mod
             }
             catch (Exception ex)
             {
-                this.Monitor.Log($"Unhandled exception occured when loading content pack: {contentPack.Manifest.Name}\n{ex}", LogLevel.Error);
+                this.Monitor.Log($"Unhandled exception occurred when loading content pack: {contentPack.Manifest.Name}\n{ex}", LogLevel.Error);
             }
 
         FinaliseContentPackLoading();
@@ -65,19 +65,16 @@ public abstract class ModBase : Mod
 
         foreach (var method in this.GetType().Assembly.GetTypes().SelectMany(type => type.GetTypeInfo().DeclaredMethods))
         {
-            // check if method is a patch
             var patchAttributes = method.GetCustomAttributes<PatchAttribute>();
             if (!patchAttributes.Any())
                 continue;
 
-            // ensure method is static
             if (!method.IsStatic)
             {
                 this.Monitor.Log($"Patch '{method.GetFullName()}' isn't static", LogLevel.Error);
                 continue;
             }
 
-            // apply patches
             foreach (var patchAttribute in patchAttributes)
                 switch (patchAttribute.PatchType)
                 {

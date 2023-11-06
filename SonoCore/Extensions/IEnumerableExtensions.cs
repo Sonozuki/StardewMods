@@ -6,11 +6,11 @@ public static class IEnumerableExtensions
     /*********
     ** Public Methods
     *********/
-    /// <summary>Returns a new collection in which all occurrances of a specified collection in the current instance are replaced with another specified collection.</summary>
+    /// <summary>Returns a new collection in which all occurrences of a specified collection in the current instance are replaced with another specified collection.</summary>
     /// <param name="collection">The collection of which the replace operation will be performed on.</param>
     /// <param name="oldValue">The sub-collection to be replaced.</param>
-    /// <param name="newValue">The sub-collection to replace all occurrances of <paramref name="oldValue"/>.</param>
-    /// <param name="numberOfReplacements">The number of occurrances of <paramref name="oldValue"/> that were replaced.</param>
+    /// <param name="newValue">The sub-collection to replace all occurrences of <paramref name="oldValue"/>.</param>
+    /// <param name="numberOfReplacements">The number of occurrences of <paramref name="oldValue"/> that were replaced.</param>
     /// <returns>A collection that is equivalent to the current collection except that all instances of <paramref name="oldValue"/> are replaced with <paramref name="newValue"/>. If <paramref name="oldValue"/> is not found in the current instance, the method returns the current instance unchanged.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="oldValue"/> or <paramref name="newValue"/> is <see langword="null"/>.</exception>
     public static IEnumerable<CodeInstruction> Replace(this IEnumerable<CodeInstruction> collection, IEnumerable<CodeInstruction> oldValue, IEnumerable<CodeInstruction> newValue, out int numberOfReplacements)
@@ -21,7 +21,7 @@ public static class IEnumerableExtensions
 
         var oldValueIndexes = new List<int>();
 
-        // record all occurrances of 'oldValue' in 'collection'
+        // record all occurrences of 'oldValue' in 'collection'
         for (int i = 0; i <= collectionList.Count - oldValueList.Count; i++)
             for (int j = 0; j < oldValueList.Count; j++)
             {
@@ -51,7 +51,7 @@ public static class IEnumerableExtensions
 
         numberOfReplacements = oldValueIndexes.Count;
 
-        // replace all occurrances of 'oldValue' with 'newValue'
+        // replace all occurrences of 'oldValue' with 'newValue'
         for (int i = oldValueIndexes.Count - 1; i >= 0; i--)
         {
             var newCollectionList = new List<CodeInstruction>();
@@ -64,6 +64,6 @@ public static class IEnumerableExtensions
         return collectionList;
 
         // Determines whether two floating-point numbers are equal.
-        bool FloatingPointEquals(float a, float b) => Math.Abs(a - b) < .00001f;
+        static bool FloatingPointEquals(float a, float b) => Math.Abs(a - b) < .00001f;
     }
 }

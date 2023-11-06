@@ -14,12 +14,12 @@ public static class IContentPackExtensions
     /// <returns><see langword="true"/>, if the loading was successful; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="key"/> is empty or contains invalid characters.</exception>
     /// <exception cref="ContentLoadException">Thrown if the asset couldn't be loaded (e.g. because it doesn't exist).</exception>
-    public static bool TryLoadAsset<T>(this IContentPack contentPack, string key, out T result)
+    public static bool TryLoadAsset<T>(this IContentPack contentPack, string key, out T? result)
         where T : class
     {
-        if (File.Exists(Path.Combine(contentPack.DirectoryPath, key)))
+        if (contentPack.HasFile(key))
         {
-            result = contentPack.LoadAsset<T>(key);
+            result = contentPack.ModContent.Load<T>(key);
             return true;
         }
 

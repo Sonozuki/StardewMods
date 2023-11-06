@@ -6,14 +6,14 @@
 public class DisallowedCharactersAttribute : Attribute
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The characters the property isn't allowed to contain.</summary>
     public char[] DisallowedCharacters;
 
 
     /*********
-    ** Public Methods
+    ** Constructors
     *********/
     /// <summary>Constructs an instance.</summary>
     /// <param name="disallowedCharacters">The characters the property isn't allowed to contain.</param>

@@ -6,14 +6,14 @@
 public class DefaultValueAttribute : Attribute
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The default value of the member.</summary>
     public object DefaultValue { get; }
 
 
     /*********
-    ** Public Methods
+    ** Constructors
     *********/
     /// <summary>Constructs an instance.</summary>
     /// <param name="defaultValue">The default value of the member.</param>

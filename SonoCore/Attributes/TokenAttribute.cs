@@ -5,16 +5,16 @@
 public class TokenAttribute : Attribute
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The name of the property to populate with the token value.</summary>
     public string OutputPropertyName { get; }
 
 
     /*********
-    ** Public Methods
+    ** Constructors
     *********/
-    /// <summary>Constructsa an instance.</summary>
+    /// <summary>Constructs an instance.</summary>
     /// <param name="outputPropertyName">The name of the property to populate with the token value.</param>
     public TokenAttribute(string outputPropertyName)
     {

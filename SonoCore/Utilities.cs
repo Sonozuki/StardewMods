@@ -8,14 +8,14 @@ public static class Utilities
     *********/
     /// <summary>Converts a token into a numerical id.</summary>
     /// <param name="token">The token to convert.</param>
-    /// <param name="errorMessage">The error message, if an error occured; otherwise, <see langword="null"/>.</param>
+    /// <param name="errorMessage">The error message, if an error occurred; otherwise, <see langword="null"/>.</param>
     /// <returns>A numerical id.</returns>
-    public static int ResolveToken(string token, out string errorMessage)
+    public static int ResolveToken(string token, out string? errorMessage)
     {
         errorMessage = null;
 
         // ensure it's actually a token
-        if (!token.Contains(":"))
+        if (!token.Contains(':'))
         {
             // ensure the inputted value is a number
             if (!int.TryParse(token, out int id))
@@ -56,7 +56,7 @@ public static class Utilities
         }
         
         // ensure the api returned a valid value
-        if (!int.TryParse(apiMethodInfo.Invoke(api, new[] { valueToPass }).ToString(), out var apiResult) || apiResult == -1)
+        if (!int.TryParse(apiMethodInfo.Invoke(api, new[] { valueToPass })!.ToString(), out var apiResult) || apiResult == -1)
         {
             errorMessage = $"No valid value was returned from method: '{apiMethodName}' in api provided by: '{uniqueId}' with a passed value of: '{valueToPass}'";
             return -1;

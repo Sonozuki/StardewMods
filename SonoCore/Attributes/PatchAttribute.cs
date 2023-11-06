@@ -5,7 +5,7 @@
 public class PatchAttribute : Attribute
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The type of patch the method is.</summary>
     public PatchType PatchType { get; }
@@ -15,7 +15,7 @@ public class PatchAttribute : Attribute
 
 
     /*********
-    ** Public Methods
+    ** Constructors
     *********/
     /// <summary>Constructs an instance.</summary>
     /// <param name="patchType">The type of patch the method is.</param>

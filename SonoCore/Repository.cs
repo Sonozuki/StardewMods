@@ -20,14 +20,14 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
 
 
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>Whether the repository is valid.</summary>
     public bool IsValid { get; }
 
 
     /*********
-    ** Public Methods
+    ** Constructors
     *********/
     /// <summary>Constructs an instance.</summary>
     /// <param name="monitor">The monitor to use for logging.</param>
@@ -37,25 +37,20 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     {
         Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
 
-        IsValid = ModelValidator.IsModelTypeValid<T>(Monitor);
-
-        // ensure identifier is type TIdentifier
-        var identifierProperty = typeof(T).GetIdentifierProperties().FirstOrDefault();
-        if (identifierProperty?.PropertyType != typeof(TIdentifier))
-        {
-            Monitor.Log($"{nameof(TIdentifier)} ({typeof(TIdentifier).FullName}) doesn't match the identifier member ({identifierProperty.GetType().FullName})", LogLevel.Error);
-            IsValid = false;
-        }
+        IsValid = ModelValidator.IsModelTypeValid<T, TIdentifier>(Monitor);
     }
 
+
+    /*********
+    ** Public Methods
+    *********/
     /// <summary>Stages an item ready to be processed.</summary>
     /// <param name="item">The item to stage.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="item"/> is <see langword="null"/>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if the repository is invalid.</exception>
     public void StageItem(T item)
     {
-        if (item == null)
-            throw new ArgumentNullException(nameof(item));
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
 
         if (!IsValid)
             throw new InvalidOperationException("Repository is invalid");
@@ -69,8 +64,7 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     /// <exception cref="InvalidOperationException">Thrown if the repository is invalid.</exception>
     public void StageItems(IEnumerable<T> items)
     {
-        if (items == null)
-            throw new ArgumentNullException(nameof(items));
+        ArgumentNullException.ThrowIfNull(items, nameof(items));
 
         if (!IsValid)
             throw new InvalidOperationException("Repository is invalid");
@@ -91,7 +85,7 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
         foreach (var item in StagedItems.Where(item => item.Action == Action.Edit))
             Edit(item);
         foreach (var item in StagedItems.Where(item => item.Action == Action.Delete))
-            Delete((TIdentifier)item.GetIdentifier());
+            Delete((TIdentifier)item.GetIdentifier()!);
 
         StagedItems.Clear();
     }
@@ -99,12 +93,12 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     /// <summary>Retrieves an item by id.</summary>
     /// <param name="id">The id of the item to retrieve.</param>
     /// <returns>An item with the id of <paramref name="id"/>, if it exists; otherwise, <see langword="null"/>.</returns>
-    public T Get(TIdentifier id)
+    public T? Get(TIdentifier id)
     {
         if (typeof(TIdentifier) == typeof(string))
-            return Items.FirstOrDefault(item => item.GetIdentifier().ToString().ToLower() == id.ToString().ToLower());
+            return Items.FirstOrDefault(item => item.GetIdentifier()!.ToString()!.ToLower() == id.ToString().ToLower());
         else
-            return Items.FirstOrDefault(item => item.GetIdentifier().Equals(id));
+            return Items.FirstOrDefault(item => item.GetIdentifier()!.Equals(id));
     }
 
     /// <summary>Removes all items from the repository.</summary>
@@ -129,15 +123,14 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="item"/> is <see langword="null"/>.</exception>
     private void Add(T item)
     {
-        if (item == null)
-            throw new ArgumentNullException(nameof(item));
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
 
         // ensure all required members are present
         if (!ValidateRequiredProperties(item))
             return;
 
         // ensure item doesn't already exist in the repository
-        var identifier = (TIdentifier)item.GetIdentifier();
+        var identifier = (TIdentifier?)item.GetIdentifier();
         if (identifier == null)
         {
             Monitor.Log($"Tried to add an item ({typeof(T).Name}) without specifying the identifier", LogLevel.Error);
@@ -153,8 +146,8 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
         // resolve all tokens
         foreach (var tokenProperty in typeof(T).GetTokenProperties())
         {
-            var destinationProperty = typeof(T).GetInstanceProperties().First(property => property.Name == tokenProperty.GetCustomAttribute<TokenAttribute>().OutputPropertyName);
-            destinationProperty.SetValue(item, Utilities.ResolveToken(tokenProperty.GetValue(item).ToString(), out var errorMessage));
+            var destinationProperty = typeof(T).GetInstanceProperties().First(property => property.Name == tokenProperty.GetCustomAttribute<TokenAttribute>()!.OutputPropertyName);
+            destinationProperty.SetValue(item, Utilities.ResolveToken(tokenProperty.GetValue(item)!.ToString()!, out var errorMessage));
             if (errorMessage != null)
                 Monitor.Log(errorMessage, LogLevel.Error);
         }
@@ -162,9 +155,8 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
         // set all null values to default values
         foreach (var property in typeof(T).GetDefaultableProperties())
             if (property.GetValue(item) == null)
-                property.SetValue(item, property.GetCustomAttribute<DefaultValueAttribute>().DefaultValue);
+                property.SetValue(item, property.GetCustomAttribute<DefaultValueAttribute>()!.DefaultValue);
 
-        // add item
         Items.Add(item);
     }
 
@@ -173,11 +165,10 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="item"/> is <see langword="null"/>.</exception>
     private void Edit(T item)
     {
-        if (item == null)
-            throw new ArgumentNullException(nameof(item));
+        ArgumentNullException.ThrowIfNull(item, nameof(item));
 
         // ensure the item exists in the repository
-        var identifier = (TIdentifier)item.GetIdentifier();
+        var identifier = (TIdentifier?)item.GetIdentifier();
         if (identifier == null)
         {
             Monitor.Log($"Tried to edit an item ({typeof(T).Name}) without specifying the identifier", LogLevel.Error);
@@ -201,8 +192,7 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="id"/> is <see langword="null"/>.</exception>
     private void Delete(TIdentifier id)
     {
-        if (id == null)
-            throw new ArgumentNullException(nameof(id));
+        ArgumentNullException.ThrowIfNull(id, nameof(id));
 
         // ensure the item exists in the repository
         var itemToDelete = Get(id);
@@ -212,7 +202,6 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
             return;
         }
 
-        // delete item
         Items.Remove(itemToDelete);
     }
 
@@ -229,7 +218,7 @@ public class Repository<T, TIdentifier> : IEnumerable<T>
         // check required properties
         var isValid = true;
         foreach (var property in properties)
-            if ((property.PropertyType == typeof(string) && string.IsNullOrWhiteSpace((string)property.GetValue(item)))
+            if ((property.PropertyType == typeof(string) && string.IsNullOrWhiteSpace((string?)property.GetValue(item)))
                 || property.GetValue(item) == null)
             {
                 Monitor.Log($"Tried to add an item ({typeof(T).Name}) without specifying '{property.Name}'", LogLevel.Error);
