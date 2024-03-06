@@ -15,8 +15,8 @@ public class ModConfig
     public List<string> LocationsBlackList { get; set; } = new List<string>() { "mine", "skullcave", "s:undergroundmine" };
 
     /// <summary>The percent of default grass coverage.</summary>
-    /// <remarks>This is converage that's *explicitly* set to be default, this doesn't take into account when default grass is grouped in with custom grass.<br/>For example, if 6 grass sprites are loaded (3 custom, 3 default) with a 50% <see cref="PercentConverageOfDefaultGrass"/> then you can expect to see about 75% default grass, because half of the loaded grass sprites are default on top of the explicit 50%.</remarks>
-    public int PercentConverageOfDefaultGrass { get; set; } = 0;
+    /// <remarks>This is coverage that's *explicitly* set to be default, this doesn't take into account when default grass is grouped in with custom grass.<br/>For example, if 6 grass sprites are loaded (3 custom, 3 default) with a 50% <see cref="PercentCoverageOfDefaultGrass"/> then you can expect to see about 75% default grass, because half of the loaded grass sprites are default on top of the explicit 50%.</remarks>
+    public int PercentCoverageOfDefaultGrass { get; set; } = 0;
 
     /// <summary>Whether animals can eat grass.</summary>
     /// <remarks>This is mainly here so players can keep grass for aesthetic reasons, instead of animals eating it all.</remarks>

@@ -154,7 +154,7 @@ internal class GrassPatch
             var grassId = random.Next(textures.Count);
 
             // force default grass based on coverage configuration
-            if (random.NextDouble() < (ModEntry.Instance.Config.PercentConverageOfDefaultGrass / 100f)
+            if (random.NextDouble() < (ModEntry.Instance.Config.PercentCoverageOfDefaultGrass / 100f)
                 || forceDefaultGrass)
                 grassId = random.Next(defaultTextures.Count);
 
