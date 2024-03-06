@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using MoreGrass.Models;
 using StardewValley;
 using System.Collections.Generic;
@@ -9,6 +10,11 @@ namespace MoreGrass;
 /// <summary>Represents a collection of a custom and base game sprites of grass for a season.</summary>
 public class SpritePool
 {
+    /// <summary>The maximum number of grass sprites wide the atlas can be.</summary>
+    /// <remarks>The size of a grass sprite is 15x20, meaning the atlas will be at most 1020 pixels wide.</remarks>
+    private const int MaxAtlasWidth = 68;
+
+
     /*********
     ** Fields
     *********/
@@ -31,8 +37,8 @@ public class SpritePool
     /// <summary>Gets the number of sprites in the sprite pool.</summary>
     public int Count => IncludeDefaultGrass ? DefaultGrassSprites.Count + CustomGrassSprites.Count : CustomGrassSprites.Count;
 
-    /// <summary>The default grass sprites in the sprite pool.</summary>
-    public List<Texture2D> DefaultSprites => new List<Texture2D>(DefaultGrassSprites);
+    /// <summary>The sprite atlas of the sprite pool.</summary>
+    public Texture2D Atlas { get; private set; }
 
     /// <summary>Whether the default sprites should be including in the resulting sprite collection.</summary>
     public bool IncludeDefaultGrass
@@ -64,40 +70,51 @@ public class SpritePool
             CustomGrassSprites.Add(new GrassSprite(sprite, whiteListedLocations, blackListedLocations));
     }
 
-    /// <summary>Gets the sprites from the sprite pool for a specified location.</summary>
-    /// <param name="locationName">The name of the location the grass is in.</param>
-    /// <returns>The sprites from the sprite pool that can show up in the specified location.</returns>
-    public List<Texture2D> GetSprites(string locationName)
+    /// <summary>Retrieves a random sprite id.</summary>
+    /// <param name="defaultOnly">Whether only default sprites should be picked.</param>
+    /// <returns>A random sprite id.</returns>
+    public int GetRandomSpriteId(bool defaultOnly) => Game1.random.Next(defaultOnly ? DefaultGrassSprites.Count : Count);
+
+    /// <summary>Retrieves the offset into the atlas for a sprite id.</summary>
+    /// <param name="spriteId">The sprite id to get the offset into the atlas of.</param>
+    /// <returns>The offset in the atlas of the specified sprite id.</returns>
+    public static Point GetOffsetFromSpriteId(int spriteId) => new(spriteId % MaxAtlasWidth * 15, spriteId / MaxAtlasWidth * 20);
+
+    /// <summary>Regenerates the atlas.</summary>
+    public void RegenerateAtlas()
     {
-        if (locationName == null)
-            return DefaultSprites;
+        Atlas?.Dispose();
 
-        // check if the result has been cached
-        locationName = locationName.ToLower();
-        if (GetSpriteCache.TryGetValue(locationName, out var sprites))
-            return sprites;
+        var rows = (Count / MaxAtlasWidth) + 1;
+        var columns = rows > 1 ? MaxAtlasWidth : (Count % MaxAtlasWidth) + 1;
 
-        // calculate result and cache it
-        sprites = CustomGrassSprites.Where(grassSprite =>
-                (grassSprite.WhiteListedLocations.Count == 0 || Utilities.ContainsLocation(locationName, grassSprite.WhiteListedLocations))       
-             && (grassSprite.BlackListedLocations.Count == 0 || !Utilities.ContainsLocation(locationName, grassSprite.BlackListedLocations)))
-            .Select(grassSprite => grassSprite.Sprite)
-            .ToList();
+        Atlas = new Texture2D(Game1.graphics.GraphicsDevice, columns * 15, rows * 20);
 
-        if (IncludeDefaultGrass || sprites.Count == 0)
-            sprites.AddRange(DefaultGrassSprites);
+        for (int spriteId = 0; spriteId < Count; spriteId++)
+        {
+            var grassSprite = GetSpriteById(spriteId);
 
-        GetSpriteCache[locationName] = sprites;
+            // some content packs have invalid sprite sizes that an old version of MoreGrass didn't pick up on
+            // instead of rejecting them and breaking the content pack, we'll just work around them
+            var spriteWidth = MathHelper.Min(15, grassSprite.Width);
+            var spriteHeight = MathHelper.Min(20, grassSprite.Height);
+            var grassData = new Color[spriteWidth * spriteHeight];
 
-        return sprites;
+            grassSprite.GetData(0, new Rectangle(0, 0, spriteWidth, spriteHeight), grassData, 0, grassData.Length);
+
+            var offset = GetOffsetFromSpriteId(spriteId);
+            offset.Y += 20 - spriteHeight; // if a grass sprite is shorter than it should be, align it to the bottom,
+                                           // instead of the top so the grass doesn't look like it's floating
+            Atlas.SetData(0, new Rectangle(offset, new Point(spriteWidth, spriteHeight)), grassData, 0, grassData.Length);
+        }
     }
 
-    /// <summary>Gets a random sprite from the sprite pool for a specified location.</summary>
-    /// <param name="locationName">The name of the location the grass is in.</param>
-    /// <returns>A random sprite from the sprite pool that can show up in the specified location.</returns>
-    public Texture2D GetRandomSprite(string locationName)
-    {
-        var sprites = GetSprites(locationName);
-        return sprites[Game1.random.Next(sprites.Count)];
-    }
+
+    /*********
+    ** Private Methods
+    *********/
+    /// <summary>Retrieves the sprite from an id.</summary>
+    /// <param name="id">The id of the sprite.</param>
+    /// <returns>The sprite with an id of <paramref name="id"/>.</returns>
+    private Texture2D GetSpriteById(int id) => id < DefaultGrassSprites.Count ? DefaultGrassSprites[id] : CustomGrassSprites[id - DefaultGrassSprites.Count].Sprite;
 }

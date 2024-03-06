@@ -7,6 +7,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.TerrainFeatures;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +16,7 @@ using System.Reflection;
 namespace MoreGrass;
 
 /// <summary>The mod entry point.</summary>
-public class ModEntry : Mod, IAssetEditor
+public class ModEntry : Mod
 {
     /*********
     ** Fields
@@ -57,11 +58,13 @@ public class ModEntry : Mod, IAssetEditor
         Instance = this;
         Config = this.Helper.ReadConfig<ModConfig>();
 
+        this.Helper.Events.Content.AssetRequested += OnAssetRequested;
         this.Helper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
 
         ApplyHarmonyPatches();
         LoadContentPacks();
-        LoadDefaultGrass(this.Helper.Content.Load<Texture2D>(Path.Combine("TerrainFeatures", "grass"), ContentSource.GameContent));
+        LoadDefaultGrass();
+        RegenerateAtlases();
 
         this.Monitor.Log($"A total of {SpringSpritePool.Count} spring sprites have been loaded");
         this.Monitor.Log($"A total of {SummerSpritePool.Count} summer sprites have been loaded");
@@ -74,23 +77,34 @@ public class ModEntry : Mod, IAssetEditor
         this.Monitor.Log($"Have default sprites been including in winter? {WinterSpritePool.IncludeDefaultGrass}");
     }
 
-    /// <inheritdoc/>
-    /// <remarks>This is used to detect when the grass sprite's are getting edited (so the local cache can be reconstructed with the edited version).</remarks>
-    public bool CanEdit<T>(IAssetInfo asset)
-    {
-        if (asset.AssetName.ToLower() == Path.Combine("terrainfeatures", "grass"))
-            ReloadDefaultSprites = true;
-
-        return false;
-    }
-
-    /// <inheritdoc/>
-    public void Edit<T>(IAssetData asset) { }
+    /// <summary>Retrieves a sprite pool for the specified season.</summary>
+    /// <param name="season">The season to get the respective sprite pool of.</param>
+    /// <returns>The sprite pool for the specified season.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="season"/> is an invalid value.</exception>
+    public SpritePool GetSpritePoolBySeason(Season season) =>
+        season switch
+        {
+            Season.Spring => SpringSpritePool,
+            Season.Summer => SummerSpritePool,
+            Season.Fall => FallSpritePool,
+            Season.Winter => WinterSpritePool,
+            _ => throw new ArgumentException("Invalid season value", nameof(season))
+        };
 
 
     /*********
     ** Private Methods 
     *********/
+    /// <summary>Invoked when an asset is requested.</summary>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="e">The event data.</param>
+    /// <remarks>This is used to detect when the grass sprite's are getting loaded (so the local cache can be reconstructed with the potentially edited version).</remarks>
+    private void OnAssetRequested(object sender, AssetRequestedEventArgs e)
+    {
+        if (e.Name.IsEquivalentTo("TerrainFeatures/grass"))
+            ReloadDefaultSprites = true;
+    }
+
     /// <summary>Invoked once per tick.</summary>
     /// <param name="sender">The event sender.</param>
     /// <param name="e">The event data.</param>
@@ -100,8 +114,10 @@ public class ModEntry : Mod, IAssetEditor
         if (!ReloadDefaultSprites)
             return;
 
-        LoadDefaultGrass(this.Helper.Content.Load<Texture2D>(Path.Combine("TerrainFeatures", "grass"), ContentSource.GameContent));
         ReloadDefaultSprites = false;
+
+        LoadDefaultGrass();
+        RegenerateAtlases();
     }
 
     /// <summary>Applies the harmony patches for patching game code.</summary>
@@ -123,7 +139,7 @@ public class ModEntry : Mod, IAssetEditor
 
         harmony.Patch(
             original: AccessTools.Method(typeof(Grass), nameof(Grass.loadSprite)),
-            postfix: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.LoadSpritePostFix)))
+            prefix: new HarmonyMethod(AccessTools.Method(typeof(GrassPatch), nameof(GrassPatch.LoadSpritePrefix)))
         );
 
         harmony.Patch(
@@ -187,13 +203,14 @@ public class ModEntry : Mod, IAssetEditor
                 includeDefaultGrass = false;
 
             // load seasonal grass sprites
-            foreach (var season in new[] { "spring", "summer", "fall", "winter" })
+            foreach (var season in Enum.GetValues<Season>())
             {
-                var seasonFolder = Path.Combine(contentPack.DirectoryPath, season);
+                var seasonName = season.ToString().ToLower();
+                var seasonFolder = Path.Combine(contentPack.DirectoryPath, seasonName);
                 if (!Directory.Exists(seasonFolder))
                     continue;
 
-                this.Monitor.Log($"Loading {season} files");
+                this.Monitor.Log($"Loading {seasonName} files");
                 LoadSpritesFromDirectory(seasonFolder, contentPack, contentPackConfig, season);
             }
         }
@@ -208,7 +225,7 @@ public class ModEntry : Mod, IAssetEditor
     /// <param name="directory">The absolute directory containing the sprites.</param>
     /// <param name="contentPack">The content pack currently being loaded.</param>
     /// <param name="season">The season to load the images into.</param>
-    private void LoadSpritesFromDirectory(string directory, IContentPack contentPack, ContentPackConfig contentPackConfig, string season)
+    private void LoadSpritesFromDirectory(string directory, IContentPack contentPack, ContentPackConfig contentPackConfig, Season season)
     {
         foreach (var file in Directory.GetFiles(directory))
         {
@@ -220,13 +237,14 @@ public class ModEntry : Mod, IAssetEditor
             }
 
             // get the grass texture
-            var relativePath = Path.Combine(season, Path.GetFileName(file));
+            var seasonName = season.ToString().ToLower();
+            var relativePath = Path.Combine(seasonName, Path.GetFileName(file));
 
             // a rare bug on Unix causes Directory.GetFiles(string) to return invalid files, it'll return a list of the expected files as well as a copy of each file but prefixed with "._"
             // these files don't actually exist and cause the below to throw an exception, I tried checking if the files started with "._" but that didn't work, in the end silently
             // catching the exception and ignoring it seemed to be the only way for it to work. silently catching shouldn't be a problem here as that shouldn't throw any other exception anyway
             Texture2D grassTexture;
-            try { grassTexture = contentPack.LoadAsset<Texture2D>(relativePath); }
+            try { grassTexture = contentPack.ModContent.Load<Texture2D>(relativePath); }
             catch { continue; }
 
             if (grassTexture == null)
@@ -244,36 +262,37 @@ public class ModEntry : Mod, IAssetEditor
 
             switch (season)
             {
-                case "spring": SpringSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
-                case "summer": SummerSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
-                case "fall": FallSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
-                case "winter": WinterSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
+                case Season.Spring: SpringSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
+                case Season.Summer: SummerSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
+                case Season.Fall: FallSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
+                case Season.Winter: WinterSpritePool.AddCustomGrass(grassTexture, whiteListedLocations, blackListedLocations); break;
             }
         }
     }
 
     /// <summary>Loads the default grass sprites into the sprite pools.</summary>
-    /// <param name="grassTexture">The grass texture.</param>
-    private void LoadDefaultGrass(Texture2D grassTexture)
+    private void LoadDefaultGrass()
     {
-        foreach (var season in new[] { "spring", "summer", "fall", "winter" })
+        var grassTexture = this.Helper.GameContent.Load<Texture2D>(Path.Combine("TerrainFeatures", "grass"));
+
+        foreach (var season in Enum.GetValues<Season>())
         {
             // clear any existing default grass sprites in the sprite pool
             switch (season)
             {
-                case "spring": SpringSpritePool.ClearDefaultGrass(); break;
-                case "summer": SummerSpritePool.ClearDefaultGrass(); break;
-                case "fall": FallSpritePool.ClearDefaultGrass(); break;
-                case "winter": WinterSpritePool.ClearDefaultGrass(); break;
+                case Season.Spring: SpringSpritePool.ClearDefaultGrass(); break;
+                case Season.Summer: SummerSpritePool.ClearDefaultGrass(); break;
+                case Season.Fall: FallSpritePool.ClearDefaultGrass(); break;
+                case Season.Winter: WinterSpritePool.ClearDefaultGrass(); break;
             }
 
             // calculate the default grass bounds
             var yOffset = 0;
             switch (season)
             {
-                case "summer": yOffset = 21; break;
-                case "fall": yOffset = 41; break;
-                case "winter": yOffset = 81; break;
+                case Season.Summer: yOffset = 21; break;
+                case Season.Fall: yOffset = 41; break;
+                case Season.Winter: yOffset = 81; break;
             }
             var grassBounds = new[] { new Rectangle(0, yOffset, 15, 20), new Rectangle(16, yOffset, 15, 20), new Rectangle(30, yOffset, 15, 20) };
 
@@ -289,12 +308,21 @@ public class ModEntry : Mod, IAssetEditor
                 // add sprite to correct sprite pool
                 switch (season)
                 {
-                    case "spring": SpringSpritePool.AddDefaultGrass(grassSprite); break;
-                    case "summer": SummerSpritePool.AddDefaultGrass(grassSprite); break;
-                    case "fall": FallSpritePool.AddDefaultGrass(grassSprite); break;
-                    case "winter": WinterSpritePool.AddDefaultGrass(grassSprite); break;
+                    case Season.Spring: SpringSpritePool.AddDefaultGrass(grassSprite); break;
+                    case Season.Summer: SummerSpritePool.AddDefaultGrass(grassSprite); break;
+                    case Season.Fall: FallSpritePool.AddDefaultGrass(grassSprite); break;
+                    case Season.Winter: WinterSpritePool.AddDefaultGrass(grassSprite); break;
                 }
             }
         }
+    }
+
+    /// <summary>Regenerates the atlases in all the sprite pools.</summary>
+    private void RegenerateAtlases()
+    {
+        SpringSpritePool.RegenerateAtlas();
+        SummerSpritePool.RegenerateAtlas();
+        FallSpritePool.RegenerateAtlas();
+        WinterSpritePool.RegenerateAtlas();
     }
 }

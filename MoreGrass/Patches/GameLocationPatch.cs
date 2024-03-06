@@ -9,17 +9,16 @@ internal class GameLocationPatch
     ** Internal Methods
     *********/
     /// <summary>The prefix for the <see cref="GameLocation.growWeedGrass(int)"/> method.</summary>
+    /// <param name="__instance">The current <see cref="GameLocation"/> instance that is being patched.</param>
     /// <returns><see langword="true"/> if the original method should get ran; otherwise, <see langword="false"/> (whether grass can grow).</returns>
     /// <remarks>This is used to determine if grass can grow based on the mod configuration.</remarks>
-    internal static bool GrowWeedGrassPrefix()
-    {
-        switch (Game1.currentSeason)
+    internal static bool GrowWeedGrassPrefix(GameLocation __instance) =>
+        __instance.GetSeason() switch
         {
-            case "spring": return ModEntry.Instance.Config.CanGrassGrowInSpring;
-            case "summer": return ModEntry.Instance.Config.CanGrassGrowInSummer;
-            case "fall": return ModEntry.Instance.Config.CanGrassGrowInFall;
-            case "winter": return ModEntry.Instance.Config.CanGrassGrowInWinter;
-            default: return false;
-        }
-    }
+            Season.Spring => ModEntry.Instance.Config.CanGrassGrowInSpring,
+            Season.Summer => ModEntry.Instance.Config.CanGrassGrowInSummer,
+            Season.Fall => ModEntry.Instance.Config.CanGrassGrowInFall,
+            Season.Winter => ModEntry.Instance.Config.CanGrassGrowInWinter,
+            _ => false
+        };
 }
