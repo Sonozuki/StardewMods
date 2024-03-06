@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace MoreGrass.Models;
+﻿namespace MoreGrass.Models;
 
 /// <summary>Represents the key used to cache results from <see cref="Utilities.ContainsLocation(string, List{string})"/>.</summary>
 /// <remarks>The reason a Tuple couldn't be used instead is because Mono doesn't have support for them causing the mod to be incompatible on Unix.</remarks>
 internal class ContainsLocationData
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The name of the location to check if it's in <see cref="Locations"/>.</summary>
     public string LocationName { get; set; }

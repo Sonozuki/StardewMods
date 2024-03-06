@@ -1,8 +1,4 @@
-﻿using MoreGrass.Models;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace MoreGrass;
+﻿namespace MoreGrass;
 
 /// <summary>Contains miscellaneous helper methods.</summary>
 public static class Utilities
@@ -11,16 +7,16 @@ public static class Utilities
     ** Fields
     *********/
     /// <summary>The cached results of <see cref="ShouldForceGrassToDefault(string)"/>.</summary>
-    private static readonly Dictionary<string, bool> ShouldForceGrassToDefaultCache = new Dictionary<string, bool>();
+    private static readonly Dictionary<string, bool> ShouldForceGrassToDefaultCache = [];
 
     /// <summary>The cached results of <see cref="ContainsLocation(string, List{string})"/>.</summary>
-    private static readonly Dictionary<ContainsLocationData, bool> ContainsLocationCache = new Dictionary<ContainsLocationData, bool>();
+    private static readonly Dictionary<ContainsLocationData, bool> ContainsLocationCache = [];
 
 
     /*********
     ** Public Methods
     *********/
-    /// <summary>Gets whether grass should be forced to default for a speicifed location.</summary>
+    /// <summary>Gets whether grass should be forced to default for a specified location.</summary>
     /// <param name="locationName">The name of the location to check.</param>
     /// <returns><see langword="true"/>, if the grass should be default grass; otherwise, <see langword="false"/>.</returns>
     public static bool ShouldForceGrassToDefault(string locationName)
@@ -32,8 +28,8 @@ public static class Utilities
             return forceDefaultGrass;
 
         // calculate whether grass should be forced and cache value
-        var whiteListLocations = ModEntry.Instance.Config.LocationsWhiteList ?? new List<string>();
-        var blackListLocations = ModEntry.Instance.Config.LocationsBlackList ?? new List<string>();
+        var whiteListLocations = ModEntry.Instance.Config.LocationsWhiteList ?? [];
+        var blackListLocations = ModEntry.Instance.Config.LocationsBlackList ?? [];
         forceDefaultGrass = (whiteListLocations.Count > 0 && !Utilities.ContainsLocation(locationName, whiteListLocations))
                          || (blackListLocations.Count > 0 && Utilities.ContainsLocation(locationName, blackListLocations));
 
@@ -60,9 +56,9 @@ public static class Utilities
         foreach (var location in locations.Select(location => location.ToLower()))
         {
             if (locationName == location
-                || (location.StartsWith("s:") && locationName.StartsWith(location.Substring(2)))
-                || (location.StartsWith("c:") && locationName.Contains(location.Substring(2)))
-                || (location.StartsWith("e:") && locationName.EndsWith(location.Substring(2))))
+                || (location.StartsWith("s:") && locationName.StartsWith(location[2..]))
+                || (location.StartsWith("c:") && locationName.Contains(location[2..]))
+                || (location.StartsWith("e:") && locationName.EndsWith(location[2..])))
             {
                 containsLocation = true;
                 break;

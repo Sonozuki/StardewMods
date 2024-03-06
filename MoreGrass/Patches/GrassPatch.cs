@@ -1,14 +1,4 @@
-﻿using HarmonyLib;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
-using StardewValley.TerrainFeatures;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-
-namespace MoreGrass.Patches;
+﻿namespace MoreGrass.Patches;
 
 /// <summary>Contains patches for patching game code in the <see cref="Grass"/> class.</summary>
 internal class GrassPatch

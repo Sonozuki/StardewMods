@@ -1,19 +1,4 @@
-﻿using HarmonyLib;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MoreGrass.Config;
-using MoreGrass.Patches;
-using StardewModdingAPI;
-using StardewModdingAPI.Events;
-using StardewValley;
-using StardewValley.TerrainFeatures;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-
-namespace MoreGrass;
+﻿namespace MoreGrass;
 
 /// <summary>The mod entry point.</summary>
 public class ModEntry : Mod
@@ -27,7 +12,7 @@ public class ModEntry : Mod
 
 
     /*********
-    ** Accessors 
+    ** Properties 
     *********/
     /// <summary>The mod configuration.</summary>
     public ModConfig Config { get; private set; }
@@ -254,11 +239,11 @@ public class ModEntry : Mod
             }
 
             // add the texture to the correct sprite pool
-            var whiteListedLocations = contentPackConfig.WhiteListedLocations ?? new List<string>();
-            whiteListedLocations.AddRange(contentPackConfig.WhiteListedGrass.FirstOrDefault(whiteListedGrass => whiteListedGrass.Key.ToLower() == new FileInfo(file).Name.ToLower()).Value ?? new List<string>());
+            var whiteListedLocations = contentPackConfig.WhiteListedLocations ?? [];
+            whiteListedLocations.AddRange(contentPackConfig.WhiteListedGrass.FirstOrDefault(whiteListedGrass => whiteListedGrass.Key.ToLower() == new FileInfo(file).Name.ToLower()).Value ?? []);
             
-            var blackListedLocations = contentPackConfig.BlackListedLocations ?? new List<string>();
-            blackListedLocations.AddRange(contentPackConfig.BlackListedGrass.FirstOrDefault(blackListedGrass => blackListedGrass.Key.ToLower() == new FileInfo(file).Name.ToLower()).Value ?? new List<string>());
+            var blackListedLocations = contentPackConfig.BlackListedLocations ?? [];
+            blackListedLocations.AddRange(contentPackConfig.BlackListedGrass.FirstOrDefault(blackListedGrass => blackListedGrass.Key.ToLower() == new FileInfo(file).Name.ToLower()).Value ?? []);
 
             switch (season)
             {

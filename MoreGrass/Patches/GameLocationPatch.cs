@@ -1,6 +1,4 @@
-﻿using StardewValley;
-
-namespace MoreGrass.Patches;
+﻿namespace MoreGrass.Patches;
 
 /// <summary>Contains patches for patching game code in the <see cref="GameLocation"/> class.</summary>
 internal class GameLocationPatch

@@ -1,14 +1,10 @@
-﻿using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-
-namespace MoreGrass.Models;
+﻿namespace MoreGrass.Models;
 
 /// <summary>Represents a grass sprite.</summary>
 public class GrassSprite
 {
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>The grass sprite.</summary>
     public Texture2D Sprite { get; }
@@ -30,7 +26,7 @@ public class GrassSprite
     public GrassSprite(Texture2D sprite, List<string> whiteListedLocations, List<string> blackListedLocations)
     {
         Sprite = sprite;
-        WhiteListedLocations = whiteListedLocations ?? new List<string>();
-        BlackListedLocations = blackListedLocations ?? new List<string>();
+        WhiteListedLocations = whiteListedLocations ?? [];
+        BlackListedLocations = blackListedLocations ?? [];
     }
 }

@@ -1,11 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MoreGrass.Models;
-using StardewValley;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace MoreGrass;
+﻿namespace MoreGrass;
 
 /// <summary>Represents a collection of a custom and base game sprites of grass for a season.</summary>
 public class SpritePool
@@ -22,17 +15,14 @@ public class SpritePool
     private bool _IncludeDefaultGrass;
 
     /// <summary>The default grass sprites in the sprite pool.</summary>
-    private readonly List<Texture2D> DefaultGrassSprites = new List<Texture2D>();
+    private readonly List<Texture2D> DefaultGrassSprites = [];
 
     /// <summary>The custom grass sprites in the sprite pool.</summary>
-    private readonly List<GrassSprite> CustomGrassSprites = new List<GrassSprite>();
-
-    /// <summary>The cached results of <see cref="GetSprites(string)"/>.</summary>
-    private readonly Dictionary<string, List<Texture2D>> GetSpriteCache = new Dictionary<string, List<Texture2D>>();
+    private readonly List<GrassSprite> CustomGrassSprites = [];
 
 
     /*********
-    ** Accessors
+    ** Properties
     *********/
     /// <summary>Gets the number of sprites in the sprite pool.</summary>
     public int Count => IncludeDefaultGrass ? DefaultGrassSprites.Count + CustomGrassSprites.Count : CustomGrassSprites.Count;
